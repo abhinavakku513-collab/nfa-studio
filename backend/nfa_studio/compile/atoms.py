@@ -160,7 +160,9 @@ def avoids(pattern: str, alphabet: tuple[str, ...]) -> Automaton:
 def _kmp_meaning(pattern: str, k: int) -> str:
     if k == 0:
         return f"no part of {pattern} matched"
-    return f"last {k} symbol{'s' if k > 1 else ''} match {pattern[:k]}, the start of {pattern}"
+    if k == 1:
+        return f"the last symbol is {pattern[0]}, the start of {pattern}"
+    return f"the last {k} symbols are {pattern[:k]}, the start of {pattern}"
 
 
 def symbol_parity(symbol: str, even: bool, alphabet: tuple[str, ...]) -> Automaton:

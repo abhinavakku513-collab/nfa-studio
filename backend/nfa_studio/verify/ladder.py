@@ -21,6 +21,9 @@ from nfa_studio.ir.oracle import matches
 from nfa_studio.ir.schema import IRDocument, Node, Not
 from nfa_studio.reference.equivalence import language_difference
 from nfa_studio.reference.to_dfa import NotTranslatable, reference_dfa
+from nfa_studio.render import RenderMismatch, ensure_consistent
+from nfa_studio.render.json_graph import diagram_graph
+from nfa_studio.render.table import build_table
 
 Level = Literal["V0", "V1", "V2", "V3"]
 Badge = Literal["grey", "amber", "green"]
@@ -106,10 +109,16 @@ def _climb(auto: Automaton, doc: IRDocument, automaton_id: str) -> Report:
     notes: list[str] = []
 
     # V0: structure. The model refuses malformed machines at construction, so this
-    # re-checks it and that the machine speaks the specification's alphabet.
+    # re-checks it, that the machine speaks the specification's alphabet, and that the
+    # table and diagram regenerate from δ with the automaton's hash.
     errors = structural_errors(auto)
     if auto.alphabet != doc.alphabet.symbols:
         errors.append(f"Σ is {auto.alphabet}, the specification's is {doc.alphabet.symbols}")
+    try:
+        views = (build_table(auto, show_dead=True), diagram_graph(auto, show_dead=True))
+        ensure_consistent(automaton_id, *views)
+    except RenderMismatch as exc:
+        errors.append(str(exc))
     if errors:
         raise VerificationFailed("V0", "; ".join(errors))
     checks.append(Check("V0", "Well-formed"))

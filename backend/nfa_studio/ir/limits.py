@@ -30,6 +30,11 @@ class Limits:
     trace_page_size: int = 200
     max_batch_size: int = 100
 
+    # spec §10.2: one Graphviz run. Sparse machines lay out in about a second even near
+    # the state cap; dense determinized ones near the cap can take a minute and get
+    # E_TIMEOUT instead.
+    render_timeout_seconds: float = 10.0
+
     # spec §8.2 and CLAUDE.md C7–C9: verification
     reference_max_states: int = 2_000
     bounded_max_words: int = 200_000
@@ -56,9 +61,10 @@ class StateLimitExceeded(Exception):
 class TimeBudgetExceeded(Exception):
     code: ClassVar[str] = "E_TIMEOUT"
 
-    def __init__(self, seconds: float) -> None:
+    def __init__(self, seconds: float, message: str | None = None) -> None:
         super().__init__(
-            f"The construction took longer than {seconds:g} s. "
+            message
+            or f"The construction took longer than {seconds:g} s. "
             "Simplify the description or split the request."
         )
         self.seconds = seconds

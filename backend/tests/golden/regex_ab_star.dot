@@ -1,0 +1,18 @@
+digraph nfa {
+  graph [rankdir=LR, bgcolor="transparent", nodesep=0.5, ranksep=0.7];
+  "__start" [shape=none, label="", width=0, height=0];
+  "q0" [id="s-q0", class="state", shape=circle, label="q0", tooltip="inside (ab)*: start"];
+  "q1" [id="s-q1", class="state", shape=circle, label="q1", tooltip="inside a: start"];
+  "q2" [id="s-q2", class="state accepting", shape=doublecircle, label="q2", tooltip="inside (ab)*: end"];
+  "q3" [id="s-q3", class="state", shape=circle, label="q3", tooltip="inside a: end"];
+  "q4" [id="s-q4", class="state", shape=circle, label="q4", tooltip="inside b: start"];
+  "q5" [id="s-q5", class="state", shape=circle, label="q5", tooltip="inside b: end"];
+  "__start" -> "q0" [id="start-edge"];
+  "q0" -> "q1" [id="ee-q0-q1", label="ε", style=dashed];
+  "q0" -> "q2" [id="ee-q0-q2", label="ε", style=dashed];
+  "q1" -> "q3" [id="e-q1-q3", label="a"];
+  "q3" -> "q4" [id="ee-q3-q4", label="ε", style=dashed];
+  "q4" -> "q5" [id="e-q4-q5", label="b"];
+  "q5" -> "q1" [id="ee-q5-q1", label="ε", style=dashed];
+  "q5" -> "q2" [id="ee-q5-q2", label="ε", style=dashed];
+}
