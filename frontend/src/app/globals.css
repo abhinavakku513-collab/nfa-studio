@@ -23,6 +23,7 @@
   --danger-soft: #fee2e2;
   --neutral-soft: #e2e8f0;
   --focus: #0d9488;
+  --witness: #d97706;
 }
 
 :root[data-theme="dark"] {
@@ -44,6 +45,7 @@
   --danger-soft: #2a1416;
   --neutral-soft: #1e293b;
   --focus: #2dd4bf;
+  --witness: #fbbf24;
 }
 
 @theme inline {
@@ -130,4 +132,144 @@ body {
   fill: var(--accent-soft);
   stroke: var(--accent);
   stroke-width: 2.5;
+}
+
+/* Simulation (CLAUDE.md "Simulation animation"). Active states fill with the accent and
+   get a bold outline, so the state is not carried by colour alone; states that drop out
+   fade back over 200ms. Only the inner circle of an accepting state is filled. */
+.diagram .state ellipse,
+.diagram .state text {
+  transition:
+    fill 200ms ease,
+    stroke 200ms ease,
+    stroke-width 200ms ease;
+}
+
+.diagram .state.is-active ellipse {
+  stroke: var(--accent-strong);
+  stroke-width: 3;
+}
+
+.diagram .state.is-active ellipse:first-of-type {
+  fill: var(--accent);
+}
+
+.diagram .state.is-active text {
+  fill: var(--accent-ink);
+  font-weight: 600;
+}
+
+.diagram .edge.is-witness path {
+  stroke: var(--witness);
+  stroke-width: 3;
+}
+
+.diagram .edge.is-witness polygon {
+  fill: var(--witness);
+  stroke: var(--witness);
+}
+
+.diagram .edge.is-witness text {
+  fill: var(--witness);
+  font-weight: 600;
+}
+
+.sim-layer {
+  pointer-events: none;
+}
+
+.sim-token {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.sim-ripple,
+.sim-pulse,
+.sim-dropout {
+  fill: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.sim-ripple {
+  stroke: var(--accent);
+  stroke-width: 2;
+  animation: sim-ripple 500ms ease-out forwards;
+}
+
+.sim-pulse {
+  stroke: var(--accent-strong);
+  stroke-width: 3;
+  animation: sim-pulse 900ms ease-out forwards;
+}
+
+.sim-dropout {
+  stroke: var(--danger);
+  stroke-width: 3;
+  animation: sim-dropout 200ms ease-out forwards;
+}
+
+.sim-shake {
+  animation: sim-shake 320ms ease-in-out;
+}
+
+@keyframes sim-ripple {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes sim-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes sim-dropout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sim-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram .state ellipse,
+  .diagram .state text {
+    transition: none;
+  }
+
+  .sim-shake {
+    animation: none;
+  }
 }

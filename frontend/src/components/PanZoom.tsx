@@ -4,7 +4,9 @@ import { Maximize, Minus, Plus } from "lucide-react";
 import {
   type KeyboardEvent,
   type PointerEvent,
+  type ReactNode,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -34,17 +36,22 @@ function zoomAt(
  * The inlined diagram with pan and zoom: wheel or buttons to zoom, drag to pan, and from
  * the keyboard + / − to zoom, arrow keys to pan and 0 to fit. `svg` must already be
  * sanitised. Hovering a state reports its name; `highlight` outlines one state.
+ * `onSvg` receives the inlined <svg> element, `overlay` is drawn above the diagram.
  */
 export function PanZoom({
   svg,
   label,
   highlight,
   onHover,
+  onSvg,
+  overlay,
 }: {
   svg: string;
   label: string;
   highlight: string | null;
   onHover: (state: string | null) => void;
+  onSvg?: (element: SVGSVGElement | null) => void;
+  overlay?: ReactNode;
 }) {
   const [view, setView] = useState<Viewport>(FIT);
   const viewport = useRef<HTMLDivElement>(null);
@@ -77,6 +84,11 @@ export function PanZoom({
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
   }, []);
+
+  useLayoutEffect(() => {
+    onSvg?.(content.current?.querySelector("svg") ?? null);
+    return () => onSvg?.(null);
+  }, [svg, onSvg]);
 
   useEffect(() => {
     const root = content.current;
@@ -209,6 +221,7 @@ export function PanZoom({
           }}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
+        {overlay}
       </div>
     </div>
   );

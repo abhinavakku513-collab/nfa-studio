@@ -22,6 +22,9 @@ export type TableModel = Schemas["TableModel"];
 export type GraphModel = Schemas["GraphModel"];
 export type GraphNode = Schemas["GraphNodeModel"];
 export type LogEntry = Schemas["LogEntryModel"];
+export type SimulateResponse = Schemas["SimulateResponse"];
+export type StepModel = Schemas["StepModel"];
+export type BatchResult = Schemas["BatchResult"];
 type ErrorModel = Schemas["ErrorModel"];
 
 /** A JSON triple [string, string, string[]], checked rather than cast. */
@@ -38,6 +41,19 @@ export function triple(
   }
   throw new Error(
     `Expected [string, string, string[]], got ${JSON.stringify(entry)}`,
+  );
+}
+
+/** A transition [source, symbol, target]; ε moves carry the symbol "ε". */
+export type Edge = readonly [string, string, string];
+
+/** A JSON edge triple from a trace or witness, checked rather than cast. */
+export function edge(entry: readonly string[]): Edge {
+  if (entry.length === 3) {
+    return [entry[0], entry[1], entry[2]];
+  }
+  throw new Error(
+    `Expected [string, string, string], got ${JSON.stringify(entry)}`,
   );
 }
 

@@ -1,14 +1,16 @@
 "use client";
 
 import clsx from "clsx";
-import { LoaderCircle } from "lucide-react";
+import { CircleSlash, LoaderCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { GraphNode } from "@/lib/api/client";
-import { useExplore } from "@/lib/studio/context";
+import { measureDiagram } from "@/lib/sim/geometry";
+import { useExplore, useSimulator } from "@/lib/studio/context";
 import { viewKey } from "@/lib/studio/explore";
 import { download, renderPng, sanitizeSvg, standaloneSvg } from "@/lib/svg";
 import { ErrorNotice } from "./ErrorNotice";
 import { PanZoom } from "./PanZoom";
+import { Simulator } from "./Simulator";
 import { ExportButtons, ViewToggles } from "./ViewToggles";
 
 function Legend({
@@ -76,6 +78,8 @@ export function DiagramTab({
   const loadGraph = useExplore((explore) => explore.loadGraph);
   const dotText = useExplore((explore) => explore.dotText);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [root, setRoot] = useState<SVGSVGElement | null>(null);
+  const noneActive = useSimulator((sim) => sim.settled?.active.length === 0);
 
   useEffect(() => {
     void loadSvg(id);
@@ -93,7 +97,19 @@ export function DiagramTab({
     }
   }, [svgEntry]);
 
-  const nodes = graphEntry?.status === "ready" ? graphEntry.data.nodes : [];
+  const graph = graphEntry?.status === "ready" ? graphEntry.data : null;
+  const nodes = graph?.nodes ?? [];
+  const idMap = useMemo(() => graph?.id_map.transitions ?? {}, [graph]);
+  const accepting = useMemo(
+    () => new Set(graph?.nodes.filter((n) => n.accepting).map((n) => n.name)),
+    [graph],
+  );
+  // The trace follows the machine as built; the ε-free drawing has other edges.
+  const asBuilt = !(hasEpsilon && view.epsFree);
+  const geometry = useMemo(
+    () => (root && asBuilt ? measureDiagram(root) : null),
+    [root, asBuilt],
+  );
   const hoveredNode = nodes.find((node) => node.name === hovered);
   const name = `nfa-${id.replace(/^sha256:/, "").slice(0, 12)}`;
 
@@ -145,6 +161,18 @@ export function DiagramTab({
             label="State diagram"
             highlight={hovered}
             onHover={setHovered}
+            onSvg={setRoot}
+            overlay={
+              noneActive && (
+                <p
+                  role="status"
+                  className="absolute inset-x-4 top-4 flex items-center gap-2 rounded-md border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger"
+                >
+                  <CircleSlash aria-hidden className="size-4 shrink-0" />
+                  No active states — the input is rejected from here on.
+                </p>
+              )
+            }
           />
           <p aria-live="polite" className="min-h-5 text-sm text-muted">
             {hoveredNode ? (
@@ -166,6 +194,18 @@ export function DiagramTab({
           Laying out the diagram…
         </p>
       )}
+
+      <Simulator
+        automatonId={id}
+        geometry={geometry}
+        idMap={idMap}
+        accepting={accepting}
+        note={
+          asBuilt
+            ? null
+            : "The diagram shows the ε-free version, but the simulation runs the ε-NFA as built, so its moves are not drawn. Turn off “ε-free version” to watch them."
+        }
+      />
 
       {graphEntry?.status === "ready" && (
         <>

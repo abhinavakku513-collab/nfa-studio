@@ -98,8 +98,8 @@ export function Switch({
       <span
         aria-hidden
         className={clsx(
-          "absolute top-0.5 size-3.5 rounded-full bg-surface shadow transition-transform motion-reduce:transition-none",
-          checked ? "translate-x-4" : "translate-x-0.5",
+          "absolute left-0 top-0.5 size-3.5 rounded-full bg-surface shadow transition-transform motion-reduce:transition-none",
+          checked ? "translate-x-4.5" : "translate-x-0.5",
         )}
       />
     </button>
