@@ -29,8 +29,28 @@ from nfa_studio.verify.ladder import Report, VerificationFailed, verify
 API_VERSION: Final = "v1"
 logger = logging.getLogger("nfa_studio.api")
 
+
+class ErrorModel(BaseModel):
+    code: str
+    message: str
+    detail: dict[str, Any]
+
+
+class ErrorBody(BaseModel):
+    """Every error response (spec §11.2); `message` names the reason and the next action."""
+
+    error: ErrorModel
+
+
+# Declared so the generated client types cover failures as well as successes.
+ERROR_RESPONSES: Final[dict[int | str, dict[str, Any]]] = {
+    status: {"model": ErrorBody} for status in (404, 413, 422, 429, 500, 504)
+}
+
 public = APIRouter(prefix=f"/{API_VERSION}")
-api = APIRouter(prefix=f"/{API_VERSION}", dependencies=[Depends(rate_limit)])
+api = APIRouter(
+    prefix=f"/{API_VERSION}", dependencies=[Depends(rate_limit)], responses=ERROR_RESPONSES
+)
 
 Edge = tuple[str, str, str]
 
@@ -217,12 +237,6 @@ class SimulateResponse(BaseModel):
 
 class BatchRequest(_Request):
     words: list[str]
-
-
-class ErrorModel(BaseModel):
-    code: str
-    message: str
-    detail: dict[str, Any]
 
 
 class BatchResult(BaseModel):
