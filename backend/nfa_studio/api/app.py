@@ -3,7 +3,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from nfa_studio.api.routes import router
+from nfa_studio.api import errors
+from nfa_studio.api.routes import api, public
 
 app = FastAPI(title="NFA Studio", version="1.0.0")
 
@@ -14,4 +15,6 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
-app.include_router(router)
+errors.install(app)
+app.include_router(public)
+app.include_router(api)

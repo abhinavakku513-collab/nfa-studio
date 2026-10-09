@@ -30,6 +30,14 @@ class Limits:
     trace_page_size: int = 200
     max_batch_size: int = 100
 
+    # spec §6.3, §13 and CLAUDE.md C13: interpretation, sessions and the API
+    max_text_len: int = 500
+    max_questions: int = 2
+    session_ttl_seconds: float = 30 * 60
+    automaton_ttl_seconds: float = 30 * 60
+    rate_limit_burst: int = 60
+    rate_limit_per_second: float = 1.0
+
     # spec §10.2: one Graphviz run. Sparse machines lay out in about a second even near
     # the state cap; dense determinized ones near the cap can take a minute and get
     # E_TIMEOUT instead.

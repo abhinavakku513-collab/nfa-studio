@@ -1,0 +1,289 @@
+{
+  "benchmark": "benchmark_v1",
+  "mode": "rule-only",
+  "passed": 40,
+  "total": 40,
+  "score": 1.0,
+  "entries": [
+    {
+      "id": 1,
+      "prompt": "binary strings ending in 01",
+      "expected": "ir",
+      "got": "ir {\"type\": \"ends_with\", \"pattern\": \"01\"}",
+      "passed": true
+    },
+    {
+      "id": 2,
+      "prompt": "strings over {a,b,c} starting with ca",
+      "expected": "ir",
+      "got": "ir {\"type\": \"starts_with\", \"pattern\": \"ca\"}",
+      "passed": true
+    },
+    {
+      "id": 3,
+      "prompt": "words containing the substring abba over {a,b}",
+      "expected": "ir",
+      "got": "ir {\"type\": \"contains\", \"pattern\": \"abba\"}",
+      "passed": true
+    },
+    {
+      "id": 4,
+      "prompt": "even number of 1s",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_parity\", \"symbol\": \"1\", \"parity\": \"even\"}",
+      "passed": true
+    },
+    {
+      "id": 5,
+      "prompt": "exactly three b's over {a,b}",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"b\", \"op\": \"eq\", \"n\": 3}",
+      "passed": true
+    },
+    {
+      "id": 6,
+      "prompt": "at most two a's",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"a\", \"op\": \"le\", \"n\": 2}",
+      "passed": true
+    },
+    {
+      "id": 7,
+      "prompt": "strings that contain two a's",
+      "expected": "clarification",
+      "got": "clarification count_exact_or_at_least",
+      "passed": true
+    },
+    {
+      "id": 8,
+      "prompt": "contains aba twice",
+      "expected": "clarification",
+      "got": "clarification overlap",
+      "passed": true
+    },
+    {
+      "id": 9,
+      "prompt": "no two consecutive 1s",
+      "expected": "ir",
+      "got": "ir {\"type\": \"avoids\", \"pattern\": \"11\"}",
+      "passed": true
+    },
+    {
+      "id": 10,
+      "prompt": "length divisible by 3 over {0,1}",
+      "expected": "ir",
+      "got": "ir {\"type\": \"length_mod\", \"m\": 3, \"r\": 0}",
+      "passed": true
+    },
+    {
+      "id": 11,
+      "prompt": "starts with a AND ends with b",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"b\"}, {\"type\": \"starts_with\", \"pattern\": \"a\"}]}",
+      "passed": true
+    },
+    {
+      "id": 12,
+      "prompt": "contains 00 OR ends with 11",
+      "expected": "ir",
+      "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"contains\", \"pattern\": \"00\"}, {\"type\": \"ends_with\", \"pattern\": \"11\"}]}",
+      "passed": true
+    },
+    {
+      "id": 13,
+      "prompt": "even number of a's but not containing bb",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"avoids\", \"pattern\": \"bb\"}, {\"type\": \"symbol_parity\", \"symbol\": \"a\", \"parity\": \"even\"}]}",
+      "passed": true
+    },
+    {
+      "id": 14,
+      "prompt": "(ab)* over {a,b}",
+      "expected": "ir",
+      "got": "ir {\"type\": \"regex\", \"expr\": \"(ab)*\"}",
+      "passed": true
+    },
+    {
+      "id": 15,
+      "prompt": "strings equal to one of: 0, 10, 110",
+      "expected": "ir",
+      "got": "ir {\"type\": \"literal_set\", \"words\": [\"0\", \"10\", \"110\"]}",
+      "passed": true
+    },
+    {
+      "id": 16,
+      "prompt": "same number of a's and b's",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 17,
+      "prompt": "aⁿbⁿ for all n",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 18,
+      "prompt": "palindromes over {0,1}",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 19,
+      "prompt": "strings whose length is prime",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 20,
+      "prompt": "strings that are good",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_FEATURE (no alternative)",
+      "passed": true
+    },
+    {
+      "id": 21,
+      "prompt": "strings over {a,b} of odd length",
+      "expected": "ir",
+      "got": "ir {\"type\": \"length_mod\", \"m\": 2, \"r\": 1}",
+      "passed": true
+    },
+    {
+      "id": 22,
+      "prompt": "binary strings that start with 1 and have length divisible by 4",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"length_mod\", \"m\": 4, \"r\": 0}, {\"type\": \"starts_with\", \"pattern\": \"1\"}]}",
+      "passed": true
+    },
+    {
+      "id": 23,
+      "prompt": "strings over {a,b} with at least three a's",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"a\", \"op\": \"ge\", \"n\": 3}",
+      "passed": true
+    },
+    {
+      "id": 24,
+      "prompt": "binary strings that do not end with 00",
+      "expected": "ir",
+      "got": "ir {\"type\": \"not\", \"child\": {\"type\": \"ends_with\", \"pattern\": \"00\"}}",
+      "passed": true
+    },
+    {
+      "id": 25,
+      "prompt": "strings over {x,y,z} containing xyz",
+      "expected": "ir",
+      "got": "ir {\"type\": \"contains\", \"pattern\": \"xyz\"}",
+      "passed": true
+    },
+    {
+      "id": 26,
+      "prompt": "strings over {a,b} in which every a is immediately followed by b",
+      "expected": "ir",
+      "got": "ir {\"type\": \"star\", \"child\": {\"type\": \"literal_set\", \"words\": [\"ab\", \"b\"]}}",
+      "passed": true
+    },
+    {
+      "id": 27,
+      "prompt": "strings over {0,1} with an odd number of 0s and an even number of 1s",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"symbol_parity\", \"symbol\": \"1\", \"parity\": \"even\"}, {\"type\": \"symbol_parity\", \"symbol\": \"0\", \"parity\": \"odd\"}]}",
+      "passed": true
+    },
+    {
+      "id": 28,
+      "prompt": "strings over {a,b} that start and end with the same symbol",
+      "expected": "ir",
+      "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"and\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"a\"}, {\"type\": \"starts_with\", \"pattern\": \"a\"}]}, {\"type\": \"and\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"b\"}, {\"type\": \"starts_with\", \"pattern\": \"b\"}]}]}",
+      "passed": true
+    },
+    {
+      "id": 29,
+      "prompt": "strings over {a,b,c} that do not contain c",
+      "expected": "ir",
+      "got": "ir {\"type\": \"avoids\", \"pattern\": \"c\"}",
+      "passed": true
+    },
+    {
+      "id": 30,
+      "prompt": "binary numbers divisible by 3",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_FEATURE (no alternative)",
+      "passed": true
+    },
+    {
+      "id": 31,
+      "prompt": "strings over {a,b} with exactly two occurrences of ab",
+      "expected": "ir",
+      "got": "ir {\"type\": \"pattern_count\", \"pattern\": \"ab\", \"op\": \"eq\", \"n\": 2, \"overlap\": false}",
+      "passed": true
+    },
+    {
+      "id": 32,
+      "prompt": "strings over {a,b} that contain aa twice",
+      "expected": "clarification",
+      "got": "clarification overlap",
+      "passed": true
+    },
+    {
+      "id": 33,
+      "prompt": "a*b*",
+      "expected": "ir",
+      "got": "ir {\"type\": \"regex\", \"expr\": \"a*b*\"}",
+      "passed": true
+    },
+    {
+      "id": 34,
+      "prompt": "strings over {0,1} of length at most 3",
+      "expected": "ir",
+      "got": "ir {\"type\": \"concat\", \"children\": [{\"type\": \"literal_set\", \"words\": [\"\", \"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"\", \"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"\", \"0\", \"1\"]}]}",
+      "passed": true
+    },
+    {
+      "id": 35,
+      "prompt": "strings over {a,b} with more a's than b's",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 36,
+      "prompt": "strings of the form ww over {a,b}",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 37,
+      "prompt": "balanced parentheses",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true
+    },
+    {
+      "id": 38,
+      "prompt": "strings over {a,b} ending with ab or ba",
+      "expected": "ir",
+      "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"ab\"}, {\"type\": \"ends_with\", \"pattern\": \"ba\"}]}",
+      "passed": true
+    },
+    {
+      "id": 39,
+      "prompt": "binary strings whose third symbol from the end is 1",
+      "expected": "ir",
+      "got": "ir {\"type\": \"concat\", \"children\": [{\"type\": \"star\", \"child\": {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}}, {\"type\": \"literal_set\", \"words\": [\"1\"]}, {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}]}",
+      "passed": true
+    },
+    {
+      "id": 40,
+      "prompt": "strings over {a,b} that contain ab but do not end with b",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"contains\", \"pattern\": \"ab\"}, {\"type\": \"not\", \"child\": {\"type\": \"ends_with\", \"pattern\": \"b\"}}]}",
+      "passed": true
+    }
+  ]
+}
