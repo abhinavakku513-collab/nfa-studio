@@ -62,6 +62,8 @@ class Clause:
 
 @dataclass(frozen=True)
 class Draft:
+    """A parsed description; `confidence` says how fully the rules read the text."""
+
     ir: dict[str, object]
     confidence: float
 
@@ -192,7 +194,7 @@ def _parse_body(body: str) -> tuple[Clause, float]:
     while joins and not _strip_filler(parts[0]):
         parts, joins = parts[1:], joins[1:]
     if not joins:
-        raise _not_interpretable(body)
+        raise not_interpretable(body)
     clauses: list[Clause] = []
     confidence = 1.0
     for part in parts:
@@ -202,7 +204,7 @@ def _parse_body(body: str) -> tuple[Clause, float]:
             clause = clauses[-1].respell(bare[1])
             confidence -= ELLIPSIS_PENALTY
         if clause is None:
-            raise _not_interpretable(body)
+            raise not_interpretable(body)
         clauses.append(clause)
     if len(set(joins)) == 1:
         return _join(joins[0], clauses), confidence
@@ -231,11 +233,12 @@ def _merged(tree: object, clauses: list[Clause]) -> Clause:
     )
 
 
-def _not_interpretable(text: str) -> UnsupportedRequest:
+def not_interpretable(text: str, also: str = "") -> UnsupportedRequest:
+    """C11's refusal; `also` adds why, such as the language model's verdict."""
     examples = "; ".join(f"'{e}'" for e in lx.EXAMPLE_PROMPTS)
     return UnsupportedRequest(
         "not_interpretable",
-        f"Could not read '{text}' as a description of strings. Use phrases such as "
+        f"Could not read '{text}' as a description of strings{also}. Use phrases such as "
         f"'starts with', 'ends with', 'contains' or 'even number of', for example {examples}.",
         lx.EXAMPLE_PROMPTS,
     )

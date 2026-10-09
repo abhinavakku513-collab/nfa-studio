@@ -223,6 +223,13 @@ wording hints at more symbols, §6.2). At most two questions per request; if a
 third would be needed, return `status: "edit_ir"` with the partial IR so the UI
 shows the manual IR form. Sessions: 30-minute TTL.
 
+**C14. LLM tier without temperature (spec §6.1, §13).** Current Claude models reject
+`temperature` and the other sampling parameters with HTTP 400, so the tier sends
+none. `NFA_LLM_MODEL` defaults to `claude-opus-5-5` at low effort. Reproducibility
+comes from the pinned model id, the cache by normalised text, and the same
+validation and normalisation as Tier 1. The IR schema goes in the prompt rather
+than in structured outputs, which do not accept recursive schemas.
+
 ## Diagram contract (§10.2)
 
 The server renders DOT → SVG with Graphviz and gives every element a stable id

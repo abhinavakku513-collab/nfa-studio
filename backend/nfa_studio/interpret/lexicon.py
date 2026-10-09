@@ -73,6 +73,10 @@ ASSUMPTIONS: Final = {
     "avoids_consecutive": ("'No two consecutive x' is read as: does not contain xx.", True),
     "length_includes_empty": ("Length 0 (the empty string ε) is included.", True),
     "same_symbol_nonempty": ("Only non-empty strings are considered; ε is excluded.", True),
+    "llm_interpreted": (
+        "This reading was proposed by a language model; check it before building.",
+        False,
+    ),
     "no_overlap_possible": (
         "Occurrences of the pattern cannot overlap, so no choice is needed.",
         False,

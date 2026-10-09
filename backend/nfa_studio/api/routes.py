@@ -10,7 +10,7 @@ from typing import Any, Final, Literal
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, ConfigDict, Field
 
-from nfa_studio.api.deps import Automata, BySpec, Sessions, StoredAutomaton, rate_limit
+from nfa_studio.api.deps import LLM, Automata, BySpec, Sessions, StoredAutomaton, rate_limit
 from nfa_studio.api.errors import ApiError, to_api_error
 from nfa_studio.compile import compile
 from nfa_studio.core.model import Automaton, canonical_json, display_symbol, model_hash
@@ -264,7 +264,7 @@ def capabilities() -> Capabilities:
 
 
 @api.post("/interpret")
-def interpret_text(body: InterpretRequest, sessions: Sessions) -> InterpretResponse:
+def interpret_text(body: InterpretRequest, sessions: Sessions, llm: LLM) -> InterpretResponse:
     """Text in; a confirmed-ready IR, one clarification question, or the manual form."""
     if len(body.text) > LIMITS.max_text_len:
         raise ApiError(
@@ -275,7 +275,7 @@ def interpret_text(body: InterpretRequest, sessions: Sessions) -> InterpretRespo
         )
     if body.session_id:
         sessions.delete(body.session_id)
-    return _respond(clarify.open_draft(interpret(body.text), body.text), sessions)
+    return _respond(clarify.open_draft(interpret(body.text, llm), body.text), sessions)
 
 
 @api.post("/interpret/{session_id}/answer")
