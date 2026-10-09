@@ -5,13 +5,20 @@ import { createStudioStore } from "./store";
 
 describe("studio store", () => {
   it("a ready reading moves to Confirm", async () => {
-    const { api } = fakeServer({ "POST /v1/interpret": () => ({ json: READY }) });
+    const { api } = fakeServer({
+      "POST /v1/interpret": () => ({ json: READY }),
+    });
     const store = createStudioStore(api);
     store.getState().setText("exactly two a's");
     await store.getState().interpret();
     const state = store.getState();
     expect(state.stage).toBe("confirming");
-    expect(state.ir?.language).toEqual({ type: "symbol_count", symbol: "a", op: "eq", n: 2 });
+    expect(state.ir?.language).toEqual({
+      type: "symbol_count",
+      symbol: "a",
+      op: "eq",
+      n: 2,
+    });
     expect(state.busy).toBeNull();
   });
 
@@ -33,7 +40,10 @@ describe("studio store", () => {
               { id: "edit", label: "Edit manually" },
             ],
           },
-          partial_ir: { alphabet: { symbols: ["a", "b"] }, language: { type: "pattern_count", pattern: "aba" } },
+          partial_ir: {
+            alphabet: { symbols: ["a", "b"] },
+            language: { type: "pattern_count", pattern: "aba" },
+          },
         },
       }),
       "POST /v1/interpret/s_1/answer": () => ({ json: READY }),
@@ -51,10 +61,18 @@ describe("studio store", () => {
   });
 
   it("edit_ir opens the manual form with the partial IR", async () => {
-    const partial = { alphabet: { symbols: ["a", "b"] }, language: { type: "and", children: [] } };
+    const partial = {
+      alphabet: { symbols: ["a", "b"] },
+      language: { type: "and", children: [] },
+    };
     const { api } = fakeServer({
       "POST /v1/interpret": () => ({
-        json: { status: "edit_ir", confidence: 1, partial_ir: partial, missing: ["overlap", "overlap", "grouping"] },
+        json: {
+          status: "edit_ir",
+          confidence: 1,
+          partial_ir: partial,
+          missing: ["overlap", "overlap", "grouping"],
+        },
       }),
     });
     const store = createStudioStore(api);
@@ -66,13 +84,21 @@ describe("studio store", () => {
   });
 
   it("an alphabet chosen first is stated in the text and kept in the IR", async () => {
-    const { api, requests } = fakeServer({ "POST /v1/interpret": () => ({ json: READY }) });
+    const { api, requests } = fakeServer({
+      "POST /v1/interpret": () => ({ json: READY }),
+    });
     const store = createStudioStore(api);
     store.getState().setText("exactly two a's");
     store.getState().setAlphabet(["a", "b", "c"]);
     await store.getState().interpret();
-    expect(requests[0].body).toEqual({ text: "exactly two a's over {a, b, c}", session_id: null });
-    expect(store.getState().ir?.alphabet).toEqual({ symbols: ["a", "b", "c"], source: "user" });
+    expect(requests[0].body).toEqual({
+      text: "exactly two a's over {a, b, c}",
+      session_id: null,
+    });
+    expect(store.getState().ir?.alphabet).toEqual({
+      symbols: ["a", "b", "c"],
+      source: "user",
+    });
   });
 
   it("building returns the summary; editing afterwards clears it", async () => {
@@ -96,7 +122,12 @@ describe("studio store", () => {
     const { api } = fakeServer({
       "POST /v1/interpret": () => ({ json: READY }),
       "POST /v1/automata": () =>
-        problem("E_VERIFY_FAILED", "V1 failed: … The automaton is not shown.", { level: "V1", counterexample: "a" }, 500),
+        problem(
+          "E_VERIFY_FAILED",
+          "V1 failed: … The automaton is not shown.",
+          { level: "V1", counterexample: "a" },
+          500,
+        ),
     });
     const store = createStudioStore(api);
     store.getState().setText("exactly two a's");
@@ -104,14 +135,19 @@ describe("studio store", () => {
     await store.getState().build();
     const state = store.getState();
     expect(state.problemStep).toBe("build");
-    expect(state.problem).toMatchObject({ code: "E_VERIFY_FAILED", status: 500, detail: { counterexample: "a" } });
+    expect(state.problem).toMatchObject({
+      code: "E_VERIFY_FAILED",
+      status: 500,
+      detail: { counterexample: "a" },
+    });
     expect(state.summary).toBeNull();
   });
 
   it("an unreachable server is a problem of its own", async () => {
     const api = createApi({
       baseUrl: "http://studio.test",
-      fetch: (() => Promise.reject(new TypeError("Failed to fetch"))) as typeof fetch,
+      fetch: (() =>
+        Promise.reject(new TypeError("Failed to fetch"))) as typeof fetch,
     });
     const store = createStudioStore(api);
     store.getState().setText("anything");

@@ -1,38 +1,63 @@
 import { type Api, createApi } from "@/lib/api/client";
 
-export type Reply = { status?: number; json: unknown };
-export type Handler = (body: unknown) => Reply | Promise<Reply>;
+/** A JSON body, or `text` sent as `type` (SVG, DOT, CSV…). */
+export type Reply =
+  | { status?: number; json: unknown }
+  | { status?: number; text: string; type: string };
+export type Handler = (body: unknown, url: URL) => Reply | Promise<Reply>;
 
 /**
- * A stand-in for the backend: "POST /v1/interpret" → handler. Every request is
- * recorded so a test can check what the page sent.
+ * A stand-in for the backend: "POST /v1/interpret" → handler, which also gets the URL
+ * for its query string. Every request is recorded so a test can check what the page sent.
  */
 export function fakeServer(routes: Record<string, Handler>) {
   const requests: { route: string; body: unknown }[] = [];
-  const fetchImpl = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  const fetchImpl = async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
     const request = input instanceof Request ? input : new Request(input, init);
-    const route = `${request.method} ${new URL(request.url).pathname}`;
+    const url = new URL(request.url);
+    const route = `${request.method} ${decodeURIComponent(url.pathname)}`;
     const text = await request.text();
     const body: unknown = text ? JSON.parse(text) : null;
     requests.push({ route, body });
     const handler = routes[route];
     if (!handler) {
-      return new Response(JSON.stringify({ error: { code: "E_TEST", message: `no route ${route}`, detail: {} } }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: { code: "E_TEST", message: `no route ${route}`, detail: {} },
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
-    const reply = await handler(body);
-    return new Response(JSON.stringify(reply.json), {
-      status: reply.status ?? 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    const reply = await handler(body, url);
+    return "text" in reply
+      ? new Response(reply.text, {
+          status: reply.status ?? 200,
+          headers: { "Content-Type": reply.type },
+        })
+      : new Response(JSON.stringify(reply.json), {
+          status: reply.status ?? 200,
+          headers: { "Content-Type": "application/json" },
+        });
   };
-  const api: Api = createApi({ baseUrl: "http://studio.test", fetch: fetchImpl as typeof fetch });
+  const api: Api = createApi({
+    baseUrl: "http://studio.test",
+    fetch: fetchImpl as typeof fetch,
+  });
   return { api, requests };
 }
 
-export function problem(code: string, message: string, detail: Record<string, unknown> = {}, status = 422): Reply {
+export function problem(
+  code: string,
+  message: string,
+  detail: Record<string, unknown> = {},
+  status = 422,
+): Reply {
   return { status, json: { error: { code, message, detail } } };
 }
 
@@ -77,8 +102,16 @@ export const READY = {
   status: "ready",
   confidence: 1,
   ir: ir({ type: "symbol_count", symbol: "a", op: "eq", n: 2 }, [
-    { id: "alphabet_inferred", text: "The alphabet was inferred from the description.", editable: true },
-    { id: "zero_is_even", text: "Zero occurrences counts as even.", editable: false },
+    {
+      id: "alphabet_inferred",
+      text: "The alphabet was inferred from the description.",
+      editable: true,
+    },
+    {
+      id: "zero_is_even",
+      text: "Zero occurrences counts as even.",
+      editable: false,
+    },
   ]),
 };
 
@@ -100,7 +133,13 @@ export const SUMMARY = {
     property_runs: 500,
     notes: [],
   },
-  explanation: [{ node: "symbol_count", text: "symbol_count a eq 2: one state per number of a seen.", states: 4 }],
+  explanation: [
+    {
+      node: "symbol_count",
+      text: "symbol_count a eq 2: one state per number of a seen.",
+      states: 4,
+    },
+  ],
   assumptions: [],
   warnings: [],
 };

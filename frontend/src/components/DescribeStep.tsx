@@ -17,7 +17,11 @@ export const EXAMPLES = [
   "strings over {a,b} whose second symbol from the end is b",
 ] as const;
 
-const SOURCE_LABELS = { user: "given", inferred: "inferred", default: "default" } as const;
+const SOURCE_LABELS = {
+  user: "given",
+  inferred: "inferred",
+  default: "default",
+} as const;
 
 function AlphabetChip() {
   const ir = useStudio((studio) => studio.ir);
@@ -25,7 +29,11 @@ function AlphabetChip() {
   const setAlphabet = useStudio((studio) => studio.setAlphabet);
 
   const symbols = ir?.alphabet.symbols ?? override;
-  const source = ir ? SOURCE_LABELS[ir.alphabet.source] : override ? "given" : null;
+  const source = ir
+    ? SOURCE_LABELS[ir.alphabet.source]
+    : override
+      ? "given"
+      : null;
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">
       <span className="text-muted">Alphabet</span>
@@ -45,7 +53,10 @@ export function DescribeStep() {
   const text = useStudio((studio) => studio.text);
   const busy = useStudio((studio) => studio.busy);
   const stage = useStudio((studio) => studio.stage);
-  const problem = useStudio((studio) => (studio.problemStep === "describe" ? studio.problem : null));
+  const problem = useStudio((studio) =>
+    studio.problemStep === "describe" ? studio.problem : null,
+  );
+  const dismissProblem = useStudio((studio) => studio.dismissProblem);
   const setText = useStudio((studio) => studio.setText);
   const interpret = useStudio((studio) => studio.interpret);
 
@@ -99,13 +110,22 @@ export function DescribeStep() {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <AlphabetChip />
-        <Button variant="primary" onClick={() => void interpret()} disabled={!canRead}>
-          {reading && <LoaderCircle aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />}
+        <Button
+          variant="primary"
+          onClick={() => void interpret()}
+          disabled={!canRead}
+        >
+          {reading && (
+            <LoaderCircle
+              aria-hidden
+              className="size-4 animate-spin motion-reduce:animate-none"
+            />
+          )}
           {reading ? "Reading…" : "Read description"}
         </Button>
       </div>
 
-      {problem && <ErrorNotice problem={problem} />}
+      {problem && <ErrorNotice problem={problem} onDismiss={dismissProblem} />}
     </StepCard>
   );
 }

@@ -57,6 +57,8 @@ export function withAlphabet(ir: IRDocument, symbols: string[]): IRDocument {
   return {
     ...ir,
     alphabet: { symbols, source: "user" },
-    assumptions: ir.assumptions.filter((assumption) => assumption.id !== "alphabet_inferred"),
+    assumptions: ir.assumptions.filter(
+      (assumption) => assumption.id !== "alphabet_inferred",
+    ),
   };
 }

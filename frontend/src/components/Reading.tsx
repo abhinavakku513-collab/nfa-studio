@@ -16,7 +16,10 @@ import { EditableChip, MissingChip } from "./EditableChip";
 type Loose = Record<string, unknown>;
 type Edit = (path: Path, value: unknown) => void;
 
-const OP_OPTIONS = (Object.keys(OP_LABELS) as CountOp[]).map((op) => ({ value: op, label: OP_LABELS[op] }));
+const OP_OPTIONS = (Object.keys(OP_LABELS) as CountOp[]).map((op) => ({
+  value: op,
+  label: OP_LABELS[op],
+}));
 const PARITY_OPTIONS = [
   { value: "even", label: "even" },
   { value: "odd", label: "odd" },
@@ -37,15 +40,24 @@ export function Reading({
   readOnly?: boolean;
 }) {
   const alphabet = ir.alphabet as Loose | undefined;
-  const symbols = Array.isArray(alphabet?.symbols) ? (alphabet.symbols as string[]) : null;
+  const symbols = Array.isArray(alphabet?.symbols)
+    ? (alphabet.symbols as string[])
+    : null;
   const language = ir.language as Loose | null | undefined;
   return (
     <div className="text-sm leading-8">
       Strings over{" "}
-      <span className="font-mono">{symbols ? formatSymbols(symbols) : <MissingChip label="alphabet" />}</span>{" "}
+      <span className="font-mono">
+        {symbols ? formatSymbols(symbols) : <MissingChip label="alphabet" />}
+      </span>{" "}
       that{" "}
       {language ? (
-        <Phrase node={language} path={["language"]} onEdit={onEdit} readOnly={readOnly} />
+        <Phrase
+          node={language}
+          path={["language"]}
+          onEdit={onEdit}
+          readOnly={readOnly}
+        />
       ) : (
         <MissingChip label="grouping" />
       )}
@@ -64,7 +76,11 @@ function Phrase({
   onEdit: Edit;
   readOnly: boolean;
 }): ReactNode {
-  function chip(key: string, label: string, extra: Partial<Parameters<typeof EditableChip>[0]> = {}) {
+  function chip(
+    key: string,
+    label: string,
+    extra: Partial<Parameters<typeof EditableChip>[0]> = {},
+  ) {
     const value = node[key];
     if (value === undefined || value === null) {
       return <MissingChip label={label} />;
@@ -92,14 +108,21 @@ function Phrase({
   }
 
   function children(intro: string): ReactNode {
-    const items = Array.isArray(node.children) ? (node.children as Loose[]) : [];
+    const items = Array.isArray(node.children)
+      ? (node.children as Loose[])
+      : [];
     return (
       <>
         {intro}
         <ul className="ml-4 list-disc pl-4 marker:text-subtle">
           {items.map((child, i) => (
             <li key={i}>
-              <Phrase node={child} path={[...path, "children", i]} onEdit={onEdit} readOnly={readOnly} />
+              <Phrase
+                node={child}
+                path={[...path, "children", i]}
+                onEdit={onEdit}
+                readOnly={readOnly}
+              />
             </li>
           ))}
         </ul>
@@ -115,7 +138,12 @@ function Phrase({
         <ul className="ml-4 list-disc pl-4 marker:text-subtle">
           <li>
             {child ? (
-              <Phrase node={child} path={[...path, "child"]} onEdit={onEdit} readOnly={readOnly} />
+              <Phrase
+                node={child}
+                path={[...path, "child"]}
+                onEdit={onEdit}
+                readOnly={readOnly}
+              />
             ) : (
               <MissingChip label="condition" />
             )}
@@ -139,28 +167,30 @@ function Phrase({
     case "symbol_count":
       return (
         <>
-          contain {chip("op", "comparison", { options: OP_OPTIONS })} {numberChip("n", "count")}{" "}
-          occurrences of {chip("symbol", "counted symbol", { mono: true })}
+          contain {chip("op", "comparison", { options: OP_OPTIONS })}{" "}
+          {numberChip("n", "count")} occurrences of{" "}
+          {chip("symbol", "counted symbol", { mono: true })}
         </>
       );
     case "symbol_parity":
       return (
         <>
-          contain an {chip("parity", "parity", { options: PARITY_OPTIONS })} number of{" "}
-          {chip("symbol", "counted symbol", { mono: true })}
+          contain an {chip("parity", "parity", { options: PARITY_OPTIONS })}{" "}
+          number of {chip("symbol", "counted symbol", { mono: true })}
         </>
       );
     case "length_mod":
       return (
         <>
-          have a length that leaves remainder {numberChip("r", "remainder")} when divided by{" "}
-          {numberChip("m", "modulus")}
+          have a length that leaves remainder {numberChip("r", "remainder")}{" "}
+          when divided by {numberChip("m", "modulus")}
         </>
       );
     case "pattern_count":
       return (
         <>
-          contain {pattern("counted pattern")} {chip("op", "comparison", { options: OP_OPTIONS })}{" "}
+          contain {pattern("counted pattern")}{" "}
+          {chip("op", "comparison", { options: OP_OPTIONS })}{" "}
           {numberChip("n", "count")} times, counting{" "}
           {chip("overlap", "overlap", {
             options: OVERLAP_OPTIONS,
@@ -169,7 +199,12 @@ function Phrase({
         </>
       );
     case "regex":
-      return <>match the regular expression {chip("expr", "regular expression", { mono: true })}</>;
+      return (
+        <>
+          match the regular expression{" "}
+          {chip("expr", "regular expression", { mono: true })}
+        </>
+      );
     case "literal_set": {
       const words = Array.isArray(node.words) ? (node.words as string[]) : [];
       return (

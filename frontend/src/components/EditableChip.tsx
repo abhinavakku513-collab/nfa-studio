@@ -28,11 +28,26 @@ export function EditableChip({
   readOnly?: boolean;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
-  const text = shown ?? options?.find((option) => option.value === value)?.label ?? value;
-  const face = clsx(CHIP, mono && "font-mono", "border-accent/40 bg-accent-soft text-text");
+  const text =
+    shown ?? options?.find((option) => option.value === value)?.label ?? value;
+  const face = clsx(
+    CHIP,
+    mono && "font-mono",
+    "border-accent/40 bg-accent-soft text-text",
+  );
 
   if (readOnly) {
-    return <span className={clsx(CHIP, mono && "font-mono", "border-border bg-surface-2")}>{text}</span>;
+    return (
+      <span
+        className={clsx(
+          CHIP,
+          mono && "font-mono",
+          "border-border bg-surface-2",
+        )}
+      >
+        {text}
+      </span>
+    );
   }
 
   if (options) {
@@ -101,7 +116,10 @@ export function MissingChip({ label }: { label: string }) {
   return (
     <span
       title={`${label}: answer the question below`}
-      className={clsx(CHIP, "border-dashed border-amber bg-amber-soft font-medium text-amber")}
+      className={clsx(
+        CHIP,
+        "border-dashed border-amber bg-amber-soft font-medium text-amber",
+      )}
     >
       ?<span className="sr-only">{label} not decided yet</span>
     </span>

@@ -1,13 +1,12 @@
 "use client";
 
-import clsx from "clsx";
 import { Info, LoaderCircle } from "lucide-react";
 import type { KeyboardEvent } from "react";
 import type { Assumption } from "@/lib/api/client";
 import { useStudio } from "@/lib/studio/context";
 import { ErrorNotice } from "./ErrorNotice";
 import { Reading } from "./Reading";
-import { Button, Kbd, StepCard } from "./ui";
+import { Button, Kbd, StepCard, Switch } from "./ui";
 
 const TOPICS: Record<string, string> = {
   count_exact_or_at_least: "a count",
@@ -15,38 +14,6 @@ const TOPICS: Record<string, string> = {
   grouping: "how the conditions group",
   alphabet: "the alphabet",
 };
-
-function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className={clsx(
-        "relative h-5 w-9 shrink-0 rounded-full border transition-colors",
-        checked ? "border-accent bg-accent" : "border-border-strong bg-surface-2",
-      )}
-    >
-      <span
-        aria-hidden
-        className={clsx(
-          "absolute top-0.5 size-3.5 rounded-full bg-surface shadow transition-transform motion-reduce:transition-none",
-          checked ? "translate-x-4" : "translate-x-0.5",
-        )}
-      />
-    </button>
-  );
-}
 
 function Assumptions({ assumptions }: { assumptions: Assumption[] }) {
   const rejected = useStudio((studio) => studio.rejected);
@@ -56,13 +23,19 @@ function Assumptions({ assumptions }: { assumptions: Assumption[] }) {
     return null;
   }
   return (
-    <section aria-labelledby="assumptions-title" className="flex flex-col gap-2">
+    <section
+      aria-labelledby="assumptions-title"
+      className="flex flex-col gap-2"
+    >
       <h3 id="assumptions-title" className="text-sm font-semibold">
         Assumptions
       </h3>
       <ul className="flex flex-col gap-2">
         {assumptions.map((assumption) => (
-          <li key={assumption.id} className="flex items-start gap-3 rounded-md bg-surface-2 px-3 py-2 text-sm">
+          <li
+            key={assumption.id}
+            className="flex items-start gap-3 rounded-md bg-surface-2 px-3 py-2 text-sm"
+          >
             {assumption.editable ? (
               <Switch
                 checked={!rejected.includes(assumption.id)}
@@ -70,19 +43,29 @@ function Assumptions({ assumptions }: { assumptions: Assumption[] }) {
                 label={`Accept: ${assumption.text}`}
               />
             ) : (
-              <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-subtle" />
+              <Info
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-subtle"
+              />
             )}
             <span className="flex-1">
               {assumption.text}
-              {!assumption.editable && <span className="ml-2 text-xs text-subtle">always true</span>}
+              {!assumption.editable && (
+                <span className="ml-2 text-xs text-subtle">always true</span>
+              )}
             </span>
           </li>
         ))}
       </ul>
       {rejected.length > 0 && (
         <p className="text-sm text-amber">
-          Building waits while an assumption is off. Change the reading so it no longer applies,{" "}
-          <button type="button" onClick={openManual} className="font-medium underline underline-offset-2">
+          Building waits while an assumption is off. Change the reading so it no
+          longer applies,{" "}
+          <button
+            type="button"
+            onClick={openManual}
+            className="font-medium underline underline-offset-2"
+          >
             edit the IR directly
           </button>
           , or turn the assumption back on.
@@ -106,7 +89,8 @@ function QuestionCard() {
       className="flex flex-col gap-3 rounded-md border border-amber/50 bg-amber-soft p-4"
     >
       <p className="text-xs font-medium uppercase tracking-wide text-amber">
-        Question {question.id.replace("Q", "")} · {TOPICS[question.topic] ?? question.topic}
+        Question {question.id.replace("Q", "")} ·{" "}
+        {TOPICS[question.topic] ?? question.topic}
       </p>
       <p id="question-text" className="text-sm font-medium">
         {question.text}
@@ -135,7 +119,11 @@ function ManualIrForm() {
   const buildManual = useStudio((studio) => studio.buildManual);
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
-    if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && busy === null) {
+    if (
+      event.key === "Enter" &&
+      (event.ctrlKey || event.metaKey) &&
+      busy === null
+    ) {
       event.preventDefault();
       void buildManual();
     }
@@ -145,8 +133,9 @@ function ManualIrForm() {
     <div className="flex flex-col gap-2">
       {missing.length > 0 && (
         <p className="text-sm text-amber">
-          More than two questions would be needed ({missing.map((topic) => TOPICS[topic] ?? topic).join(", ")}),
-          so the reading so far is shown as IR. Fill in what is missing, then build.
+          More than two questions would be needed (
+          {missing.map((topic) => TOPICS[topic] ?? topic).join(", ")}), so the
+          reading so far is shown as IR. Fill in what is missing, then build.
         </p>
       )}
       <label htmlFor="manual-ir" className="text-sm font-medium">
@@ -163,11 +152,21 @@ function ManualIrForm() {
         className="rounded-md border border-border-strong bg-surface px-3 py-2 font-mono text-xs leading-5"
       />
       <p id="manual-ir-hint" className="text-xs text-subtle">
-        <Kbd>Ctrl</Kbd> + <Kbd>Enter</Kbd> builds from this IR. The server checks it against the schema.
+        <Kbd>Ctrl</Kbd> + <Kbd>Enter</Kbd> builds from this IR. The server
+        checks it against the schema.
       </p>
       <div>
-        <Button variant="primary" onClick={() => void buildManual()} disabled={busy !== null}>
-          {busy === "build" && <LoaderCircle aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />}
+        <Button
+          variant="primary"
+          onClick={() => void buildManual()}
+          disabled={busy !== null}
+        >
+          {busy === "build" && (
+            <LoaderCircle
+              aria-hidden
+              className="size-4 animate-spin motion-reduce:animate-none"
+            />
+          )}
           Build from this IR
         </Button>
       </div>
@@ -179,14 +178,19 @@ export function ConfirmStep() {
   const stage = useStudio((studio) => studio.stage);
   const ir = useStudio((studio) => studio.ir);
   const partialIr = useStudio((studio) => studio.partialIr);
-  const problem = useStudio((studio) => (studio.problemStep === "confirm" ? studio.problem : null));
+  const problem = useStudio((studio) =>
+    studio.problemStep === "confirm" ? studio.problem : null,
+  );
+  const dismissProblem = useStudio((studio) => studio.dismissProblem);
   const editIr = useStudio((studio) => studio.editIr);
   const openManual = useStudio((studio) => studio.openManual);
 
   if (stage === "describe") {
     return (
       <StepCard step={2} title="Confirm">
-        <p className="text-sm text-muted">The reading of your description appears here for you to check.</p>
+        <p className="text-sm text-muted">
+          The reading of your description appears here for you to check.
+        </p>
       </StepCard>
     );
   }
@@ -215,12 +219,14 @@ export function ConfirmStep() {
         ir && (
           <>
             <Reading ir={ir} onEdit={editIr} />
-            <p className="text-xs text-subtle">Select a highlighted value to change it.</p>
+            <p className="text-xs text-subtle">
+              Select a highlighted value to change it.
+            </p>
             <Assumptions assumptions={ir.assumptions} />
           </>
         )
       )}
-      {problem && <ErrorNotice problem={problem} />}
+      {problem && <ErrorNotice problem={problem} onDismiss={dismissProblem} />}
     </StepCard>
   );
 }

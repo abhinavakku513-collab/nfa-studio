@@ -6,7 +6,7 @@ import { BuildStep } from "./BuildStep";
 import { ConfirmStep } from "./ConfirmStep";
 import { DescribeStep } from "./DescribeStep";
 import { Header } from "./Header";
-import { ResultPanel } from "./ResultPanel";
+import { Explore } from "./Explore";
 
 /** The one page of spec §12.1: steps on the left, the automaton on the right. */
 export function Studio({ api }: { api?: Api }) {
@@ -25,7 +25,7 @@ export function Studio({ api }: { api?: Api }) {
           <ConfirmStep />
           <BuildStep />
         </div>
-        <ResultPanel />
+        <Explore />
       </main>
     </StudioProvider>
   );

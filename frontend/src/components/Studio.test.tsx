@@ -17,45 +17,71 @@ async function read(text: string): Promise<void> {
 
 describe("Studio", () => {
   it("reads a description with Ctrl+Enter and shows it as an editable sentence", async () => {
-    render(<Studio api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api} />);
+    render(
+      <Studio
+        api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api}
+      />,
+    );
     await read("exactly two a's");
     const confirm = screen.getByRole("region", { name: "Confirm" });
     expect(confirm).toHaveTextContent("Strings over {a, b} that contain");
-    expect(within(confirm).getByRole("combobox", { name: "comparison" })).toHaveValue("eq");
-    expect(within(confirm).getByRole("button", { name: /count: 2/ })).toBeInTheDocument();
+    expect(
+      within(confirm).getByRole("combobox", { name: "comparison" }),
+    ).toHaveValue("eq");
+    expect(
+      within(confirm).getByRole("button", { name: /count: 2/ }),
+    ).toBeInTheDocument();
   });
 
   it("edits a value from the keyboard: Enter opens it, Enter commits, Escape cancels", async () => {
-    render(<Studio api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api} />);
+    render(
+      <Studio
+        api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api}
+      />,
+    );
     await read("exactly two a's");
     fireEvent.click(screen.getByRole("button", { name: /count: 2/ }));
     const input = screen.getByRole("textbox", { name: "count" });
     expect(input).toHaveFocus();
     fireEvent.change(input, { target: { value: "5" } });
     fireEvent.keyDown(input, { key: "Enter" });
-    expect(screen.getByRole("button", { name: /count: 5/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /count: 5/ }),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /counted symbol: a/ }));
     const symbol = screen.getByRole("textbox", { name: "counted symbol" });
     fireEvent.change(symbol, { target: { value: "b" } });
     fireEvent.keyDown(symbol, { key: "Escape" });
-    expect(screen.getByRole("button", { name: /counted symbol: a/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /counted symbol: a/ }),
+    ).toBeInTheDocument();
   });
 
   it("turning an assumption off pauses the build until it is back on", async () => {
-    render(<Studio api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api} />);
+    render(
+      <Studio
+        api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api}
+      />,
+    );
     await read("exactly two a's");
     const build = screen.getByRole("button", { name: "Build and verify" });
     expect(build).toBeEnabled();
-    const toggle = screen.getByRole("switch", { name: /alphabet was inferred/ });
+    const toggle = screen.getByRole("switch", {
+      name: /alphabet was inferred/,
+    });
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-checked", "false");
     expect(build).toBeDisabled();
-    expect(screen.getByText(/Building waits while an assumption is off/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Building waits while an assumption is off/),
+    ).toBeInTheDocument();
     fireEvent.click(toggle);
     expect(build).toBeEnabled();
     // Facts cannot be switched off.
-    expect(screen.queryByRole("switch", { name: /Zero occurrences/ })).toBeNull();
+    expect(
+      screen.queryByRole("switch", { name: /Zero occurrences/ }),
+    ).toBeNull();
   });
 
   it("builds and shows the badge with icon, level and evidence", async () => {
@@ -68,11 +94,15 @@ describe("Studio", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Build and verify" }));
     });
-    expect(screen.getByText("V2 · Exactly equivalent to reference")).toBeInTheDocument();
+    expect(
+      screen.getByText("V2 · Exactly equivalent to reference"),
+    ).toBeInTheDocument();
     const progress = screen.getByRole("list", { name: "Build progress" });
     expect(progress).toHaveTextContent("Compiled4 states · DFAdone");
     expect(progress).toHaveTextContent("Verifieddone");
-    expect(screen.getByRole("region", { name: "Automaton" })).toHaveTextContent("sha256:abc123");
+    expect(screen.getByRole("region", { name: "Automaton" })).toHaveTextContent(
+      "sha256:abc123",
+    );
   });
 
   it("answers a clarification with a button", async () => {
@@ -92,20 +122,30 @@ describe("Studio", () => {
               { id: "edit", label: "Edit manually" },
             ],
           },
-          partial_ir: { alphabet: { symbols: ["a", "b"] }, language: { type: "symbol_count", symbol: "a", n: 2 } },
+          partial_ir: {
+            alphabet: { symbols: ["a", "b"] },
+            language: { type: "symbol_count", symbol: "a", n: 2 },
+          },
         },
       }),
       "POST /v1/interpret/s_9/answer": () => ({ json: READY }),
     });
     render(<Studio api={server.api} />);
     await read("contains two a's");
-    const group = screen.getByRole("group", { name: "Exactly 2 a's, or at least 2?" });
+    const group = screen.getByRole("group", {
+      name: "Exactly 2 a's, or at least 2?",
+    });
     expect(screen.getByText("comparison not decided yet")).toBeInTheDocument();
     await act(async () => {
       fireEvent.click(within(group).getByRole("button", { name: "Exactly 2" }));
     });
-    expect(server.requests[1].body).toEqual({ question_id: "Q1", option_id: "exactly" });
-    expect(screen.getByRole("combobox", { name: "comparison" })).toHaveValue("eq");
+    expect(server.requests[1].body).toEqual({
+      question_id: "Q1",
+      option_id: "exactly",
+    });
+    expect(screen.getByRole("combobox", { name: "comparison" })).toHaveValue(
+      "eq",
+    );
   });
 
   it("shows the reason and next action of an error, and its examples fill the text box", async () => {
@@ -124,8 +164,14 @@ describe("Studio", () => {
     const alert = screen.getByRole("alert");
     expect(alert).toHaveTextContent("This description cannot be read");
     expect(alert).toHaveTextContent(message);
-    fireEvent.click(within(alert).getByRole("button", { name: "binary strings ending in 01" }));
-    expect(screen.getByLabelText(/describe a set of strings/i)).toHaveValue("binary strings ending in 01");
+    fireEvent.click(
+      within(alert).getByRole("button", {
+        name: "binary strings ending in 01",
+      }),
+    );
+    expect(screen.getByLabelText(/describe a set of strings/i)).toHaveValue(
+      "binary strings ending in 01",
+    );
   });
 
   it("offers a non-regular request's regular alternative", async () => {
@@ -136,25 +182,39 @@ describe("Studio", () => {
     };
     const server = fakeServer({
       "POST /v1/interpret": () =>
-        problem("E_UNSUPPORTED_NONREGULAR", "This language is not regular: it needs to count without a bound. Try aⁿbⁿ with n ≤ 2.", {
-          reason: "power_counting",
-          alternative: { text: "Try aⁿbⁿ with n ≤ 2.", ir: alternative },
-        }),
+        problem(
+          "E_UNSUPPORTED_NONREGULAR",
+          "This language is not regular: it needs to count without a bound. Try aⁿbⁿ with n ≤ 2.",
+          {
+            reason: "power_counting",
+            alternative: { text: "Try aⁿbⁿ with n ≤ 2.", ir: alternative },
+          },
+        ),
     });
     render(<Studio api={server.api} />);
     await read("aⁿbⁿ for all n");
-    fireEvent.click(screen.getByRole("button", { name: "Use the regular alternative" }));
-    expect(screen.getByRole("region", { name: "Confirm" })).toHaveTextContent("are exactly one of");
-    expect(screen.getByRole("button", { name: /listed words: ε, ab, aabb/ })).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Use the regular alternative" }),
+    );
+    expect(screen.getByRole("region", { name: "Confirm" })).toHaveTextContent(
+      "are exactly one of",
+    );
+    expect(
+      screen.getByRole("button", { name: /listed words: ε, ab, aabb/ }),
+    ).toBeInTheDocument();
   });
 
   it("switches between light and dark themes", async () => {
     document.documentElement.dataset.theme = "light";
     render(<Studio api={fakeServer({}).api} />);
-    fireEvent.click(screen.getByRole("button", { name: "Switch to dark theme" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Switch to dark theme" }),
+    );
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(localStorage.getItem("nfa-theme")).toBe("dark");
     // The toggle follows <html data-theme> through a MutationObserver, which fires async.
-    expect(await screen.findByRole("button", { name: "Switch to light theme" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Switch to light theme" }),
+    ).toBeInTheDocument();
   });
 });

@@ -4,2012 +4,2182 @@
  */
 
 export interface paths {
-    "/v1/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Health
-         * @description Liveness and readiness.
-         */
-        get: operations["health_v1_health_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/v1/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/capabilities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Capabilities
-         * @description Supported node types, limits and versions.
-         */
-        get: operations["capabilities_v1_capabilities_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Health
+     * @description Liveness and readiness.
+     */
+    get: operations["health_v1_health_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/capabilities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/interpret": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Interpret Text
-         * @description Text in; a confirmed-ready IR, one clarification question, or the manual form.
-         */
-        post: operations["interpret_text_v1_interpret_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Capabilities
+     * @description Supported node types, limits and versions.
+     */
+    get: operations["capabilities_v1_capabilities_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/interpret": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/interpret/{session_id}/answer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Answer Question
-         * @description Merge one clarification answer into the session's partial IR.
-         */
-        post: operations["answer_question_v1_interpret__session_id__answer_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Interpret Text
+     * @description Text in; a confirmed-ready IR, one clarification question, or the manual form.
+     */
+    post: operations["interpret_text_v1_interpret_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/interpret/{session_id}/answer": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create Automaton
-         * @description Construct and verify from a confirmed IR; identical specifications are built once.
-         */
-        post: operations["create_automaton_v1_automata_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Answer Question
+     * @description Merge one clarification answer into the session's partial IR.
+     */
+    post: operations["answer_question_v1_interpret__session_id__answer_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata/{automaton_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Automaton
-         * @description Five-tuple, δ, explanation, assumptions and verification report.
-         */
-        get: operations["get_automaton_v1_automata__automaton_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Create Automaton
+     * @description Construct and verify from a confirmed IR; identical specifications are built once.
+     */
+    post: operations["create_automaton_v1_automata_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata/{automaton_id}/table": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Table
-         * @description Transition table as JSON, CSV, Markdown or LaTeX (spec §10.1).
-         */
-        get: operations["get_table_v1_automata__automaton_id__table_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get Automaton
+     * @description Five-tuple, δ, explanation, assumptions and verification report.
+     */
+    get: operations["get_automaton_v1_automata__automaton_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}/table": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata/{automaton_id}/diagram": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Diagram
-         * @description Diagram as SVG, PNG, DOT or the JSON graph used by the client (spec §10.2).
-         */
-        get: operations["get_diagram_v1_automata__automaton_id__diagram_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get Table
+     * @description Transition table as JSON, CSV, Markdown or LaTeX (spec §10.1).
+     */
+    get: operations["get_table_v1_automata__automaton_id__table_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}/diagram": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata/{automaton_id}/simulate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Simulate Word
-         * @description One word: the full trace, paginated 200 steps at a time, and a witness if accepted.
-         */
-        post: operations["simulate_word_v1_automata__automaton_id__simulate_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get Diagram
+     * @description Diagram as SVG, PNG, DOT or the JSON graph used by the client (spec §10.2).
+     */
+    get: operations["get_diagram_v1_automata__automaton_id__diagram_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}/simulate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata/{automaton_id}/simulate/batch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Simulate Batch
-         * @description Up to 100 words; a word that cannot be read gets its own error, not the batch.
-         */
-        post: operations["simulate_batch_v1_automata__automaton_id__simulate_batch_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Simulate Word
+     * @description One word: the full trace, paginated 200 steps at a time, and a witness if accepted.
+     */
+    post: operations["simulate_word_v1_automata__automaton_id__simulate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}/simulate/batch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/v1/automata/{automaton_id}/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Verify Automaton
-         * @description Re-run verification (cached by automaton and specification) and say if `level` is met.
-         */
-        post: operations["verify_automaton_v1_automata__automaton_id__verify_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Simulate Batch
+     * @description Up to 100 words; a word that cannot be read gets its own error, not the batch.
+     */
+    post: operations["simulate_batch_v1_automata__automaton_id__simulate_batch_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}/verify": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get?: never;
+    put?: never;
+    /**
+     * Verify Automaton
+     * @description Re-run verification (cached by automaton and specification) and say if `level` is met.
+     */
+    post: operations["verify_automaton_v1_automata__automaton_id__verify_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** Alphabet */
-        Alphabet: {
-            /** Symbols */
-            symbols: string[];
-            /**
-             * Source
-             * @enum {string}
-             */
-            source: "user" | "inferred" | "default";
-        };
-        /** And */
-        "And-Input": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "and";
-            /** Children */
-            children: (components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Input"] | components["schemas"]["Or-Input"] | components["schemas"]["Not-Input"] | components["schemas"]["Concat-Input"] | components["schemas"]["Star-Input"])[];
-        };
-        /** And */
-        "And-Output": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "and";
-            /** Children */
-            children: (components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Output"] | components["schemas"]["Or-Output"] | components["schemas"]["Not-Output"] | components["schemas"]["Concat-Output"] | components["schemas"]["Star-Output"])[];
-        };
-        /** AnswerRequest */
-        AnswerRequest: {
-            /** Question Id */
-            question_id: string;
-            /** Option Id */
-            option_id: string;
-        };
-        /** Assumption */
-        Assumption: {
-            /** Id */
-            id: string;
-            /** Text */
-            text: string;
-            /** Editable */
-            editable: boolean;
-        };
-        /** AutomatonDetail */
-        AutomatonDetail: {
-            /** Automaton Id */
-            automaton_id: string;
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "enfa" | "nfa" | "dfa";
-            /** State Count */
-            state_count: number;
-            verification: components["schemas"]["VerificationModel"];
-            /** Explanation */
-            explanation: components["schemas"]["LogEntryModel"][];
-            /** Assumptions */
-            assumptions: components["schemas"]["Assumption"][];
-            /** Warnings */
-            warnings: string[];
-            five_tuple: components["schemas"]["FiveTuple"];
-            /** Meanings */
-            meanings: {
-                [key: string]: string;
-            };
-            /** Dead */
-            dead: string[];
-            spec: components["schemas"]["IRDocument-Output"];
-        };
-        /** AutomatonSummary */
-        AutomatonSummary: {
-            /** Automaton Id */
-            automaton_id: string;
-            /**
-             * Kind
-             * @enum {string}
-             */
-            kind: "enfa" | "nfa" | "dfa";
-            /** State Count */
-            state_count: number;
-            verification: components["schemas"]["VerificationModel"];
-            /** Explanation */
-            explanation: components["schemas"]["LogEntryModel"][];
-            /** Assumptions */
-            assumptions: components["schemas"]["Assumption"][];
-            /** Warnings */
-            warnings: string[];
-        };
-        /** Avoids */
-        Avoids: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "avoids";
-            /** Pattern */
-            pattern: string;
-        };
-        /** BatchRequest */
-        BatchRequest: {
-            /** Words */
-            words: string[];
-        };
-        /** BatchResponse */
-        BatchResponse: {
-            /** Automaton Id */
-            automaton_id: string;
-            /** Results */
-            results: components["schemas"]["BatchResult"][];
-        };
-        /** BatchResult */
-        BatchResult: {
-            /** Word */
-            word: string;
-            /** Valid */
-            valid: boolean;
-            /** Accepted */
-            accepted: boolean | null;
-            error: components["schemas"]["ErrorModel"] | null;
-        };
-        /** Capabilities */
-        Capabilities: {
-            /**
-             * Api Version
-             * @constant
-             */
-            api_version: "v1";
-            /**
-             * Ir Version
-             * @constant
-             */
-            ir_version: "1.0";
-            /** Node Types */
-            node_types: string[];
-            limits: components["schemas"]["Limits-Output"];
-        };
-        /** CheckModel */
-        CheckModel: {
-            /** Level */
-            level: string;
-            /** Evidence */
-            evidence: string;
-        };
-        /**
-         * Clarification
-         * @description A clarification question that was answered (spec §6.3, CLAUDE.md C13).
-         */
-        Clarification: {
-            /**
-             * Topic
-             * @enum {string}
-             */
-            topic: "count_exact_or_at_least" | "overlap" | "grouping" | "alphabet";
-            /** Answer */
-            answer: string;
-        };
-        /** Concat */
-        "Concat-Input": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "concat";
-            /** Children */
-            children: (components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Input"] | components["schemas"]["Or-Input"] | components["schemas"]["Not-Input"] | components["schemas"]["Concat-Input"] | components["schemas"]["Star-Input"])[];
-        };
-        /** Concat */
-        "Concat-Output": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "concat";
-            /** Children */
-            children: (components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Output"] | components["schemas"]["Or-Output"] | components["schemas"]["Not-Output"] | components["schemas"]["Concat-Output"] | components["schemas"]["Star-Output"])[];
-        };
-        /** Contains */
-        Contains: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "contains";
-            /** Pattern */
-            pattern: string;
-        };
-        /** EndsWith */
-        EndsWith: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "ends_with";
-            /** Pattern */
-            pattern: string;
-        };
-        /**
-         * ErrorBody
-         * @description Every error response (spec §11.2); `message` names the reason and the next action.
-         */
-        ErrorBody: {
-            error: components["schemas"]["ErrorModel"];
-        };
-        /** ErrorModel */
-        ErrorModel: {
-            /** Code */
-            code: string;
-            /** Message */
-            message: string;
-            /** Detail */
-            detail: {
-                [key: string]: unknown;
-            };
-        };
-        /** FiveTuple */
-        FiveTuple: {
-            /** Q */
-            Q: string[];
-            /** Sigma */
-            Sigma: string[];
-            /** Delta */
-            delta: [
-                string,
-                string,
-                string[]
-            ][];
-            /** Q0 */
-            q0: string;
-            /** F */
-            F: string[];
-        };
-        /** GraphEdgeModel */
-        GraphEdgeModel: {
-            /** Id */
-            id: string;
-            /** Source */
-            source: string;
-            /** Target */
-            target: string;
-            /** Symbols */
-            symbols: string[];
-            /** Label */
-            label: string;
-            /** Epsilon */
-            epsilon: boolean;
-        };
-        /** GraphModel */
-        GraphModel: {
-            /** Model Hash */
-            model_hash: string;
-            /** Eps Free */
-            eps_free: boolean;
-            start_edge: components["schemas"]["StartEdgeModel"];
-            /** Nodes */
-            nodes: components["schemas"]["GraphNodeModel"][];
-            /** Edges */
-            edges: components["schemas"]["GraphEdgeModel"][];
-            id_map: components["schemas"]["IdMapModel"];
-            /** Hidden Dead States */
-            hidden_dead_states: string[];
-        };
-        /** GraphNodeModel */
-        GraphNodeModel: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            /** Start */
-            start: boolean;
-            /** Accepting */
-            accepting: boolean;
-            /** Dead */
-            dead: boolean;
-            /** Meaning */
-            meaning: string;
-            /** Short Meaning */
-            short_meaning: string;
-        };
-        /** Health */
-        Health: {
-            /**
-             * Status
-             * @constant
-             */
-            status: "ok";
-        };
-        /**
-         * IRDocument
-         * @description A full LSIR document (spec §5.2).
-         */
-        "IRDocument-Input": {
-            /**
-             * Ir Version
-             * @default 1.0
-             * @constant
-             */
-            ir_version: "1.0";
-            alphabet: components["schemas"]["Alphabet"];
-            /** Language */
-            language: components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Input"] | components["schemas"]["Or-Input"] | components["schemas"]["Not-Input"] | components["schemas"]["Concat-Input"] | components["schemas"]["Star-Input"];
-            /**
-             * Assumptions
-             * @default []
-             */
-            assumptions: components["schemas"]["Assumption"][];
-            /**
-             * Clarifications
-             * @default []
-             */
-            clarifications: components["schemas"]["Clarification"][];
-            /**
-             * @default {
-             *       "max_nodes": 40,
-             *       "max_pattern_len": 16,
-             *       "max_count": 20,
-             *       "max_regex_len": 200,
-             *       "min_alphabet_size": 1,
-             *       "max_alphabet_size": 6,
-             *       "max_states": 200,
-             *       "time_budget_seconds": 2,
-             *       "max_word_len": 10000,
-             *       "trace_page_size": 200,
-             *       "max_batch_size": 100,
-             *       "max_text_len": 500,
-             *       "max_questions": 2,
-             *       "session_ttl_seconds": 1800,
-             *       "automaton_ttl_seconds": 1800,
-             *       "rate_limit_burst": 60,
-             *       "rate_limit_per_second": 1,
-             *       "render_timeout_seconds": 10,
-             *       "reference_max_states": 2000,
-             *       "bounded_max_words": 200000,
-             *       "bounded_max_length": 10,
-             *       "property_words": 500,
-             *       "property_max_length": 30
-             *     }
-             */
-            limits: components["schemas"]["Limits-Input"];
-        };
-        /**
-         * IRDocument
-         * @description A full LSIR document (spec §5.2).
-         */
-        "IRDocument-Output": {
-            /**
-             * Ir Version
-             * @default 1.0
-             * @constant
-             */
-            ir_version: "1.0";
-            alphabet: components["schemas"]["Alphabet"];
-            /** Language */
-            language: components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Output"] | components["schemas"]["Or-Output"] | components["schemas"]["Not-Output"] | components["schemas"]["Concat-Output"] | components["schemas"]["Star-Output"];
-            /**
-             * Assumptions
-             * @default []
-             */
-            assumptions: components["schemas"]["Assumption"][];
-            /**
-             * Clarifications
-             * @default []
-             */
-            clarifications: components["schemas"]["Clarification"][];
-            /**
-             * @default {
-             *       "max_nodes": 40,
-             *       "max_pattern_len": 16,
-             *       "max_count": 20,
-             *       "max_regex_len": 200,
-             *       "min_alphabet_size": 1,
-             *       "max_alphabet_size": 6,
-             *       "max_states": 200,
-             *       "time_budget_seconds": 2,
-             *       "max_word_len": 10000,
-             *       "trace_page_size": 200,
-             *       "max_batch_size": 100,
-             *       "max_text_len": 500,
-             *       "max_questions": 2,
-             *       "session_ttl_seconds": 1800,
-             *       "automaton_ttl_seconds": 1800,
-             *       "rate_limit_burst": 60,
-             *       "rate_limit_per_second": 1,
-             *       "render_timeout_seconds": 10,
-             *       "reference_max_states": 2000,
-             *       "bounded_max_words": 200000,
-             *       "bounded_max_length": 10,
-             *       "property_words": 500,
-             *       "property_max_length": 30
-             *     }
-             */
-            limits: components["schemas"]["Limits-Output"];
-        };
-        /** IdMapModel */
-        IdMapModel: {
-            /** States */
-            states: {
-                [key: string]: string;
-            };
-            /** Transitions */
-            transitions: {
-                [key: string]: string;
-            };
-        };
-        /** InterpretRequest */
-        InterpretRequest: {
-            /** Text */
-            text: string;
-            /** Session Id */
-            session_id?: string | null;
-        };
-        /** InterpretResponse */
-        InterpretResponse: {
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "ready" | "clarification_required" | "edit_ir";
-            /** Code */
-            code?: "E_NEEDS_CLARIFICATION" | null;
-            /** Session Id */
-            session_id?: string | null;
-            question?: components["schemas"]["QuestionModel"] | null;
-            /** Partial Ir */
-            partial_ir?: {
-                [key: string]: unknown;
-            } | null;
-            ir?: components["schemas"]["IRDocument-Output"] | null;
-            /** Missing */
-            missing?: string[];
-            /** Confidence */
-            confidence: number;
-        };
-        /** LengthMod */
-        LengthMod: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "length_mod";
-            /** M */
-            m: number;
-            /** R */
-            r: number;
-        };
-        /**
-         * Limits
-         * @description Size, time and input limits from spec §5.3, §7.3, §8.2 and §9.3.
-         */
-        "Limits-Input": {
-            /**
-             * Max Nodes
-             * @default 40
-             */
-            max_nodes: number;
-            /**
-             * Max Pattern Len
-             * @default 16
-             */
-            max_pattern_len: number;
-            /**
-             * Max Count
-             * @default 20
-             */
-            max_count: number;
-            /**
-             * Max Regex Len
-             * @default 200
-             */
-            max_regex_len: number;
-            /**
-             * Min Alphabet Size
-             * @default 1
-             */
-            min_alphabet_size: number;
-            /**
-             * Max Alphabet Size
-             * @default 6
-             */
-            max_alphabet_size: number;
-            /**
-             * Max States
-             * @default 200
-             */
-            max_states: number;
-            /**
-             * Time Budget Seconds
-             * @default 2
-             */
-            time_budget_seconds: number;
-            /**
-             * Max Word Len
-             * @default 10000
-             */
-            max_word_len: number;
-            /**
-             * Trace Page Size
-             * @default 200
-             */
-            trace_page_size: number;
-            /**
-             * Max Batch Size
-             * @default 100
-             */
-            max_batch_size: number;
-            /**
-             * Max Text Len
-             * @default 500
-             */
-            max_text_len: number;
-            /**
-             * Max Questions
-             * @default 2
-             */
-            max_questions: number;
-            /**
-             * Session Ttl Seconds
-             * @default 1800
-             */
-            session_ttl_seconds: number;
-            /**
-             * Automaton Ttl Seconds
-             * @default 1800
-             */
-            automaton_ttl_seconds: number;
-            /**
-             * Rate Limit Burst
-             * @default 60
-             */
-            rate_limit_burst: number;
-            /**
-             * Rate Limit Per Second
-             * @default 1
-             */
-            rate_limit_per_second: number;
-            /**
-             * Render Timeout Seconds
-             * @default 10
-             */
-            render_timeout_seconds: number;
-            /**
-             * Reference Max States
-             * @default 2000
-             */
-            reference_max_states: number;
-            /**
-             * Bounded Max Words
-             * @default 200000
-             */
-            bounded_max_words: number;
-            /**
-             * Bounded Max Length
-             * @default 10
-             */
-            bounded_max_length: number;
-            /**
-             * Property Words
-             * @default 500
-             */
-            property_words: number;
-            /**
-             * Property Max Length
-             * @default 30
-             */
-            property_max_length: number;
-        };
-        /**
-         * Limits
-         * @description Size, time and input limits from spec §5.3, §7.3, §8.2 and §9.3.
-         */
-        "Limits-Output": {
-            /**
-             * Max Nodes
-             * @default 40
-             */
-            max_nodes: number;
-            /**
-             * Max Pattern Len
-             * @default 16
-             */
-            max_pattern_len: number;
-            /**
-             * Max Count
-             * @default 20
-             */
-            max_count: number;
-            /**
-             * Max Regex Len
-             * @default 200
-             */
-            max_regex_len: number;
-            /**
-             * Min Alphabet Size
-             * @default 1
-             */
-            min_alphabet_size: number;
-            /**
-             * Max Alphabet Size
-             * @default 6
-             */
-            max_alphabet_size: number;
-            /**
-             * Max States
-             * @default 200
-             */
-            max_states: number;
-            /**
-             * Time Budget Seconds
-             * @default 2
-             */
-            time_budget_seconds: number;
-            /**
-             * Max Word Len
-             * @default 10000
-             */
-            max_word_len: number;
-            /**
-             * Trace Page Size
-             * @default 200
-             */
-            trace_page_size: number;
-            /**
-             * Max Batch Size
-             * @default 100
-             */
-            max_batch_size: number;
-            /**
-             * Max Text Len
-             * @default 500
-             */
-            max_text_len: number;
-            /**
-             * Max Questions
-             * @default 2
-             */
-            max_questions: number;
-            /**
-             * Session Ttl Seconds
-             * @default 1800
-             */
-            session_ttl_seconds: number;
-            /**
-             * Automaton Ttl Seconds
-             * @default 1800
-             */
-            automaton_ttl_seconds: number;
-            /**
-             * Rate Limit Burst
-             * @default 60
-             */
-            rate_limit_burst: number;
-            /**
-             * Rate Limit Per Second
-             * @default 1
-             */
-            rate_limit_per_second: number;
-            /**
-             * Render Timeout Seconds
-             * @default 10
-             */
-            render_timeout_seconds: number;
-            /**
-             * Reference Max States
-             * @default 2000
-             */
-            reference_max_states: number;
-            /**
-             * Bounded Max Words
-             * @default 200000
-             */
-            bounded_max_words: number;
-            /**
-             * Bounded Max Length
-             * @default 10
-             */
-            bounded_max_length: number;
-            /**
-             * Property Words
-             * @default 500
-             */
-            property_words: number;
-            /**
-             * Property Max Length
-             * @default 30
-             */
-            property_max_length: number;
-        };
-        /** LiteralSet */
-        LiteralSet: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "literal_set";
-            /** Words */
-            words: string[];
-        };
-        /** LogEntryModel */
-        LogEntryModel: {
-            /** Node */
-            node: string;
-            /** Text */
-            text: string;
-            /** States */
-            states: number;
-        };
-        /** Not */
-        "Not-Input": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "not";
-            /** Child */
-            child: components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Input"] | components["schemas"]["Or-Input"] | components["schemas"]["Not-Input"] | components["schemas"]["Concat-Input"] | components["schemas"]["Star-Input"];
-        };
-        /** Not */
-        "Not-Output": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "not";
-            /** Child */
-            child: components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Output"] | components["schemas"]["Or-Output"] | components["schemas"]["Not-Output"] | components["schemas"]["Concat-Output"] | components["schemas"]["Star-Output"];
-        };
-        /** OptionModel */
-        OptionModel: {
-            /** Id */
-            id: string;
-            /** Label */
-            label: string;
-        };
-        /** Or */
-        "Or-Input": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "or";
-            /** Children */
-            children: (components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Input"] | components["schemas"]["Or-Input"] | components["schemas"]["Not-Input"] | components["schemas"]["Concat-Input"] | components["schemas"]["Star-Input"])[];
-        };
-        /** Or */
-        "Or-Output": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "or";
-            /** Children */
-            children: (components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Output"] | components["schemas"]["Or-Output"] | components["schemas"]["Not-Output"] | components["schemas"]["Concat-Output"] | components["schemas"]["Star-Output"])[];
-        };
-        /** PatternCount */
-        PatternCount: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "pattern_count";
-            /** Pattern */
-            pattern: string;
-            /**
-             * Op
-             * @enum {string}
-             */
-            op: "eq" | "ge" | "le";
-            /** N */
-            n: number;
-            /** Overlap */
-            overlap: boolean;
-        };
-        /** QuestionModel */
-        QuestionModel: {
-            /** Id */
-            id: string;
-            /** Topic */
-            topic: string;
-            /** Text */
-            text: string;
-            /** Options */
-            options: components["schemas"]["OptionModel"][];
-        };
-        /** Regex */
-        Regex: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "regex";
-            /** Expr */
-            expr: string;
-        };
-        /** SimulateRequest */
-        SimulateRequest: {
-            /** Word */
-            word: string;
-            /**
-             * Witness
-             * @default true
-             */
-            witness: boolean;
-            /**
-             * Page
-             * @default 1
-             */
-            page: number;
-        };
-        /** SimulateResponse */
-        SimulateResponse: {
-            /** Automaton Id */
-            automaton_id: string;
-            /** Word */
-            word: string;
-            /** Valid */
-            valid: boolean;
-            /** Accepted */
-            accepted: boolean;
-            /** Witness */
-            witness: [
-                string,
-                string,
-                string
-            ][] | null;
-            /** Steps */
-            steps: components["schemas"]["StepModel"][];
-            /** Page */
-            page: number;
-            /** Pages */
-            pages: number;
-            /** Total Steps */
-            total_steps: number;
-        };
-        /** Star */
-        "Star-Input": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "star";
-            /** Child */
-            child: components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Input"] | components["schemas"]["Or-Input"] | components["schemas"]["Not-Input"] | components["schemas"]["Concat-Input"] | components["schemas"]["Star-Input"];
-        };
-        /** Star */
-        "Star-Output": {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "star";
-            /** Child */
-            child: components["schemas"]["StartsWith"] | components["schemas"]["EndsWith"] | components["schemas"]["Contains"] | components["schemas"]["Avoids"] | components["schemas"]["SymbolCount"] | components["schemas"]["SymbolParity"] | components["schemas"]["LengthMod"] | components["schemas"]["PatternCount"] | components["schemas"]["Regex"] | components["schemas"]["LiteralSet"] | components["schemas"]["And-Output"] | components["schemas"]["Or-Output"] | components["schemas"]["Not-Output"] | components["schemas"]["Concat-Output"] | components["schemas"]["Star-Output"];
-        };
-        /** StartEdgeModel */
-        StartEdgeModel: {
-            /** Id */
-            id: string;
-            /** Target */
-            target: string;
-        };
-        /** StartsWith */
-        StartsWith: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "starts_with";
-            /** Pattern */
-            pattern: string;
-        };
-        /** StepModel */
-        StepModel: {
-            /** Index */
-            index: number;
-            /** Symbol */
-            symbol: string | null;
-            /** Moved */
-            moved: string[];
-            /** After */
-            after: string[];
-            /** Accepting Present */
-            accepting_present: boolean;
-            /** Final Accepted */
-            final_accepted: boolean | null;
-            /** Transitions */
-            transitions: [
-                string,
-                string,
-                string
-            ][];
-            /** Epsilon Layers */
-            epsilon_layers: [
-                string,
-                string,
-                string
-            ][][];
-        };
-        /** SymbolCount */
-        SymbolCount: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "symbol_count";
-            /** Symbol */
-            symbol: string;
-            /**
-             * Op
-             * @enum {string}
-             */
-            op: "eq" | "ge" | "le";
-            /** N */
-            n: number;
-        };
-        /** SymbolParity */
-        SymbolParity: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "symbol_parity";
-            /** Symbol */
-            symbol: string;
-            /**
-             * Parity
-             * @enum {string}
-             */
-            parity: "even" | "odd";
-        };
-        /** TableModel */
-        TableModel: {
-            /** Model Hash */
-            model_hash: string;
-            /** Eps Free */
-            eps_free: boolean;
-            /** Columns */
-            columns: string[];
-            /** Rows */
-            rows: components["schemas"]["TableRowModel"][];
-            /** Hidden Dead States */
-            hidden_dead_states: string[];
-        };
-        /** TableRowModel */
-        TableRowModel: {
-            /** State */
-            state: string;
-            /** Marker */
-            marker: string;
-            /** Start */
-            start: boolean;
-            /** Accepting */
-            accepting: boolean;
-            /** Cells */
-            cells: string[][];
-        };
-        /** VerificationModel */
-        VerificationModel: {
-            /** Automaton Id */
-            automaton_id: string;
-            /**
-             * Level
-             * @enum {string}
-             */
-            level: "V0" | "V1" | "V2" | "V3";
-            /**
-             * Badge
-             * @enum {string}
-             */
-            badge: "grey" | "amber" | "green";
-            /** Checks */
-            checks: components["schemas"]["CheckModel"][];
-            /** Bounded Length */
-            bounded_length: number;
-            /** Property Runs */
-            property_runs: number;
-            /** Notes */
-            notes: string[];
-        };
-        /** VerifyRequest */
-        VerifyRequest: {
-            /**
-             * Level
-             * @default V3
-             * @enum {string}
-             */
-            level: "V0" | "V1" | "V2" | "V3";
-        };
-        /** VerifyResponse */
-        VerifyResponse: {
-            /** Automaton Id */
-            automaton_id: string;
-            /**
-             * Level
-             * @enum {string}
-             */
-            level: "V0" | "V1" | "V2" | "V3";
-            /**
-             * Badge
-             * @enum {string}
-             */
-            badge: "grey" | "amber" | "green";
-            /** Checks */
-            checks: components["schemas"]["CheckModel"][];
-            /** Bounded Length */
-            bounded_length: number;
-            /** Property Runs */
-            property_runs: number;
-            /** Notes */
-            notes: string[];
-            /** Requested */
-            requested: string;
-            /** Reached */
-            reached: boolean;
-        };
+  schemas: {
+    /** Alphabet */
+    Alphabet: {
+      /** Symbols */
+      symbols: string[];
+      /**
+       * Source
+       * @enum {string}
+       */
+      source: "user" | "inferred" | "default";
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    /** And */
+    "And-Input": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "and";
+      /** Children */
+      children: (
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Input"]
+        | components["schemas"]["Or-Input"]
+        | components["schemas"]["Not-Input"]
+        | components["schemas"]["Concat-Input"]
+        | components["schemas"]["Star-Input"]
+      )[];
+    };
+    /** And */
+    "And-Output": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "and";
+      /** Children */
+      children: (
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Output"]
+        | components["schemas"]["Or-Output"]
+        | components["schemas"]["Not-Output"]
+        | components["schemas"]["Concat-Output"]
+        | components["schemas"]["Star-Output"]
+      )[];
+    };
+    /** AnswerRequest */
+    AnswerRequest: {
+      /** Question Id */
+      question_id: string;
+      /** Option Id */
+      option_id: string;
+    };
+    /** Assumption */
+    Assumption: {
+      /** Id */
+      id: string;
+      /** Text */
+      text: string;
+      /** Editable */
+      editable: boolean;
+    };
+    /** AutomatonDetail */
+    AutomatonDetail: {
+      /** Automaton Id */
+      automaton_id: string;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "enfa" | "nfa" | "dfa";
+      /** State Count */
+      state_count: number;
+      verification: components["schemas"]["VerificationModel"];
+      /** Explanation */
+      explanation: components["schemas"]["LogEntryModel"][];
+      /** Assumptions */
+      assumptions: components["schemas"]["Assumption"][];
+      /** Warnings */
+      warnings: string[];
+      five_tuple: components["schemas"]["FiveTuple"];
+      /** Meanings */
+      meanings: {
+        [key: string]: string;
+      };
+      /** Dead */
+      dead: string[];
+      spec: components["schemas"]["IRDocument-Output"];
+    };
+    /** AutomatonSummary */
+    AutomatonSummary: {
+      /** Automaton Id */
+      automaton_id: string;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "enfa" | "nfa" | "dfa";
+      /** State Count */
+      state_count: number;
+      verification: components["schemas"]["VerificationModel"];
+      /** Explanation */
+      explanation: components["schemas"]["LogEntryModel"][];
+      /** Assumptions */
+      assumptions: components["schemas"]["Assumption"][];
+      /** Warnings */
+      warnings: string[];
+    };
+    /** Avoids */
+    Avoids: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "avoids";
+      /** Pattern */
+      pattern: string;
+    };
+    /** BatchRequest */
+    BatchRequest: {
+      /** Words */
+      words: string[];
+    };
+    /** BatchResponse */
+    BatchResponse: {
+      /** Automaton Id */
+      automaton_id: string;
+      /** Results */
+      results: components["schemas"]["BatchResult"][];
+    };
+    /** BatchResult */
+    BatchResult: {
+      /** Word */
+      word: string;
+      /** Valid */
+      valid: boolean;
+      /** Accepted */
+      accepted: boolean | null;
+      error: components["schemas"]["ErrorModel"] | null;
+    };
+    /** Capabilities */
+    Capabilities: {
+      /**
+       * Api Version
+       * @constant
+       */
+      api_version: "v1";
+      /**
+       * Ir Version
+       * @constant
+       */
+      ir_version: "1.0";
+      /** Node Types */
+      node_types: string[];
+      limits: components["schemas"]["Limits-Output"];
+    };
+    /** CheckModel */
+    CheckModel: {
+      /** Level */
+      level: string;
+      /** Evidence */
+      evidence: string;
+    };
+    /**
+     * Clarification
+     * @description A clarification question that was answered (spec §6.3, CLAUDE.md C13).
+     */
+    Clarification: {
+      /**
+       * Topic
+       * @enum {string}
+       */
+      topic: "count_exact_or_at_least" | "overlap" | "grouping" | "alphabet";
+      /** Answer */
+      answer: string;
+    };
+    /** Concat */
+    "Concat-Input": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "concat";
+      /** Children */
+      children: (
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Input"]
+        | components["schemas"]["Or-Input"]
+        | components["schemas"]["Not-Input"]
+        | components["schemas"]["Concat-Input"]
+        | components["schemas"]["Star-Input"]
+      )[];
+    };
+    /** Concat */
+    "Concat-Output": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "concat";
+      /** Children */
+      children: (
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Output"]
+        | components["schemas"]["Or-Output"]
+        | components["schemas"]["Not-Output"]
+        | components["schemas"]["Concat-Output"]
+        | components["schemas"]["Star-Output"]
+      )[];
+    };
+    /** Contains */
+    Contains: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "contains";
+      /** Pattern */
+      pattern: string;
+    };
+    /** EndsWith */
+    EndsWith: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "ends_with";
+      /** Pattern */
+      pattern: string;
+    };
+    /**
+     * ErrorBody
+     * @description Every error response (spec §11.2); `message` names the reason and the next action.
+     */
+    ErrorBody: {
+      error: components["schemas"]["ErrorModel"];
+    };
+    /** ErrorModel */
+    ErrorModel: {
+      /** Code */
+      code: string;
+      /** Message */
+      message: string;
+      /** Detail */
+      detail: {
+        [key: string]: unknown;
+      };
+    };
+    /** FiveTuple */
+    FiveTuple: {
+      /** Q */
+      Q: string[];
+      /** Sigma */
+      Sigma: string[];
+      /** Delta */
+      delta: [string, string, string[]][];
+      /** Q0 */
+      q0: string;
+      /** F */
+      F: string[];
+    };
+    /** GraphEdgeModel */
+    GraphEdgeModel: {
+      /** Id */
+      id: string;
+      /** Source */
+      source: string;
+      /** Target */
+      target: string;
+      /** Symbols */
+      symbols: string[];
+      /** Label */
+      label: string;
+      /** Epsilon */
+      epsilon: boolean;
+    };
+    /** GraphModel */
+    GraphModel: {
+      /** Model Hash */
+      model_hash: string;
+      /** Eps Free */
+      eps_free: boolean;
+      start_edge: components["schemas"]["StartEdgeModel"];
+      /** Nodes */
+      nodes: components["schemas"]["GraphNodeModel"][];
+      /** Edges */
+      edges: components["schemas"]["GraphEdgeModel"][];
+      id_map: components["schemas"]["IdMapModel"];
+      /** Hidden Dead States */
+      hidden_dead_states: string[];
+    };
+    /** GraphNodeModel */
+    GraphNodeModel: {
+      /** Id */
+      id: string;
+      /** Name */
+      name: string;
+      /** Start */
+      start: boolean;
+      /** Accepting */
+      accepting: boolean;
+      /** Dead */
+      dead: boolean;
+      /** Meaning */
+      meaning: string;
+      /** Short Meaning */
+      short_meaning: string;
+    };
+    /** Health */
+    Health: {
+      /**
+       * Status
+       * @constant
+       */
+      status: "ok";
+    };
+    /**
+     * IRDocument
+     * @description A full LSIR document (spec §5.2).
+     */
+    "IRDocument-Input": {
+      /**
+       * Ir Version
+       * @default 1.0
+       * @constant
+       */
+      ir_version: "1.0";
+      alphabet: components["schemas"]["Alphabet"];
+      /** Language */
+      language:
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Input"]
+        | components["schemas"]["Or-Input"]
+        | components["schemas"]["Not-Input"]
+        | components["schemas"]["Concat-Input"]
+        | components["schemas"]["Star-Input"];
+      /**
+       * Assumptions
+       * @default []
+       */
+      assumptions: components["schemas"]["Assumption"][];
+      /**
+       * Clarifications
+       * @default []
+       */
+      clarifications: components["schemas"]["Clarification"][];
+      /**
+       * @default {
+       *       "max_nodes": 40,
+       *       "max_pattern_len": 16,
+       *       "max_count": 20,
+       *       "max_regex_len": 200,
+       *       "min_alphabet_size": 1,
+       *       "max_alphabet_size": 6,
+       *       "max_states": 200,
+       *       "time_budget_seconds": 2,
+       *       "max_word_len": 10000,
+       *       "trace_page_size": 200,
+       *       "max_batch_size": 100,
+       *       "max_text_len": 500,
+       *       "max_questions": 2,
+       *       "session_ttl_seconds": 1800,
+       *       "automaton_ttl_seconds": 1800,
+       *       "rate_limit_burst": 60,
+       *       "rate_limit_per_second": 1,
+       *       "render_timeout_seconds": 10,
+       *       "reference_max_states": 2000,
+       *       "bounded_max_words": 200000,
+       *       "bounded_max_length": 10,
+       *       "property_words": 500,
+       *       "property_max_length": 30
+       *     }
+       */
+      limits: components["schemas"]["Limits-Input"];
+    };
+    /**
+     * IRDocument
+     * @description A full LSIR document (spec §5.2).
+     */
+    "IRDocument-Output": {
+      /**
+       * Ir Version
+       * @default 1.0
+       * @constant
+       */
+      ir_version: "1.0";
+      alphabet: components["schemas"]["Alphabet"];
+      /** Language */
+      language:
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Output"]
+        | components["schemas"]["Or-Output"]
+        | components["schemas"]["Not-Output"]
+        | components["schemas"]["Concat-Output"]
+        | components["schemas"]["Star-Output"];
+      /**
+       * Assumptions
+       * @default []
+       */
+      assumptions: components["schemas"]["Assumption"][];
+      /**
+       * Clarifications
+       * @default []
+       */
+      clarifications: components["schemas"]["Clarification"][];
+      /**
+       * @default {
+       *       "max_nodes": 40,
+       *       "max_pattern_len": 16,
+       *       "max_count": 20,
+       *       "max_regex_len": 200,
+       *       "min_alphabet_size": 1,
+       *       "max_alphabet_size": 6,
+       *       "max_states": 200,
+       *       "time_budget_seconds": 2,
+       *       "max_word_len": 10000,
+       *       "trace_page_size": 200,
+       *       "max_batch_size": 100,
+       *       "max_text_len": 500,
+       *       "max_questions": 2,
+       *       "session_ttl_seconds": 1800,
+       *       "automaton_ttl_seconds": 1800,
+       *       "rate_limit_burst": 60,
+       *       "rate_limit_per_second": 1,
+       *       "render_timeout_seconds": 10,
+       *       "reference_max_states": 2000,
+       *       "bounded_max_words": 200000,
+       *       "bounded_max_length": 10,
+       *       "property_words": 500,
+       *       "property_max_length": 30
+       *     }
+       */
+      limits: components["schemas"]["Limits-Output"];
+    };
+    /** IdMapModel */
+    IdMapModel: {
+      /** States */
+      states: {
+        [key: string]: string;
+      };
+      /** Transitions */
+      transitions: {
+        [key: string]: string;
+      };
+    };
+    /** InterpretRequest */
+    InterpretRequest: {
+      /** Text */
+      text: string;
+      /** Session Id */
+      session_id?: string | null;
+    };
+    /** InterpretResponse */
+    InterpretResponse: {
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "ready" | "clarification_required" | "edit_ir";
+      /** Code */
+      code?: "E_NEEDS_CLARIFICATION" | null;
+      /** Session Id */
+      session_id?: string | null;
+      question?: components["schemas"]["QuestionModel"] | null;
+      /** Partial Ir */
+      partial_ir?: {
+        [key: string]: unknown;
+      } | null;
+      ir?: components["schemas"]["IRDocument-Output"] | null;
+      /** Missing */
+      missing?: string[];
+      /** Confidence */
+      confidence: number;
+    };
+    /** LengthMod */
+    LengthMod: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "length_mod";
+      /** M */
+      m: number;
+      /** R */
+      r: number;
+    };
+    /**
+     * Limits
+     * @description Size, time and input limits from spec §5.3, §7.3, §8.2 and §9.3.
+     */
+    "Limits-Input": {
+      /**
+       * Max Nodes
+       * @default 40
+       */
+      max_nodes: number;
+      /**
+       * Max Pattern Len
+       * @default 16
+       */
+      max_pattern_len: number;
+      /**
+       * Max Count
+       * @default 20
+       */
+      max_count: number;
+      /**
+       * Max Regex Len
+       * @default 200
+       */
+      max_regex_len: number;
+      /**
+       * Min Alphabet Size
+       * @default 1
+       */
+      min_alphabet_size: number;
+      /**
+       * Max Alphabet Size
+       * @default 6
+       */
+      max_alphabet_size: number;
+      /**
+       * Max States
+       * @default 200
+       */
+      max_states: number;
+      /**
+       * Time Budget Seconds
+       * @default 2
+       */
+      time_budget_seconds: number;
+      /**
+       * Max Word Len
+       * @default 10000
+       */
+      max_word_len: number;
+      /**
+       * Trace Page Size
+       * @default 200
+       */
+      trace_page_size: number;
+      /**
+       * Max Batch Size
+       * @default 100
+       */
+      max_batch_size: number;
+      /**
+       * Max Text Len
+       * @default 500
+       */
+      max_text_len: number;
+      /**
+       * Max Questions
+       * @default 2
+       */
+      max_questions: number;
+      /**
+       * Session Ttl Seconds
+       * @default 1800
+       */
+      session_ttl_seconds: number;
+      /**
+       * Automaton Ttl Seconds
+       * @default 1800
+       */
+      automaton_ttl_seconds: number;
+      /**
+       * Rate Limit Burst
+       * @default 60
+       */
+      rate_limit_burst: number;
+      /**
+       * Rate Limit Per Second
+       * @default 1
+       */
+      rate_limit_per_second: number;
+      /**
+       * Render Timeout Seconds
+       * @default 10
+       */
+      render_timeout_seconds: number;
+      /**
+       * Reference Max States
+       * @default 2000
+       */
+      reference_max_states: number;
+      /**
+       * Bounded Max Words
+       * @default 200000
+       */
+      bounded_max_words: number;
+      /**
+       * Bounded Max Length
+       * @default 10
+       */
+      bounded_max_length: number;
+      /**
+       * Property Words
+       * @default 500
+       */
+      property_words: number;
+      /**
+       * Property Max Length
+       * @default 30
+       */
+      property_max_length: number;
+    };
+    /**
+     * Limits
+     * @description Size, time and input limits from spec §5.3, §7.3, §8.2 and §9.3.
+     */
+    "Limits-Output": {
+      /**
+       * Max Nodes
+       * @default 40
+       */
+      max_nodes: number;
+      /**
+       * Max Pattern Len
+       * @default 16
+       */
+      max_pattern_len: number;
+      /**
+       * Max Count
+       * @default 20
+       */
+      max_count: number;
+      /**
+       * Max Regex Len
+       * @default 200
+       */
+      max_regex_len: number;
+      /**
+       * Min Alphabet Size
+       * @default 1
+       */
+      min_alphabet_size: number;
+      /**
+       * Max Alphabet Size
+       * @default 6
+       */
+      max_alphabet_size: number;
+      /**
+       * Max States
+       * @default 200
+       */
+      max_states: number;
+      /**
+       * Time Budget Seconds
+       * @default 2
+       */
+      time_budget_seconds: number;
+      /**
+       * Max Word Len
+       * @default 10000
+       */
+      max_word_len: number;
+      /**
+       * Trace Page Size
+       * @default 200
+       */
+      trace_page_size: number;
+      /**
+       * Max Batch Size
+       * @default 100
+       */
+      max_batch_size: number;
+      /**
+       * Max Text Len
+       * @default 500
+       */
+      max_text_len: number;
+      /**
+       * Max Questions
+       * @default 2
+       */
+      max_questions: number;
+      /**
+       * Session Ttl Seconds
+       * @default 1800
+       */
+      session_ttl_seconds: number;
+      /**
+       * Automaton Ttl Seconds
+       * @default 1800
+       */
+      automaton_ttl_seconds: number;
+      /**
+       * Rate Limit Burst
+       * @default 60
+       */
+      rate_limit_burst: number;
+      /**
+       * Rate Limit Per Second
+       * @default 1
+       */
+      rate_limit_per_second: number;
+      /**
+       * Render Timeout Seconds
+       * @default 10
+       */
+      render_timeout_seconds: number;
+      /**
+       * Reference Max States
+       * @default 2000
+       */
+      reference_max_states: number;
+      /**
+       * Bounded Max Words
+       * @default 200000
+       */
+      bounded_max_words: number;
+      /**
+       * Bounded Max Length
+       * @default 10
+       */
+      bounded_max_length: number;
+      /**
+       * Property Words
+       * @default 500
+       */
+      property_words: number;
+      /**
+       * Property Max Length
+       * @default 30
+       */
+      property_max_length: number;
+    };
+    /** LiteralSet */
+    LiteralSet: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "literal_set";
+      /** Words */
+      words: string[];
+    };
+    /** LogEntryModel */
+    LogEntryModel: {
+      /** Node */
+      node: string;
+      /** Text */
+      text: string;
+      /** States */
+      states: number;
+    };
+    /** Not */
+    "Not-Input": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "not";
+      /** Child */
+      child:
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Input"]
+        | components["schemas"]["Or-Input"]
+        | components["schemas"]["Not-Input"]
+        | components["schemas"]["Concat-Input"]
+        | components["schemas"]["Star-Input"];
+    };
+    /** Not */
+    "Not-Output": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "not";
+      /** Child */
+      child:
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Output"]
+        | components["schemas"]["Or-Output"]
+        | components["schemas"]["Not-Output"]
+        | components["schemas"]["Concat-Output"]
+        | components["schemas"]["Star-Output"];
+    };
+    /** OptionModel */
+    OptionModel: {
+      /** Id */
+      id: string;
+      /** Label */
+      label: string;
+    };
+    /** Or */
+    "Or-Input": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "or";
+      /** Children */
+      children: (
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Input"]
+        | components["schemas"]["Or-Input"]
+        | components["schemas"]["Not-Input"]
+        | components["schemas"]["Concat-Input"]
+        | components["schemas"]["Star-Input"]
+      )[];
+    };
+    /** Or */
+    "Or-Output": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "or";
+      /** Children */
+      children: (
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Output"]
+        | components["schemas"]["Or-Output"]
+        | components["schemas"]["Not-Output"]
+        | components["schemas"]["Concat-Output"]
+        | components["schemas"]["Star-Output"]
+      )[];
+    };
+    /** PatternCount */
+    PatternCount: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "pattern_count";
+      /** Pattern */
+      pattern: string;
+      /**
+       * Op
+       * @enum {string}
+       */
+      op: "eq" | "ge" | "le";
+      /** N */
+      n: number;
+      /** Overlap */
+      overlap: boolean;
+    };
+    /** QuestionModel */
+    QuestionModel: {
+      /** Id */
+      id: string;
+      /** Topic */
+      topic: string;
+      /** Text */
+      text: string;
+      /** Options */
+      options: components["schemas"]["OptionModel"][];
+    };
+    /** Regex */
+    Regex: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "regex";
+      /** Expr */
+      expr: string;
+    };
+    /** SimulateRequest */
+    SimulateRequest: {
+      /** Word */
+      word: string;
+      /**
+       * Witness
+       * @default true
+       */
+      witness: boolean;
+      /**
+       * Page
+       * @default 1
+       */
+      page: number;
+    };
+    /** SimulateResponse */
+    SimulateResponse: {
+      /** Automaton Id */
+      automaton_id: string;
+      /** Word */
+      word: string;
+      /** Valid */
+      valid: boolean;
+      /** Accepted */
+      accepted: boolean;
+      /** Witness */
+      witness: [string, string, string][] | null;
+      /** Steps */
+      steps: components["schemas"]["StepModel"][];
+      /** Page */
+      page: number;
+      /** Pages */
+      pages: number;
+      /** Total Steps */
+      total_steps: number;
+    };
+    /** Star */
+    "Star-Input": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "star";
+      /** Child */
+      child:
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Input"]
+        | components["schemas"]["Or-Input"]
+        | components["schemas"]["Not-Input"]
+        | components["schemas"]["Concat-Input"]
+        | components["schemas"]["Star-Input"];
+    };
+    /** Star */
+    "Star-Output": {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "star";
+      /** Child */
+      child:
+        | components["schemas"]["StartsWith"]
+        | components["schemas"]["EndsWith"]
+        | components["schemas"]["Contains"]
+        | components["schemas"]["Avoids"]
+        | components["schemas"]["SymbolCount"]
+        | components["schemas"]["SymbolParity"]
+        | components["schemas"]["LengthMod"]
+        | components["schemas"]["PatternCount"]
+        | components["schemas"]["Regex"]
+        | components["schemas"]["LiteralSet"]
+        | components["schemas"]["And-Output"]
+        | components["schemas"]["Or-Output"]
+        | components["schemas"]["Not-Output"]
+        | components["schemas"]["Concat-Output"]
+        | components["schemas"]["Star-Output"];
+    };
+    /** StartEdgeModel */
+    StartEdgeModel: {
+      /** Id */
+      id: string;
+      /** Target */
+      target: string;
+    };
+    /** StartsWith */
+    StartsWith: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "starts_with";
+      /** Pattern */
+      pattern: string;
+    };
+    /** StepModel */
+    StepModel: {
+      /** Index */
+      index: number;
+      /** Symbol */
+      symbol: string | null;
+      /** Moved */
+      moved: string[];
+      /** After */
+      after: string[];
+      /** Accepting Present */
+      accepting_present: boolean;
+      /** Final Accepted */
+      final_accepted: boolean | null;
+      /** Transitions */
+      transitions: [string, string, string][];
+      /** Epsilon Layers */
+      epsilon_layers: [string, string, string][][];
+    };
+    /** SymbolCount */
+    SymbolCount: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "symbol_count";
+      /** Symbol */
+      symbol: string;
+      /**
+       * Op
+       * @enum {string}
+       */
+      op: "eq" | "ge" | "le";
+      /** N */
+      n: number;
+    };
+    /** SymbolParity */
+    SymbolParity: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: "symbol_parity";
+      /** Symbol */
+      symbol: string;
+      /**
+       * Parity
+       * @enum {string}
+       */
+      parity: "even" | "odd";
+    };
+    /** TableModel */
+    TableModel: {
+      /** Model Hash */
+      model_hash: string;
+      /** Eps Free */
+      eps_free: boolean;
+      /** Columns */
+      columns: string[];
+      /** Rows */
+      rows: components["schemas"]["TableRowModel"][];
+      /** Hidden Dead States */
+      hidden_dead_states: string[];
+    };
+    /** TableRowModel */
+    TableRowModel: {
+      /** State */
+      state: string;
+      /** Marker */
+      marker: string;
+      /** Start */
+      start: boolean;
+      /** Accepting */
+      accepting: boolean;
+      /** Cells */
+      cells: string[][];
+    };
+    /** VerificationModel */
+    VerificationModel: {
+      /** Automaton Id */
+      automaton_id: string;
+      /**
+       * Level
+       * @enum {string}
+       */
+      level: "V0" | "V1" | "V2" | "V3";
+      /**
+       * Badge
+       * @enum {string}
+       */
+      badge: "grey" | "amber" | "green";
+      /** Checks */
+      checks: components["schemas"]["CheckModel"][];
+      /** Bounded Length */
+      bounded_length: number;
+      /** Property Runs */
+      property_runs: number;
+      /** Notes */
+      notes: string[];
+    };
+    /** VerifyRequest */
+    VerifyRequest: {
+      /**
+       * Level
+       * @default V3
+       * @enum {string}
+       */
+      level: "V0" | "V1" | "V2" | "V3";
+    };
+    /** VerifyResponse */
+    VerifyResponse: {
+      /** Automaton Id */
+      automaton_id: string;
+      /**
+       * Level
+       * @enum {string}
+       */
+      level: "V0" | "V1" | "V2" | "V3";
+      /**
+       * Badge
+       * @enum {string}
+       */
+      badge: "grey" | "amber" | "green";
+      /** Checks */
+      checks: components["schemas"]["CheckModel"][];
+      /** Bounded Length */
+      bounded_length: number;
+      /** Property Runs */
+      property_runs: number;
+      /** Notes */
+      notes: string[];
+      /** Requested */
+      requested: string;
+      /** Reached */
+      reached: boolean;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    health_v1_health_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Health"];
-                };
-            };
-        };
+  health_v1_health_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    capabilities_v1_capabilities_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Capabilities"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["Health"];
         };
+      };
     };
-    interpret_text_v1_interpret_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InterpretRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InterpretResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+  };
+  capabilities_v1_capabilities_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    answer_question_v1_interpret__session_id__answer_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                session_id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AnswerRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["Capabilities"];
         };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InterpretResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+      };
     };
-    create_automaton_v1_automata_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IRDocument-Input"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AutomatonSummary"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+  };
+  interpret_text_v1_interpret_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    get_automaton_v1_automata__automaton_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                automaton_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AutomatonDetail"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InterpretRequest"];
+      };
     };
-    get_table_v1_automata__automaton_id__table_get: {
-        parameters: {
-            query?: {
-                format?: "json" | "csv" | "md" | "tex";
-                eps_free?: boolean;
-                show_dead?: boolean;
-            };
-            header?: never;
-            path: {
-                automaton_id: string;
-            };
-            cookie?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TableModel"];
-                    "text/csv": unknown;
-                    "text/markdown": unknown;
-                    "application/x-tex": unknown;
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["InterpretResponse"];
         };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
     };
-    get_diagram_v1_automata__automaton_id__diagram_get: {
-        parameters: {
-            query?: {
-                format?: "svg" | "png" | "dot" | "json";
-                eps_free?: boolean;
-                show_dead?: boolean;
-            };
-            header?: never;
-            path: {
-                automaton_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GraphModel"];
-                    "image/svg+xml": unknown;
-                    "image/png": unknown;
-                    "text/vnd.graphviz": unknown;
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+  };
+  answer_question_v1_interpret__session_id__answer_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        session_id: string;
+      };
+      cookie?: never;
     };
-    simulate_word_v1_automata__automaton_id__simulate_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                automaton_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SimulateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimulateResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AnswerRequest"];
+      };
     };
-    simulate_batch_v1_automata__automaton_id__simulate_batch_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                automaton_id: string;
-            };
-            cookie?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BatchRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["InterpretResponse"];
         };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BatchResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
         };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
     };
-    verify_automaton_v1_automata__automaton_id__verify_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                automaton_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["VerifyRequest"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VerifyResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Content Too Large */
-            413: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Too Many Requests */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Gateway Timeout */
-            504: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-        };
+  };
+  create_automaton_v1_automata_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["IRDocument-Input"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AutomatonSummary"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_automaton_v1_automata__automaton_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AutomatonDetail"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_table_v1_automata__automaton_id__table_get: {
+    parameters: {
+      query?: {
+        format?: "json" | "csv" | "md" | "tex";
+        eps_free?: boolean;
+        show_dead?: boolean;
+      };
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TableModel"];
+          "text/csv": unknown;
+          "text/markdown": unknown;
+          "application/x-tex": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_diagram_v1_automata__automaton_id__diagram_get: {
+    parameters: {
+      query?: {
+        format?: "svg" | "png" | "dot" | "json";
+        eps_free?: boolean;
+        show_dead?: boolean;
+      };
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GraphModel"];
+          "image/svg+xml": unknown;
+          "image/png": unknown;
+          "text/vnd.graphviz": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  simulate_word_v1_automata__automaton_id__simulate_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SimulateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SimulateResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  simulate_batch_v1_automata__automaton_id__simulate_batch_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BatchResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  verify_automaton_v1_automata__automaton_id__verify_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["VerifyRequest"] | null;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VerifyResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
 }

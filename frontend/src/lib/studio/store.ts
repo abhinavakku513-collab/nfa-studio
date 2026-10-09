@@ -85,12 +85,26 @@ export function createStudioStore(api: Api) {
     }
 
     function receive(response: InterpretResponse): void {
-      const base = { busy: null, confidence: response.confidence, summary: null } as const;
+      const base = {
+        busy: null,
+        confidence: response.confidence,
+        summary: null,
+      } as const;
       if (response.status === "ready" && response.ir) {
         const override = get().alphabetOverride;
         const ir = override ? withAlphabet(response.ir, override) : response.ir;
-        set({ ...base, stage: "confirming", ir, sessionId: null, question: null, rejected: [] });
-      } else if (response.status === "clarification_required" && response.question) {
+        set({
+          ...base,
+          stage: "confirming",
+          ir,
+          sessionId: null,
+          question: null,
+          rejected: [],
+        });
+      } else if (
+        response.status === "clarification_required" &&
+        response.question
+      ) {
         set({
           ...base,
           stage: "asking",
@@ -141,7 +155,9 @@ export function createStudioStore(api: Api) {
         try {
           receive(
             await settle(
-              api.POST("/v1/interpret", { body: { text: sent, session_id: sessionId } }),
+              api.POST("/v1/interpret", {
+                body: { text: sent, session_id: sessionId },
+              }),
             ),
           );
         } catch (error) {
@@ -172,14 +188,22 @@ export function createStudioStore(api: Api) {
       editIr: (path, value) => {
         const ir = get().ir;
         if (ir) {
-          set({ ir: setAt(ir, path, value), summary: null, stage: "confirming" });
+          set({
+            ir: setAt(ir, path, value),
+            summary: null,
+            stage: "confirming",
+          });
         }
       },
 
       setAlphabet: (symbols) => {
         const ir = get().ir;
         if (ir) {
-          set({ ir: withAlphabet(ir, symbols), summary: null, stage: "confirming" });
+          set({
+            ir: withAlphabet(ir, symbols),
+            summary: null,
+            stage: "confirming",
+          });
         } else {
           set({ alphabetOverride: symbols.length > 0 ? symbols : null });
         }
@@ -192,7 +216,11 @@ export function createStudioStore(api: Api) {
 
       openManual: () => {
         const { ir, partialIr } = get();
-        set({ stage: "editing", manualText: pretty(ir ?? partialIr ?? {}), summary: null });
+        set({
+          stage: "editing",
+          manualText: pretty(ir ?? partialIr ?? {}),
+          summary: null,
+        });
       },
 
       setManualText: (manualText) => set({ manualText }),
@@ -230,7 +258,11 @@ export function createStudioStore(api: Api) {
           ...FRESH,
           text: get().text,
           stage: "confirming",
-          ir: { ...ir, assumptions: ir.assumptions ?? [], clarifications: ir.clarifications ?? [] },
+          ir: {
+            ...ir,
+            assumptions: ir.assumptions ?? [],
+            clarifications: ir.clarifications ?? [],
+          },
         }),
 
       dismissProblem: () => set({ problem: null, problemStep: null }),

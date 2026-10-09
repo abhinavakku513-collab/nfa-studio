@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { ir } from "@/test/fakeServer";
 import type { IRDocument } from "@/lib/api/client";
-import { formatWords, parseSymbols, parseWords, setAt, withAlphabet } from "./ir";
+import {
+  formatWords,
+  parseSymbols,
+  parseWords,
+  setAt,
+  withAlphabet,
+} from "./ir";
 
 describe("setAt", () => {
   it("replaces one value and copies only the path to it", () => {
-    const root = { language: { type: "and", children: [{ pattern: "a" }, { pattern: "b" }] }, other: { x: 1 } };
+    const root = {
+      language: { type: "and", children: [{ pattern: "a" }, { pattern: "b" }] },
+      other: { x: 1 },
+    };
     const next = setAt(root, ["language", "children", 1, "pattern"], "ba");
     expect(next.language.children[1].pattern).toBe("ba");
     expect(root.language.children[1].pattern).toBe("b");

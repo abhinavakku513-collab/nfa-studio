@@ -64,8 +64,12 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-neutral-soft: var(--neutral-soft);
-  --font-sans: var(--font-inter), var(--font-noto-sans-math), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), var(--font-noto-sans-math), ui-monospace, monospace;
+  --font-sans:
+    var(--font-inter), var(--font-noto-sans-math), ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono:
+    var(--font-jetbrains-mono), var(--font-noto-sans-math), ui-monospace,
+    monospace;
   --font-math: var(--font-noto-sans-math), var(--font-inter), serif;
 }
 
@@ -86,4 +90,44 @@ body {
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* The inlined Graphviz SVG (CLAUDE.md diagram contract): Graphviz writes Times and
+   black as presentation attributes, which these rules override with the theme. Filling
+   the panel lets the viewBox fit the drawing in both directions at zoom 1. */
+.diagram svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.diagram text {
+  font-family: var(--font-sans);
+  fill: var(--text);
+}
+
+.diagram .node ellipse,
+.diagram .edge path {
+  stroke: var(--text);
+}
+
+.diagram .edge polygon {
+  fill: var(--text);
+  stroke: var(--text);
+}
+
+.diagram .state.dead ellipse {
+  stroke: var(--subtle);
+  stroke-dasharray: 4 3;
+}
+
+.diagram .state.dead text {
+  fill: var(--subtle);
+}
+
+.diagram .state.is-highlighted ellipse {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 2.5;
 }

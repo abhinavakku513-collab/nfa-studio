@@ -2,10 +2,19 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { type Theme, currentTheme, setTheme, subscribeTheme } from "@/lib/theme";
+import {
+  type Theme,
+  currentTheme,
+  setTheme,
+  subscribeTheme,
+} from "@/lib/theme";
 
 function ThemeToggle() {
-  const theme = useSyncExternalStore<Theme>(subscribeTheme, currentTheme, () => "light");
+  const theme = useSyncExternalStore<Theme>(
+    subscribeTheme,
+    currentTheme,
+    () => "light",
+  );
   const next: Theme = theme === "dark" ? "light" : "dark";
   return (
     <button
@@ -15,7 +24,11 @@ function ThemeToggle() {
       title={`Switch to ${next} theme`}
       className="inline-flex size-9 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-text"
     >
-      {theme === "dark" ? <Sun aria-hidden className="size-4" /> : <Moon aria-hidden className="size-4" />}
+      {theme === "dark" ? (
+        <Sun aria-hidden className="size-4" />
+      ) : (
+        <Moon aria-hidden className="size-4" />
+      )}
     </button>
   );
 }

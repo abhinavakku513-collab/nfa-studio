@@ -55,7 +55,9 @@ export function StepCard({
           aria-hidden
           className={clsx(
             "flex size-6 items-center justify-center rounded-full text-xs font-semibold",
-            done ? "bg-accent text-accent-ink" : "border border-border-strong text-muted",
+            done
+              ? "bg-accent text-accent-ink"
+              : "border border-border-strong text-muted",
           )}
         >
           {step}
@@ -67,6 +69,40 @@ export function StepCard({
       </header>
       {children}
     </section>
+  );
+}
+
+export function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={clsx(
+        "relative h-5 w-9 shrink-0 rounded-full border transition-colors",
+        checked
+          ? "border-accent bg-accent"
+          : "border-border-strong bg-surface-2",
+      )}
+    >
+      <span
+        aria-hidden
+        className={clsx(
+          "absolute top-0.5 size-3.5 rounded-full bg-surface shadow transition-transform motion-reduce:transition-none",
+          checked ? "translate-x-4" : "translate-x-0.5",
+        )}
+      />
+    </button>
   );
 }
 
