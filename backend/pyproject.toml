@@ -11,6 +11,8 @@ extend-exclude = [".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+# Set notation from the spec is intentional in docstrings and messages.
+allowed-confusables = ["∪", "⋃", "∖", "×", "′"]
 
 [tool.mypy]
 python_version = "3.11"
