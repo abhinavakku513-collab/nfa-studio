@@ -20,7 +20,7 @@ def normalized(language: Node, symbols: tuple[str, ...] = ("a", "b")) -> IRDocum
         reject()
 
 
-@given(ir_trees(), st.randoms(use_true_random=False))
+@given(ir_trees(levels=4), st.randoms(use_true_random=False))
 def test_normalisation_is_idempotent_and_order_insensitive(tree: Node, rnd: random.Random) -> None:
     once = normalized(tree)
     assert normalize(once) == once
@@ -29,7 +29,7 @@ def test_normalisation_is_idempotent_and_order_insensitive(tree: Node, rnd: rand
     assert spec_hash(permuted) == spec_hash(once)
 
 
-@given(ir_trees(max_leaves=4), st.lists(st.text("ab", max_size=6), max_size=5))
+@given(ir_trees(), st.lists(st.text("ab", max_size=6), max_size=5))
 def test_normalisation_preserves_the_language(tree: Node, sample: list[str]) -> None:
     once = normalized(tree)
     for word in sample:
