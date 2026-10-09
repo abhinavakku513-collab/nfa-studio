@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from nfa_studio.ir.oracle import count_occurrences, matches
@@ -93,3 +95,21 @@ def test_stacked_postfix_operators_keep_their_regex_meaning() -> None:
 def test_malformed_regex_is_reported(expr: str) -> None:
     with pytest.raises(ValueError):
         matches(Regex(expr=expr), "a")
+
+
+@pytest.mark.parametrize("expr", ["(a*)*b", "(a|a)*b", "(a|a|a|a|a|a)*b", "((a*)*)*b"])
+def test_ambiguous_repetition_stays_polynomial(expr: str) -> None:
+    # A backtracking engine needs about 2^30 to 6^30 steps for these (spec §13).
+    started = time.perf_counter()
+    assert not matches(Regex(expr=expr), "a" * 30)
+    assert time.perf_counter() - started < 2
+
+
+def test_nested_ir_star_and_concat_stay_polynomial() -> None:
+    a = LiteralSet(words=("a",))
+    maybe_a = LiteralSet(words=("", "a"))
+    nested = Star(child=Concat(children=(Star(child=a), Star(child=Concat(children=(maybe_a, a))))))
+    started = time.perf_counter()
+    assert not matches(nested, "a" * 30 + "b")
+    assert matches(nested, "a" * 30)
+    assert time.perf_counter() - started < 2

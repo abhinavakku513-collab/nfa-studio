@@ -11,7 +11,7 @@ from typing import ClassVar
 
 @dataclass(frozen=True)
 class Limits:
-    """Size, time and input limits from spec §5.3, §7.3 and §9.3."""
+    """Size, time and input limits from spec §5.3, §7.3, §8.2 and §9.3."""
 
     # spec §5.3: IR size
     max_nodes: int = 40
@@ -29,6 +29,13 @@ class Limits:
     max_word_len: int = 10_000
     trace_page_size: int = 200
     max_batch_size: int = 100
+
+    # spec §8.2 and CLAUDE.md C7–C9: verification
+    reference_max_states: int = 2_000
+    bounded_max_words: int = 200_000
+    bounded_max_length: int = 10
+    property_words: int = 500
+    property_max_length: int = 30
 
 
 LIMITS = Limits()
@@ -79,5 +86,8 @@ class Budget:
         """Raise if a machine of `size` states is too big or the deadline has passed."""
         if size > self.max_states:
             raise StateLimitExceeded(size, self.max_states)
+        self.check_time()
+
+    def check_time(self) -> None:
         if self._clock() > self._deadline:
             raise TimeBudgetExceeded(self.seconds)

@@ -164,9 +164,13 @@ single symbol, add its conventional partner (`0↔1`, `a↔b`). Always
 classes, no `∅`, no backreferences. Precedence: postfix > concat > union. The
 production compiler (`compile/regex_parser.py`), the reference
 (`reference/derivatives.py`) and the oracle must not share a parser: the
-reference has its own small recursive-descent parser, and the oracle translates
-to Python `re` (symbols escaped with `re.escape`) and uses `re.fullmatch`.
-Oracle inputs are bounded by V1/V3 lengths, so backtracking cost is bounded.
+reference has its own small recursive-descent parser, and the oracle has a third
+one. The oracle decides membership with a memoised matcher (for every
+sub-expression and start index, the set of end indices), O(|r|·n³), building no
+automaton. It does not use Python `re`: backtracking is exponential on ambiguous
+repetition such as `(a|a)*b`, which V1/V3 would hit on user regexes, and spec §13
+rules out a backtracking engine. IR-level `concat`/`star` in the oracle are
+memoised the same way.
 
 **C7. Reference translations (§8.1).** With `O = Σ∖{s}` written as a union:
 - `starts_with p` → `p Σ*`; `ends_with p` → `Σ* p`; `contains p` → `Σ* p Σ*`;

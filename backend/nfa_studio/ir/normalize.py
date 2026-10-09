@@ -63,7 +63,7 @@ def normalize(doc: IRDocument) -> IRDocument:
     """
     symbols = _normalize_alphabet(doc.alphabet.symbols)
     errors = []
-    nodes = sum(1 for _ in _walk(doc.language))
+    nodes = sum(1 for _ in walk(doc.language))
     if nodes > LIMITS.max_nodes:
         errors.append(f"the IR has {nodes} nodes; the limit is {LIMITS.max_nodes}")
     errors.extend(_symbol_errors(doc.language, symbols))
@@ -112,14 +112,14 @@ def _normalize_alphabet(raw: tuple[str, ...]) -> tuple[str, ...]:
     return symbols
 
 
-def _walk(node: Node) -> Iterator[Node]:
+def walk(node: Node) -> Iterator[Node]:
     yield node
     match node:
         case And(children=children) | Or(children=children) | Concat(children=children):
             for child in children:
-                yield from _walk(child)
+                yield from walk(child)
         case Not(child=child) | Star(child=child):
-            yield from _walk(child)
+            yield from walk(child)
 
 
 def _used_symbols(node: Node) -> str:
@@ -142,7 +142,7 @@ def _used_symbols(node: Node) -> str:
 
 def _symbol_errors(language: Node, alphabet: tuple[str, ...]) -> Iterator[str]:
     allowed = set(alphabet)
-    for node in _walk(language):
+    for node in walk(language):
         for s in sorted(set(_used_symbols(node)) - allowed):
             yield (f"symbol {s!r} in {node.type} is not in the alphabet {{{', '.join(alphabet)}}}")
 
