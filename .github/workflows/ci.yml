@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
 
+# spec §14.3: tests count as passing only once this workflow has run them; every job
+# attaches its reports to the run.
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -20,10 +22,22 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r requirements.txt
-      - run: pytest -q --hypothesis-profile=ci
+      - run: pytest -q --hypothesis-profile=ci --junitxml=reports/pytest.xml
       - run: ruff check .
       - run: ruff format --check .
       - run: mypy nfa_studio
+      - name: Benchmark (rule-only) and acceptance measurements
+        run: |
+          python -m tests.benchmark.run_benchmark
+          python -m tests.benchmark.acceptance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-reports
+          path: |
+            backend/reports/
+            backend/tests/benchmark/report.json
+            backend/tests/benchmark/acceptance.json
 
   frontend:
     runs-on: ubuntu-latest
@@ -40,5 +54,45 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm run test
+      - run: npm run test -- --reporter=default --reporter=junit --outputFile.junit=reports/vitest.xml
       - run: npm run build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-reports
+          path: frontend/reports/
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Backend virtual environment
+        working-directory: backend
+        run: python -m venv .venv && .venv/bin/pip install -r requirements.txt
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci && npx playwright install --with-deps chromium
+      - working-directory: frontend
+        run: npm run build
+      - working-directory: frontend
+        run: npm run e2e -- --reporter=list,junit
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: reports/e2e.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-reports
+          path: |
+            frontend/reports/
+            frontend/test-results/

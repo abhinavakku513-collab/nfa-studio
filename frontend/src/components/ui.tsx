@@ -92,7 +92,7 @@ export function Switch({
         "relative h-5 w-9 shrink-0 rounded-full border transition-colors",
         checked
           ? "border-accent bg-accent"
-          : "border-border-strong bg-surface-2",
+          : "border-control-border bg-surface-2",
       )}
     >
       <span

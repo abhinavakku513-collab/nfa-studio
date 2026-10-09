@@ -18,6 +18,7 @@ from nfa_studio.interpret.rule_parser import AlphabetMissing, UnsupportedRequest
 from nfa_studio.ir.limits import StateLimitExceeded, TimeBudgetExceeded
 from nfa_studio.ir.normalize import IRInvalid
 from nfa_studio.render import RenderMismatch
+from nfa_studio.render.svg import GraphvizUnavailable
 from nfa_studio.session.clarify import UnknownAnswer
 from nfa_studio.verify.ladder import VerificationFailed
 
@@ -107,6 +108,10 @@ def to_api_error(exc: Exception) -> ApiError:
             )
         case AlphabetMissing():
             return ApiError(exc.code, str(exc))
+        case GraphvizUnavailable():
+            # A fault of the server's setup, but its message says exactly what to fix.
+            logger.error("graphviz unavailable: %s", exc)
+            return ApiError("E_INTERNAL", str(exc))
     logger.exception("unexpected error", exc_info=exc)
     return ApiError(
         "E_INTERNAL",
@@ -158,4 +163,5 @@ _EXPECTED: Final = (
     NonRegularRequest,
     UnsupportedRequest,
     AlphabetMissing,
+    GraphvizUnavailable,
 )

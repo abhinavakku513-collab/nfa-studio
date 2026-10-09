@@ -55,7 +55,9 @@ export function ExportButtons({
         error instanceof ProblemError
           ? error.problem.message
           : (error as Error).message;
-      setFailure(`${option.label} export failed: ${reason}`);
+      setFailure(
+        `${option.label} export failed: ${reason.replace(/\.?$/, ".")} Try again, or choose another format.`,
+      );
     } finally {
       setRunning(null);
     }

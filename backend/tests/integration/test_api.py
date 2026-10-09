@@ -2,7 +2,6 @@
 batch → verify, and the negative cases of spec §14.1."""
 
 import xml.etree.ElementTree as ET
-from collections.abc import Iterator
 from typing import Any
 
 import pytest
@@ -12,66 +11,12 @@ from nfa_studio.api import routes
 from nfa_studio.api.app import app
 from nfa_studio.api.deps import (
     TokenBucket,
-    get_automata,
-    get_by_spec,
     get_limiter,
     get_llm,
-    get_sessions,
 )
 from nfa_studio.compile import Compiled
 from nfa_studio.interpret.llm_adapter import LLMTier
-from nfa_studio.ir.limits import LIMITS
-from nfa_studio.session.store import TTLStore
-
-
-class Clock:
-    def __init__(self) -> None:
-        self.now = 0.0
-
-    def __call__(self) -> float:
-        return self.now
-
-
-@pytest.fixture
-def clock() -> Clock:
-    return Clock()
-
-
-@pytest.fixture
-def client(clock: Clock) -> Iterator[TestClient]:
-    """Fresh stores on a controllable clock, and a limiter that never refuses."""
-    sessions: TTLStore[str, Any] = TTLStore(LIMITS.session_ttl_seconds, clock=clock)
-    automata: TTLStore[str, Any] = TTLStore(LIMITS.automaton_ttl_seconds, clock=clock)
-    by_spec: TTLStore[str, str] = TTLStore(LIMITS.automaton_ttl_seconds, clock=clock)
-    app.dependency_overrides.update(
-        {
-            get_sessions: lambda: sessions,
-            get_automata: lambda: automata,
-            get_by_spec: lambda: by_spec,
-            get_limiter: lambda: TokenBucket(10**6, 10**6),
-            get_llm: lambda: None,
-        }
-    )
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-
-
-def ir(language: dict[str, Any], symbols: str = "ab") -> dict[str, Any]:
-    return {"alphabet": {"symbols": list(symbols), "source": "user"}, "language": language}
-
-
-def build(client: TestClient, language: dict[str, Any], symbols: str = "ab") -> str:
-    response = client.post("/v1/automata", json=ir(language, symbols))
-    assert response.status_code == 200, response.json()
-    return str(response.json()["automaton_id"])
-
-
-def error(response: Any, status: int, code: str) -> dict[str, Any]:
-    assert response.status_code == status, response.json()
-    body = response.json()["error"]
-    assert body["code"] == code
-    assert body["message"]
-    return dict(body)
+from tests.support.api import Clock, build, error, ir
 
 
 def test_the_whole_flow(client: TestClient) -> None:

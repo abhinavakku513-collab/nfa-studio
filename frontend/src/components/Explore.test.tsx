@@ -309,10 +309,21 @@ describe("DiagramTab", () => {
       },
       <DiagramTab id={ID} hasEpsilon={false} />,
     );
-    const diagram = await screen.findByRole("img");
+    const diagram = await screen.findByRole("group", {
+      name: "Automaton with 2 states, start state q0, accepting q1",
+    });
     expect(diagram.querySelector("script")).toBeNull();
     expect(container.querySelector("[onload], [onclick]")).toBeNull();
     expect(diagram).not.toHaveAttribute("width");
+    // spec §12.2: every state has a text alternative with its role and meaning.
+    expect(
+      within(diagram)
+        .getAllByRole("img")
+        .map((node) => node.getAttribute("aria-label")),
+    ).toEqual([
+      "q0, start state: no a seen yet",
+      "q1, accepting state: at least one a seen",
+    ]);
 
     const legend = await screen.findByRole("region", {
       name: "States and their meanings",

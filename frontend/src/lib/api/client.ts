@@ -21,6 +21,7 @@ export type AutomatonDetail = Schemas["AutomatonDetail"];
 export type TableModel = Schemas["TableModel"];
 export type GraphModel = Schemas["GraphModel"];
 export type GraphNode = Schemas["GraphNodeModel"];
+export type GraphEdge = Schemas["GraphEdgeModel"];
 export type LogEntry = Schemas["LogEntryModel"];
 export type SimulateResponse = Schemas["SimulateResponse"];
 export type StepModel = Schemas["StepModel"];

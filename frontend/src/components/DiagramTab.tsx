@@ -7,7 +7,13 @@ import type { GraphNode } from "@/lib/api/client";
 import { measureDiagram } from "@/lib/sim/geometry";
 import { useExplore, useSimulator } from "@/lib/studio/context";
 import { viewKey } from "@/lib/studio/explore";
-import { download, renderPng, sanitizeSvg, standaloneSvg } from "@/lib/svg";
+import {
+  download,
+  labelDiagram,
+  renderPng,
+  sanitizeSvg,
+  standaloneSvg,
+} from "@/lib/svg";
 import { ErrorNotice } from "./ErrorNotice";
 import { PanZoom } from "./PanZoom";
 import { Simulator } from "./Simulator";
@@ -86,18 +92,24 @@ export function DiagramTab({
     void loadGraph(id);
   }, [id, key, loadSvg, loadGraph]);
 
+  const graph = graphEntry?.status === "ready" ? graphEntry.data : null;
+  // The drawing waits for the graph so it is inlined once, with its text alternatives.
+  const graphSettled = graph !== null || graphEntry?.status === "failed";
   const svg = useMemo(() => {
-    if (svgEntry?.status !== "ready") {
+    if (svgEntry?.status !== "ready" || !graphSettled) {
       return null;
     }
     try {
-      return { markup: sanitizeSvg(svgEntry.data), error: null };
+      const markup = sanitizeSvg(svgEntry.data);
+      return {
+        markup: graph ? labelDiagram(markup, graph) : markup,
+        error: null,
+      };
     } catch (error) {
       return { markup: null, error: (error as Error).message };
     }
-  }, [svgEntry]);
+  }, [svgEntry, graph, graphSettled]);
 
-  const graph = graphEntry?.status === "ready" ? graphEntry.data : null;
   const nodes = graph?.nodes ?? [];
   const idMap = useMemo(() => graph?.id_map.transitions ?? {}, [graph]);
   const accepting = useMemo(

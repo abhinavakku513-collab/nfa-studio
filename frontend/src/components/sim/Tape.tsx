@@ -76,9 +76,10 @@ export function Tape({
             <span
               key={slot}
               className={clsx(
-                "absolute top-4 flex h-8 w-8 items-center justify-center border-y border-r border-border-strong bg-surface font-mono text-base transition-opacity duration-200 motion-reduce:transition-none",
+                "absolute top-4 flex h-8 w-8 items-center justify-center border-y border-r border-border-strong font-mono text-base transition-colors duration-200 motion-reduce:transition-none",
                 slot === 1 && "border-l",
-                slot <= head && "text-subtle opacity-60",
+                // Read cells dim by colour, not opacity, so they keep 4.5:1.
+                slot <= head ? "bg-surface-2 text-muted" : "bg-surface",
               )}
               style={{ left: slot * CELL }}
             >

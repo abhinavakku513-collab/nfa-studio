@@ -117,7 +117,7 @@ export function Controls({ total }: { total: number }) {
         <select
           value={speed}
           onChange={(event) => setSpeed(Number(event.target.value))}
-          className="rounded-md border border-border-strong bg-surface px-2 py-1 text-sm"
+          className="rounded-md border border-control-border bg-surface px-2 py-1 text-sm"
         >
           {SPEEDS.map((value) => (
             <option key={value} value={value}>

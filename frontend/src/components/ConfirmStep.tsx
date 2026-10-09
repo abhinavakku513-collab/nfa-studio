@@ -149,7 +149,7 @@ function ManualIrForm() {
         onChange={(event) => setManualText(event.target.value)}
         onKeyDown={onKeyDown}
         aria-describedby="manual-ir-hint"
-        className="rounded-md border border-border-strong bg-surface px-3 py-2 font-mono text-xs leading-5"
+        className="rounded-md border border-control-border bg-surface px-3 py-2 font-mono text-xs leading-5"
       />
       <p id="manual-ir-hint" className="text-xs text-subtle">
         <Kbd>Ctrl</Kbd> + <Kbd>Enter</Kbd> builds from this IR. The server

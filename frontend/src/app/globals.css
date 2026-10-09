@@ -10,9 +10,11 @@
   --surface-2: #f1f5f9;
   --border: #e2e8f0;
   --border-strong: #cbd5e1;
+  /* WCAG 1.4.11: outlines that identify a control reach 3:1 on every surface. */
+  --control-border: #7f8ca0;
   --text: #0f172a;
   --muted: #475569;
-  --subtle: #64748b;
+  --subtle: #5d6b80;
   --accent: #0f766e;
   --accent-strong: #115e59;
   --accent-soft: #ccfbf1;
@@ -32,9 +34,10 @@
   --surface-2: #1e293b;
   --border: #1e293b;
   --border-strong: #334155;
+  --control-border: #6b7b92;
   --text: #e2e8f0;
   --muted: #94a3b8;
-  --subtle: #7c8ba1;
+  --subtle: #8896ab;
   --accent: #2dd4bf;
   --accent-strong: #5eead4;
   --accent-soft: #134e4a;
@@ -54,6 +57,7 @@
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-control-border: var(--control-border);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
@@ -169,8 +173,9 @@ body {
   stroke: var(--witness);
 }
 
+/* The path is a graphic (3:1); its labels are text and take the 4.5:1 amber. */
 .diagram .edge.is-witness text {
-  fill: var(--witness);
+  fill: var(--amber);
   font-weight: 600;
 }
 

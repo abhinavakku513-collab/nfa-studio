@@ -48,7 +48,7 @@ export function Batch() {
           spellCheck={false}
           aria-invalid={tooMany}
           aria-describedby="batch-count"
-          className="rounded-md border border-border-strong bg-surface px-3 py-2 font-mono text-sm"
+          className="rounded-md border border-control-border bg-surface px-3 py-2 font-mono text-sm"
         />
         <div className="flex items-center justify-between gap-3">
           <p

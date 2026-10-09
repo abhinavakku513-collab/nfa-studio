@@ -1,3 +1,5 @@
+import type { GraphEdge, GraphModel, GraphNode } from "@/lib/api/client";
+
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 /**
@@ -33,6 +35,55 @@ export function sanitizeSvg(text: string): string {
   root.removeAttribute("width");
   root.removeAttribute("height");
   root.setAttribute("role", "img");
+  root.setAttribute("aria-label", "State diagram");
+  return new XMLSerializer().serializeToString(root);
+}
+
+function stateText(node: GraphNode): string {
+  const roles = [
+    node.start && "start state",
+    node.accepting && "accepting state",
+    node.dead && "dead state",
+  ].filter(Boolean);
+  return `${[node.name, ...roles].join(", ")}: ${node.meaning}`;
+}
+
+function edgeText(edge: GraphEdge): string {
+  return edge.epsilon
+    ? `ε-transition from ${edge.source} to ${edge.target}`
+    : `transition from ${edge.source} to ${edge.target} on ${edge.label}`;
+}
+
+/**
+ * Text alternatives for a sanitised diagram (spec §12.2): the drawing becomes a named
+ * group, each state an image named by its role and meaning, each edge an image named
+ * by its symbols. The start arrow is hidden; the start state's name says it.
+ */
+export function labelDiagram(svg: string, graph: GraphModel): string {
+  const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+  const root = doc.documentElement;
+  const labels = new Map<string, string>([
+    ...graph.nodes.map((node) => [node.id, stateText(node)] as const),
+    ...graph.edges.map((edge) => [edge.id, edgeText(edge)] as const),
+  ]);
+  for (const group of Array.from(root.querySelectorAll("g[id]"))) {
+    const label = labels.get(group.id);
+    if (label) {
+      group.setAttribute("role", "img");
+      group.setAttribute("aria-label", label);
+    } else if (group.id === graph.start_edge.id) {
+      group.setAttribute("aria-hidden", "true");
+    }
+  }
+  const accepting = graph.nodes.filter((n) => n.accepting).map((n) => n.name);
+  const start = graph.nodes.find((n) => n.start)?.name ?? "";
+  root.setAttribute("role", "group");
+  root.setAttribute(
+    "aria-label",
+    `Automaton with ${graph.nodes.length} states, start state ${start}, accepting ${
+      accepting.length > 0 ? accepting.join(", ") : "none"
+    }`,
+  );
   return new XMLSerializer().serializeToString(root);
 }
 

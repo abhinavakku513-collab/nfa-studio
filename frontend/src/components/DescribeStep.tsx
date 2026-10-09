@@ -85,7 +85,7 @@ export function DescribeStep() {
           onKeyDown={onKeyDown}
           aria-describedby="description-hint"
           placeholder="e.g. strings over {a,b} that contain aba but do not end with b"
-          className="resize-y rounded-md border border-border-strong bg-surface px-3 py-2 text-sm placeholder:text-subtle"
+          className="resize-y rounded-md border border-control-border bg-surface px-3 py-2 text-sm placeholder:text-subtle"
         />
         <p id="description-hint" className="text-xs text-subtle">
           <Kbd>Ctrl</Kbd> + <Kbd>Enter</Kbd> reads the description.
