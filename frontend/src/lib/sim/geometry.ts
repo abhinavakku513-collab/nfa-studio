@@ -20,7 +20,7 @@ export type Geometry = {
 
 /**
  * Read the edge paths (with their lengths) and state circles of the inlined diagram,
- * using the ids of the diagram contract (CLAUDE.md §10.2). Path lengths are measured
+ * using the ids of the diagram contract (spec §10.2). Path lengths are measured
  * here and never during animation, so frames do no layout work.
  */
 export function measureDiagram(svg: SVGSVGElement): Geometry | null {

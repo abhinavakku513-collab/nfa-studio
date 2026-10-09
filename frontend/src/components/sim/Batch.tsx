@@ -32,7 +32,7 @@ export function Batch() {
   };
 
   return (
-    <details className="group rounded-md border border-border">
+    <details className="rounded-md border border-border">
       <summary className="cursor-pointer px-3 py-2 text-sm font-semibold">
         Batch test
       </summary>

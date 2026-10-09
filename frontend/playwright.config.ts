@@ -8,7 +8,7 @@ const python =
 
 // End-to-end against both real servers: the backend from its venv, the frontend's
 // production build (run `npm run build` first). One worker keeps the run within the
-// API rate limit (spec §11).
+// API rate limit (spec §13).
 export default defineConfig({
   testDir: "./e2e",
   timeout: 90_000,

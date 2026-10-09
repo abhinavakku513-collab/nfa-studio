@@ -142,7 +142,7 @@ def test_every_node_type_on_hand_computed_words(
     auto = compiled.automaton
     assert all(accepts(auto, w) for w in yes)
     assert not any(accepts(auto, w) for w in no)
-    # And exhaustively against the independent oracle.
+    # Hand-picked words can miss a case; the independent oracle (C6) sees every word.
     ir = validate_ir({"alphabet": {"symbols": ["a", "b"], "source": "user"}, "language": language})
     for n in range(7):
         for letters in product("ab", repeat=n):

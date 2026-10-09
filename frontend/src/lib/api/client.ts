@@ -4,19 +4,17 @@ import type { components, paths } from "./schema";
 
 // Response types exactly as openapi-fetch returns them. Its Readable<> maps every array
 // to an array of its element type, so a JSON tuple such as a δ triple arrives as
-// (string | string[])[]; `triple` below restores the shape with a runtime check.
+// (string | string[])[]; `triple` and `edge` below restore the shape with a runtime check.
 type Schemas = {
   [K in keyof components["schemas"]]: Readable<components["schemas"][K]>;
 };
 
 export type IRDocument = Schemas["IRDocument-Output"];
-export type IRNode = IRDocument["language"];
 export type Assumption = Schemas["Assumption"];
 export type InterpretResponse = Schemas["InterpretResponse"];
 export type Question = Schemas["QuestionModel"];
 export type AutomatonSummary = Schemas["AutomatonSummary"];
 export type Verification = Schemas["VerificationModel"];
-export type Capabilities = Schemas["Capabilities"];
 export type AutomatonDetail = Schemas["AutomatonDetail"];
 export type TableModel = Schemas["TableModel"];
 export type GraphModel = Schemas["GraphModel"];

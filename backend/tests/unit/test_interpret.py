@@ -57,8 +57,8 @@ def test_tokenize_lists() -> None:
     assert tokenize("'0' or 10 and \"110\"") == ["0", "10", "110"]
 
 
-# Written after the rule set, in wordings the benchmark does not use; the first run read
-# 23 of 28 correctly, and the five misses became general phrase families.
+# Wordings the benchmark does not use, so the rules are checked beyond the prompts they
+# are scored on (C12: no prompt may be special-cased).
 PARAPHRASES: list[tuple[str, dict[str, Any], str]] = [
     ("words over {a,b} beginning with ab", {"type": "starts_with", "pattern": "ab"}, "ab"),
     ("all strings over {0,1} that finish with 10", {"type": "ends_with", "pattern": "10"}, "01"),

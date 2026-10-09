@@ -15,7 +15,7 @@ import type { TraceStep } from "@/lib/sim/timeline";
 export const SPEEDS = [0.25, 0.5, 1, 1.5, 2, 4] as const;
 // CLAUDE.md: above 500 symbols the animation changes states instantly.
 export const LONG_WORD = 500;
-// spec §11: limits.max_batch_size.
+// spec §9.3: limits.max_batch_size.
 export const BATCH_LIMIT = 100;
 const HISTORY_LIMIT = 20;
 

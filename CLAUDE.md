@@ -230,6 +230,14 @@ comes from the pinned model id, the cache by normalised text, and the same
 validation and normalisation as Tier 1. The IR schema goes in the prompt rather
 than in structured outputs, which do not accept recursive schemas.
 
+**C15. Graphviz layout limit (spec §10.2).** One `dot` run gets
+`render_timeout_seconds = 10`. Sparse machines lay out in about a second even near
+the state cap, but dense determinized ones can take a minute; those get E_TIMEOUT
+with "Use the transition table". The table, formal definition and simulator do not
+need the drawing, so they keep working. Layouts are cached by DOT text. Decided
+against a background render or a longer limit: either ties up a worker for a
+drawing too dense to read.
+
 ## Diagram contract (§10.2)
 
 The server renders DOT → SVG with Graphviz and gives every element a stable id
