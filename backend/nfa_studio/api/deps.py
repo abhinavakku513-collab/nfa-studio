@@ -1,5 +1,7 @@
 """Shared state for the API: the stores and the per-IP rate limiter (spec §3.1, §13)."""
 
+import ipaddress
+import os
 import threading
 import time
 from collections.abc import Callable
@@ -68,6 +70,11 @@ by_spec: TTLStore[str, str] = TTLStore(LIMITS.automaton_ttl_seconds)
 limiter = TokenBucket(LIMITS.rate_limit_burst, LIMITS.rate_limit_per_second)
 # None unless NFA_LLM_ENABLED=1 (backend/.env or the environment).
 llm_tier = tier_from_env()
+# Behind a proxy the TCP peer is the proxy, so the visitor's address must come from a
+# header the platform's edge sets and overwrites. X-Forwarded-For is never read: Render
+# keeps whatever the client put there and appends to it, so its entries can be forged.
+# Unset (local runs), the peer address is used, which cannot be forged.
+client_ip_header = os.environ.get("NFA_CLIENT_IP_HEADER") or None
 
 
 def get_sessions() -> TTLStore[str, Session]:
@@ -90,8 +97,26 @@ def get_llm() -> LLMTier | None:
     return llm_tier
 
 
-def rate_limit(request: Request, bucket: Annotated[TokenBucket, Depends(get_limiter)]) -> None:
-    wait = bucket.take(request.client.host if request.client else "unknown")
+def get_client_ip_header() -> str | None:
+    return client_ip_header
+
+
+def client_address(request: Request, header: str | None) -> str:
+    """The rate-limit key: the edge-set `header` when it holds an IP, else the TCP peer."""
+    if header:
+        try:
+            return str(ipaddress.ip_address(request.headers.get(header, "").strip()))
+        except ValueError:
+            pass
+    return request.client.host if request.client else "unknown"
+
+
+def rate_limit(
+    request: Request,
+    bucket: Annotated[TokenBucket, Depends(get_limiter)],
+    header: Annotated[str | None, Depends(get_client_ip_header)],
+) -> None:
+    wait = bucket.take(client_address(request, header))
     if wait > 0:
         seconds = max(1, round(wait))
         raise ApiError(

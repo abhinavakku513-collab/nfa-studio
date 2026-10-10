@@ -153,7 +153,9 @@ describe("studio store", () => {
     store.getState().setText("anything");
     await store.getState().interpret();
     expect(store.getState().problem?.code).toBe("E_NETWORK");
-    expect(store.getState().problem?.message).toMatch(/Start the backend/);
+    expect(store.getState().problem?.message).toMatch(
+      /start the backend first/,
+    );
   });
 
   it("manual IR that is not JSON is refused before it is sent", async () => {

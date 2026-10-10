@@ -58,13 +58,18 @@ export function edge(entry: readonly string[]): Edge {
 
 export type Api = ReturnType<typeof createApi>;
 
-/** Typed client for /v1; in the browser the Next.js rewrite forwards it to the backend. */
+// Set at build time when the API runs on another host: the browser then calls it
+// directly, so the API sees each visitor's own address for its rate limit. Unset, the
+// calls go to /v1 on this site and the Next.js rewrite forwards them.
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
+
+/** Typed client for /v1, on NEXT_PUBLIC_API_URL or on this site. */
 export function createApi(
   options: { baseUrl?: string; fetch?: typeof fetch } = {},
 ) {
   // JSON bodies are typed; the text formats (CSV, LaTeX, SVG, DOT) are read with parseAs.
   return createClient<paths, "application/json">({
-    baseUrl: options.baseUrl ?? "",
+    baseUrl: options.baseUrl ?? API_URL,
     ...(options.fetch ? { fetch: options.fetch } : {}),
   });
 }
@@ -81,7 +86,7 @@ export class ProblemError extends Error {
 export const NETWORK_PROBLEM: Problem = {
   code: "E_NETWORK",
   message:
-    "Could not reach the NFA Studio server. Start the backend on port 8000 (see the README), then try again.",
+    "Could not reach the NFA Studio server. Try again in a minute; if you run it yourself, start the backend first (see the README).",
   detail: {},
   status: null,
 };

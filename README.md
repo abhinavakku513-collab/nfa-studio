@@ -73,6 +73,92 @@ backend's OpenAPI document; commit the result.
 CI (`.github/workflows/ci.yml`) runs all of the above except the LLM benchmark and
 attaches the test, benchmark and acceptance reports to each run.
 
+## Deploying
+
+The backend runs on [Render](https://render.com) from `backend/Dockerfile`, and the
+frontend on [Vercel](https://vercel.com). Both deploy from your GitHub repository, so
+push it to GitHub first. Do it in this order, because each side needs the other's
+address.
+
+### 1. Backend on Render
+
+In the Render dashboard choose **New → Web Service** and connect the repository.
+
+| Setting | Value |
+|---|---|
+| Language | Docker |
+| Branch | `main` |
+| Root Directory | `backend` |
+| Dockerfile Path | `./Dockerfile` (relative to the root directory) |
+| Instance Type | Free is enough for a few friends |
+| Health Check Path (under Advanced) | `/v1/health` |
+
+Under **Environment Variables** add:
+
+| Key | Value |
+|---|---|
+| `NFA_CLIENT_IP_HEADER` | `CF-Connecting-IP` |
+| `NFA_CORS_ORIGINS` | `http://localhost:3000` for now; you replace it in step 3 |
+
+Do not set `PORT`; Render sets it and the container listens on it. Create the service
+and wait for the deploy to finish. Copy its address, for example
+`https://nfa-studio-api.onrender.com`, and check that
+`https://nfa-studio-api.onrender.com/v1/health` shows `{"status":"ok"}`.
+
+A free service sleeps after 15 minutes without traffic and takes about a minute to
+wake up, so the first visit after a quiet spell is slow.
+
+### 2. Frontend on Vercel
+
+In the Vercel dashboard choose **Add New → Project** and import the same repository.
+
+| Setting | Value |
+|---|---|
+| Root Directory | `frontend` |
+| Framework Preset | Next.js (detected) |
+| Build Command | leave the default (`npm run build`) |
+| Install Command | leave the default (`npm install`) |
+
+Under **Environment Variables** add, for Production:
+
+| Key | Value |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | the Render address from step 1, without a trailing slash |
+
+Deploy, then copy the site's address, for example `https://nfa-studio.vercel.app`.
+`NEXT_PUBLIC_API_URL` is built into the page, so if you change it later, redeploy.
+
+### 3. Connect them
+
+Back on Render, open the service's **Environment** page and set `NFA_CORS_ORIGINS` to
+the Vercel address, for example `https://nfa-studio.vercel.app`. To keep local
+development working too, list both, separated by a comma:
+`https://nfa-studio.vercel.app,http://localhost:3000`. Save; Render redeploys. Open the
+Vercel address and build an automaton: that is the link to send your friends.
+
+Only the addresses listed in `NFA_CORS_ORIGINS` can use the API from a browser, so
+Vercel preview deployments, which get their own addresses, will not work unless you
+add them.
+
+### What the settings do
+
+| Variable | Where | Default | Purpose |
+|---|---|---|---|
+| `NFA_CORS_ORIGINS` | backend | `http://localhost:3000` | Comma-separated sites allowed to call the API from a browser. |
+| `NFA_CLIENT_IP_HEADER` | backend | unset (use the connection's address) | Header that names the visitor for the rate limit. On Render, Cloudflare sets `CF-Connecting-IP` and refuses requests that try to supply it, so it cannot be forged. `X-Forwarded-For` is never used: Render keeps whatever a client puts in it. |
+| `NFA_LLM_ENABLED`, `ANTHROPIC_API_KEY` | backend | off | The optional LLM tier stays off unless you set `NFA_LLM_ENABLED=1` and add the key as a secret. |
+| `NEXT_PUBLIC_API_URL` | frontend | unset (same site) | Address of the API. The browser calls it directly, so the rate limit counts each visitor separately. |
+| `BACKEND_URL` | frontend | `http://127.0.0.1:8000` | Where the frontend forwards `/v1` when `NEXT_PUBLIC_API_URL` is unset, as in local development. |
+
+To try the backend image locally:
+
+```powershell
+cd backend
+docker build -t nfa-studio-api .
+docker run --rm -p 8000:10000 -e PORT=10000 nfa-studio-api
+# then open http://127.0.0.1:8000/v1/health
+```
+
 ## Architecture
 
 ```

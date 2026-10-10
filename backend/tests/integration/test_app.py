@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from nfa_studio.api.app import app
+from nfa_studio.api.app import app, cors_origins
 from nfa_studio.ir.limits import LIMITS
 
 client = TestClient(app)
@@ -29,3 +29,12 @@ def test_cors_allows_only_the_dev_frontend() -> None:
 
     other = client.get("/v1/health", headers={"Origin": "http://evil.example"})
     assert "access-control-allow-origin" not in other.headers
+
+
+def test_cors_origins_come_from_a_comma_separated_list() -> None:
+    assert cors_origins(None) == ["http://localhost:3000"]
+    assert cors_origins(" , ") == ["http://localhost:3000"]
+    assert cors_origins("https://nfa.vercel.app/, http://localhost:3000") == [
+        "https://nfa.vercel.app",
+        "http://localhost:3000",
+    ]

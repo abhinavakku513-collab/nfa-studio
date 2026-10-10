@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 
 from nfa_studio.api import deps, routes
 from nfa_studio.api.app import app
-from nfa_studio.api.deps import TokenBucket, get_limiter
+from nfa_studio.api.deps import TokenBucket, get_client_ip_header, get_limiter
 from nfa_studio.api.errors import STATUS
 from nfa_studio.compile import Compiled
 from nfa_studio.ir.limits import LIMITS, TimeBudgetExceeded
@@ -115,6 +115,30 @@ def test_the_configured_rate_limit_per_address(client: TestClient, clock: Clock)
     clock.now += 1
     assert client.get(automaton).status_code == 200
     assert client.get(automaton).status_code == 429
+
+
+def test_behind_a_proxy_the_edge_header_names_the_visitor(client: TestClient, clock: Clock) -> None:
+    bucket = TokenBucket(2, 1.0, clock=clock)
+    app.dependency_overrides[get_limiter] = lambda: bucket
+    app.dependency_overrides[get_client_ip_header] = lambda: "CF-Connecting-IP"
+    url = "/v1/automata/sha256:0000"
+    visitor = {"CF-Connecting-IP": "198.51.100.7"}
+    assert [client.get(url, headers=visitor).status_code for _ in range(2)] == [404, 404]
+    # Forging X-Forwarded-For buys nothing: the edge header still names this visitor.
+    forged = {**visitor, "X-Forwarded-For": "203.0.113.9, 192.0.2.1"}
+    error(client.get(url, headers=forged), 429, "E_RATE_LIMITED")
+    assert client.get(url, headers={"CF-Connecting-IP": "198.51.100.8"}).status_code == 404
+    # A value that is not an address is ignored in favour of the TCP peer.
+    assert client.get(url, headers={"CF-Connecting-IP": "not an ip"}).status_code == 404
+
+
+def test_without_a_proxy_no_header_can_change_the_address(client: TestClient, clock: Clock) -> None:
+    bucket = TokenBucket(1, 1.0, clock=clock)
+    app.dependency_overrides[get_limiter] = lambda: bucket
+    url = "/v1/automata/sha256:0000"
+    assert client.get(url).status_code == 404
+    for spoof in ({"CF-Connecting-IP": "198.51.100.9"}, {"X-Forwarded-For": "198.51.100.9"}):
+        error(client.get(url, headers=spoof), 429, "E_RATE_LIMITED")
 
 
 # spec §12.2: a message states the reason, then a clause that tells the user what to do.
