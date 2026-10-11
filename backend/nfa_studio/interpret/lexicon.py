@@ -56,12 +56,28 @@ LEADING_FILLER: Final = (
     r"^(?:(?:all|the|set|of|language|strings?|words?|sequences?|binary|that|which|whose|"
     r"where|such|in|are|is|those|any|both|either)\s+)+"
 )
-# An exercise-style request around the description: "Construct an NFA (over …) accepting".
-PREAMBLE: Final = (
-    r"^(?:please\s+)?(?:(?:construct|design|build|create|draw|give|make|find|write)\s+"
-    r"(?:me\s+)?(?:an?\s+|the\s+)?(?:(?:ε|epsilon|e)-?)?(?:nfa|dfa|automaton|finite automaton|"
-    r"(?:finite[- ]state )?machine)\s+(?:that\s+|which\s+)?)?"
-    r"(?:accepting|accepts?|recogni[sz](?:ing|es?))\s+(?:(?:every|each)\s+)?"
+# What may come before the description, stripped from the front of the sentence one
+# piece at a time and in any order: "Please enter all binary strings …", "Can you
+# construct an NFA for the language of all strings …". Articles go only with a machine
+# noun and all/every/any/each only before strings or words, so "a or b followed by c"
+# and "every a is followed by b" keep their first word.
+_COMMANDS: Final = (
+    r"enter|type|give(?: me)?|write(?: down)?|make|build|create|generate|find|show(?: me)?|"
+    r"list|construct|design|draw|input"
+)
+_MACHINE: Final = (
+    r"(?:(?:ε|epsilon|e)-?)?nfa|dfa|(?:finite )?automaton|(?:finite[- ]state )?machine"
+)
+_RECOGNISES: Final = r"accepting|accepts?|recogni[sz](?:es|ing|e)"
+LEAD_IN: Final = (
+    r"^(?:please|kindly|(?:can|could|would) you|i (?:want|need|would like)(?: to)?"
+    r"|i'd like(?: to)?"
+    rf"|{_COMMANDS}"
+    rf"|(?:an? |the )?(?:{_MACHINE})(?: (?:for|(?:that |which )?(?:{_RECOGNISES})))?"
+    rf"|(?:that |which )?(?:{_RECOGNISES})"
+    r"|(?:the )?(?:language|set) of"
+    r"|(?:all|every|any|each)(?= (?:the )?(?:binary )?(?:strings?|words?|sequences?)\b)"
+    r")[\s,:]+"
 )
 NEGATION: Final = r"^(?:that |which )?(?:do not|does not|don't|doesn't|not|never|cannot|can't)\s+"
 # Splits clauses; "but", "plus", "while" and a relative "that"/"which" join like "and".
@@ -95,4 +111,15 @@ EXAMPLE_PROMPTS: Final = (
     "binary strings ending in 01",
     "strings over {a,b} with an even number of a's",
     "strings over {a,b} that contain aba but do not end with b",
+)
+# The closest of these to an unreadable description is suggested first (C11).
+EXAMPLE_CATALOG: Final = (
+    *EXAMPLE_PROMPTS,
+    "binary strings starting with 1",
+    "strings over {a,b} containing the substring abba",
+    "binary strings that contain 101 and end with 00",
+    "binary strings of odd length",
+    "binary strings whose length is divisible by 3",
+    "binary strings with no two consecutive 1s",
+    "strings over {a,b} with at least three a's",
 )

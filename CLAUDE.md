@@ -206,7 +206,12 @@ Truncate to 80 characters in the diagram; full text in the legend and on hover.
 
 **C11. Uninterpretable text** ("strings that are good") returns
 E_UNSUPPORTED_FEATURE with `detail.reason = "not_interpretable"` and three
-example prompts. No new error codes are invented.
+example prompts. No new error codes are invented. The message first says what was
+read and what was not ('I read the alphabet {0, 1} and "contain 101", but couldn't
+find a condition in "are pretty"'), then names the closest example, which also leads
+`detail.examples`. Closest means most content words in common with the whole
+description, from `lexicon.EXAMPLE_CATALOG`; with nothing in common the usual first
+example leads. Every catalogue entry must stay readable (a test checks it).
 
 **C12. Benchmark scoring (§14.2).** An `ir` entry is correct when the produced
 IR describes the same language as the expected IR (compile both and compare
@@ -217,7 +222,7 @@ whether an alternative was offered. The interpreter must stay general: never
 special-case a benchmark prompt string. The benchmark runner prints a table of
 every entry with pass/fail and writes `tests/benchmark/report.json`. Entries 1–40
 are the spec's; 41–50 cover joined conditions (C16), malformed alphabets and verb
-variants.
+variants; 51–55 cover command words, quotes and punctuation around a description.
 
 **C13. Clarifier.** Exactly three must-answer topics exist in v1:
 `count_exact_or_at_least`, `overlap`, `grouping` (and `alphabet` only when the
@@ -249,8 +254,15 @@ other one. Decided because exercise-style sentences chain three or more conditio
 and a question on each was more friction than the conventional reading. A bare
 pattern that borrows the previous predicate ("ends with b or a") stays with that
 clause, ahead of the AND/OR grouping. "a or b followed by c" still asks (C13).
-Exercise preambles ("Construct an NFA over … accepting every string that") are
-stripped, and the alphabet is read as typed from `{0,1}`, `[0,1]`, `{[0,1]`, an
+Before the rules, `tidy` trims quotes (' " ` and curly quotes), trailing . , ; : ! ?
+and brackets that wrap a whole sentence (not a regex group such as `(ab)`); then the
+lead-in (`lexicon.LEAD_IN`) is stripped repeatedly, case-insensitively: please, can
+you, I want/need, command words (enter, type, give me, write, make, build, create,
+generate, find, show, list, construct, design, draw, input), "an NFA/DFA for/that
+accepts", "the language of", "set of", and all/every/any/each. An article is taken
+only with a machine noun and all/every/any/each only before strings or words, so "a
+or b followed by c" and "every a is followed by b" keep their first word. The
+alphabet is read as typed from `{0,1}`, `[0,1]`, `{[0,1]`, an
 unclosed `{0,1`, `Σ = {0,1}`, `I = {0,1}` or "over 0 and 1".
 
 **C17. Branches view (additive to spec §10, §12).** A visualisation over the same IR,

@@ -2,8 +2,8 @@
   "benchmark": "benchmark_v1",
   "mode": "rule-only",
   "llm_calls": 0,
-  "passed": 50,
-  "total": 50,
+  "passed": 55,
+  "total": 55,
   "score": 1.0,
   "entries": [
     {
@@ -403,6 +403,46 @@
       "prompt": "binary strings that contain 00 or contain 11 but not end with 0",
       "expected": "ir",
       "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"and\", \"children\": [{\"type\": \"contains\", \"pattern\": \"11\"}, {\"type\": \"not\", \"child\": {\"type\": \"ends_with\", \"pattern\": \"0\"}}]}, {\"type\": \"contains\", \"pattern\": \"00\"}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 51,
+      "prompt": "enter binary strings that contain 101 and end with 00'",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"contains\", \"pattern\": \"101\"}, {\"type\": \"ends_with\", \"pattern\": \"00\"}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 52,
+      "prompt": "\"strings over {a,b} that start with ab\".",
+      "expected": "ir",
+      "got": "ir {\"type\": \"starts_with\", \"pattern\": \"ab\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 53,
+      "prompt": "Please enter all binary strings with an even number of 0s;",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_parity\", \"symbol\": \"0\", \"parity\": \"even\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 54,
+      "prompt": "can you construct a DFA for the language of all strings over {a,b,c} that do not contain c?",
+      "expected": "ir",
+      "got": "ir {\"type\": \"avoids\", \"pattern\": \"c\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 55,
+      "prompt": "(give me an NFA that accepts binary strings of odd length)",
+      "expected": "ir",
+      "got": "ir {\"type\": \"length_mod\", \"m\": 2, \"r\": 1}",
       "passed": true,
       "llm_called": false
     }

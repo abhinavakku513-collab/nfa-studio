@@ -10,6 +10,7 @@ from nfa_studio.interpret.rule_parser import (
     UnsupportedRequest,
     normalize,
     parse,
+    tidy,
 )
 
 logger = logging.getLogger("nfa_studio.interpret")
@@ -22,7 +23,7 @@ def interpret(text: str, llm: LLMTier | None = None) -> Draft:
     confidence below the threshold (spec §6.1). Refusals the rules are sure of, such
     as non-regular requests, never reach it.
     """
-    normalized = normalize(text)
+    normalized = tidy(normalize(text))
     check_nonregular(normalized)
     try:
         draft = parse(normalized)

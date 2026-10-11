@@ -101,6 +101,49 @@ def normalize(text: str) -> str:
     return re.sub(r"[.!?]+$", "", re.sub(r"\s+", " ", text).strip()).strip()
 
 
+_QUOTES: Final = "'\"`\u201c\u201d\u2018\u2019"
+_TRAILING: Final = re.compile(rf"[\s.,;:!?{_QUOTES}]+$")
+_LEADING: Final = re.compile(rf"^[\s{_QUOTES}]+")
+
+
+def tidy(text: str) -> str:
+    """Quotes and stray punctuation around a description, and brackets that wrap all of it.
+
+    A pattern keeps its quotes inside the sentence ("contains 'ab' twice"); only the
+    ends are trimmed, and the rules accept a pattern whose closing quote went with them.
+    Brackets go only when they wrap a whole sentence, so a regex such as (ab) is kept.
+    """
+    while True:
+        tidied = _LEADING.sub("", _TRAILING.sub("", text))
+        if _wrapped(tidied):
+            tidied = tidied[1:-1]
+        if tidied == text:
+            return text
+        text = tidied
+
+
+def _wrapped(text: str) -> bool:
+    """True if `text` is one ( … ) or [ … ] around words, not a regex group."""
+    pairs = {"(": ")", "[": "]"}
+    if len(text) < 2 or pairs.get(text[0]) != text[-1] or " " not in text:
+        return False
+    depth = 0
+    for i, char in enumerate(text):
+        depth += (char == text[0]) - (char == text[-1])
+        if depth == 0 and i < len(text) - 1:
+            return False
+    return True
+
+
+def strip_lead_in(text: str) -> str:
+    """Command words and the like before the description, however many and in any order."""
+    while True:
+        stripped = tidy(re.sub(lx.LEAD_IN, "", tidy(text), count=1, flags=re.I))
+        if stripped == text:
+            return text
+        text = stripped
+
+
 def tokenize(text: str) -> list[str]:
     """Items of a list such as 'a, b' or '"0" or 10', with quotes and braces removed."""
     pieces = re.split(r"\s*,\s*|\s+(?:or|and)\s+|\s+", text.strip().strip("{}"))
@@ -111,11 +154,19 @@ def parse(text: str) -> Draft:
     """Read a normalised description into a draft IR, or raise why it cannot be read."""
     _refuse_numeric_value(text)
     explicit, rest = _explicit_alphabet(text)
-    rest = re.sub(lx.PREAMBLE, "", rest, flags=re.I)
+    rest = strip_lead_in(rest)
     binary = re.search(r"\bbinary\b", rest, re.I) is not None
     hinted = re.search(lx.ALPHABET_HINTS, rest, re.I) is not None
     body = re.sub(_HINT_PHRASE, "", rest, flags=re.I).strip()
-    clause, confidence = _parse_body(re.sub(r"\s+", " ", body))
+    try:
+        clause, confidence = _parse_body(re.sub(r"\s+", " ", body))
+    except _Unread as unread:
+        alphabet = explicit if explicit is not None else (["0", "1"] if binary else None)
+        understood = (
+            *([f"the alphabet {{{', '.join(alphabet)}}}"] if alphabet else []),
+            *(f'"{part}"' for part in unread.understood),
+        )
+        raise not_interpretable(unread.text, understood=understood, whole=body) from None
     symbols, source, assumption = _alphabet(explicit, binary, set(clause.symbols), hinted)
     ids = list(dict.fromkeys((*clause.assumptions, *assumption)))
     return Draft(
@@ -194,6 +245,15 @@ def _alphabet(
     return value, "inferred", ("alphabet_inferred",)
 
 
+class _Unread(Exception):
+    """A part no rule reads, and the conditions read before it."""
+
+    def __init__(self, text: str, understood: tuple[str, ...] = ()) -> None:
+        super().__init__(text)
+        self.text = text
+        self.understood = understood
+
+
 def _parse_body(body: str) -> tuple[Clause, float]:
     """Clauses joined by and/or, with "and" binding tighter: a and b or c is (a and b) or c."""
     if (whole := _clause(body)) is not None:
@@ -204,11 +264,12 @@ def _parse_body(body: str) -> tuple[Clause, float]:
     while joins and not _strip_filler(parts[0]):
         parts, joins = parts[1:], joins[1:]
     if not joins:
-        raise not_interpretable(body)
+        raise _Unread(body)
     first = _clause(parts[0])
     if first is None:
-        raise not_interpretable(body)
+        raise _Unread(parts[0].strip())
     terms, term_joins = [first], []
+    read = [_strip_filler(parts[0])]
     confidence = 1.0
     for join, part in zip(joins, parts[1:], strict=True):
         clause = _clause(part)
@@ -219,11 +280,13 @@ def _parse_body(body: str) -> tuple[Clause, float]:
             confidence -= ELLIPSIS_PENALTY
             respelled = terms[-1].respell(bare[1])
             terms[-1] = replace(_join(join, [terms[-1], respelled]), respell=terms[-1].respell)
+            read[-1] += f" {join} {bare[1]}"
             continue
         if clause is None:
-            raise not_interpretable(body)
+            raise _Unread(part.strip(), tuple(read))
         terms.append(clause)
         term_joins.append(join)
+        read.append(_strip_filler(part))
     alternatives = [[terms[0]]]
     for join, term in zip(term_joins, terms[1:], strict=True):
         if join == "or":
@@ -256,15 +319,74 @@ def _merged(tree: object, clauses: list[Clause]) -> Clause:
     )
 
 
-def not_interpretable(text: str, also: str = "") -> UnsupportedRequest:
-    """C11's refusal; `also` adds why, such as the language model's verdict."""
-    examples = "; ".join(f"'{e}'" for e in lx.EXAMPLE_PROMPTS)
+def not_interpretable(
+    text: str, also: str = "", understood: tuple[str, ...] = (), whole: str | None = None
+) -> UnsupportedRequest:
+    """C11's refusal: what was read, the part that was not, and the closest example first.
+
+    `also` adds why, such as the language model's verdict; the example closest to the
+    `whole` description, when given, is suggested rather than the one closest to `text`.
+    """
+    examples = closest_examples(whole or text)
+    if understood:
+        read = f"I read {_listing(understood)}, but couldn't find a condition in"
+    else:
+        read = "I couldn't find a condition in"
     return UnsupportedRequest(
         "not_interpretable",
-        f"Could not read '{text}' as a description of strings{also}. Use phrases such as "
-        f"'starts with', 'ends with', 'contains' or 'even number of', for example {examples}.",
-        lx.EXAMPLE_PROMPTS,
+        f"{read} \"{text}\"{also}. Describe the strings with phrases such as 'starts with', "
+        f"'ends with', 'contains' or 'even number of'; the closest example is "
+        f"'{examples[0]}'.",
+        examples,
     )
+
+
+_NOT_CONTENT: Final = frozenset(
+    [
+        "a",
+        "an",
+        "and",
+        "are",
+        "binary",
+        "by",
+        "in",
+        "is",
+        "no",
+        "of",
+        "or",
+        "over",
+        "string",
+        "that",
+        "the",
+        "whose",
+        "with",
+        "word",
+    ]
+)
+
+
+def closest_examples(text: str) -> tuple[str, ...]:
+    """Three readable examples, the one sharing most content words with `text` first.
+
+    Ties keep the catalogue order, so with nothing in common the usual first example leads.
+    """
+
+    def words(phrase: str) -> set[str]:
+        stems = {re.sub(r"(?:ing|es|s)$", "", w) for w in re.findall(r"\w+", phrase.lower())}
+        return stems - _NOT_CONTENT
+
+    asked = words(text)
+
+    def closeness(example: str) -> float:
+        shared = asked & words(example)
+        return len(shared) / len(asked | words(example)) if shared else 0.0
+
+    closest = max(lx.EXAMPLE_CATALOG, key=closeness)
+    return (closest, *(e for e in lx.EXAMPLE_PROMPTS if e != closest))[:3]
+
+
+def _listing(items: tuple[str, ...]) -> str:
+    return items[0] if len(items) == 1 else f"{', '.join(items[:-1])} and {items[-1]}"
 
 
 def _strip_filler(text: str) -> str:

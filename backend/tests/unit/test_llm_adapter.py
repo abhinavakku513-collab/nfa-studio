@@ -243,7 +243,7 @@ def test_an_unavailable_model_falls_back_to_the_rules_and_is_not_cached() -> Non
     fake = Fake(LLMUnavailable("APIConnectionError"))
     tier = LLMTier(fake)
     for _ in range(2):
-        with pytest.raises(UnsupportedRequest, match="Could not read"):
+        with pytest.raises(UnsupportedRequest, match="couldn't find a condition in"):
             interpret(UNREADABLE, tier)
     assert len(fake.calls) == 2
     low = interpret("strings over {a,b} ending with a or b or ab or ba or bb", tier)
@@ -341,7 +341,7 @@ def test_missing_credentials_fall_back_to_the_rules(
         monkeypatch.delenv(name, raising=False)
     client = anthropic.Anthropic(base_url="http://127.0.0.1:9", max_retries=0, timeout=2.0)
     tier = LLMTier(anthropic_complete("claude-opus-5-5", client))
-    with pytest.raises(UnsupportedRequest, match="Could not read"):
+    with pytest.raises(UnsupportedRequest, match="couldn't find a condition in"):
         interpret(UNREADABLE, tier)
     assert "could not be sent" in caplog.text
 

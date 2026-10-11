@@ -235,6 +235,28 @@
                   {"type": "and", "children": [
                     {"type": "contains", "pattern": "11"},
                     {"type": "not", "child": {"type": "ends_with", "pattern": "0"}}]}]},
-                "assumptions_must_include": ["alphabet_inferred"]}}
+                "assumptions_must_include": ["alphabet_inferred"]}},
+    {"id": 51, "prompt": "enter binary strings that contain 101 and end with 00'",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "and", "children": [
+                  {"type": "contains", "pattern": "101"},
+                  {"type": "ends_with", "pattern": "00"}]},
+                "assumptions_must_include": []}},
+    {"id": 52, "prompt": "\"strings over {a,b} that start with ab\".",
+     "expect": {"kind": "ir", "alphabet": ["a", "b"],
+                "language": {"type": "starts_with", "pattern": "ab"},
+                "assumptions_must_include": []}},
+    {"id": 53, "prompt": "Please enter all binary strings with an even number of 0s;",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "symbol_parity", "symbol": "0", "parity": "even"},
+                "assumptions_must_include": ["zero_is_even"]}},
+    {"id": 54, "prompt": "can you construct a DFA for the language of all strings over {a,b,c} that do not contain c?",
+     "expect": {"kind": "ir", "alphabet": ["a", "b", "c"],
+                "language": {"type": "avoids", "pattern": "c"},
+                "assumptions_must_include": []}},
+    {"id": 55, "prompt": "(give me an NFA that accepts binary strings of odd length)",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "length_mod", "m": 2, "r": 1},
+                "assumptions_must_include": []}}
   ]
 }
