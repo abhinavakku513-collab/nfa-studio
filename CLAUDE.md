@@ -215,7 +215,9 @@ the listed assumptions are present. Tree identity is not required. Clarification
 entries match on `question_topic`; refusal entries match on error code and on
 whether an alternative was offered. The interpreter must stay general: never
 special-case a benchmark prompt string. The benchmark runner prints a table of
-all 40 with pass/fail and writes `tests/benchmark/report.json`.
+every entry with pass/fail and writes `tests/benchmark/report.json`. Entries 1–40
+are the spec's; 41–50 cover joined conditions (C16), malformed alphabets and verb
+variants.
 
 **C13. Clarifier.** Exactly three must-answer topics exist in v1:
 `count_exact_or_at_least`, `overlap`, `grouping` (and `alphabet` only when the
@@ -237,6 +239,19 @@ with "Use the transition table". The table, formal definition and simulator do n
 need the drawing, so they keep working. Layouts are cached by DOT text. Decided
 against a background render or a longer limit: either ties up a worker for a
 drawing too dense to read.
+
+**C16. Joined conditions (overrides spec §6.2 for mixed and/or).** "and", "but",
+"plus", "as well as" join with AND; "or" with OR; "not", "does not" after any of
+them negate the clause. AND binds tighter than OR, so "a and b or c" is read as
+"(a and b) or c" without a grouping question; the confirm step shows the grouping
+as nested bullets labelled AND/OR, and the user edits the IR if they meant the
+other one. Decided because exercise-style sentences chain three or more conditions
+and a question on each was more friction than the conventional reading. A bare
+pattern that borrows the previous predicate ("ends with b or a") stays with that
+clause, ahead of the AND/OR grouping. "a or b followed by c" still asks (C13).
+Exercise preambles ("Construct an NFA over … accepting every string that") are
+stripped, and the alphabet is read as typed from `{0,1}`, `[0,1]`, `{[0,1]`, an
+unclosed `{0,1`, `Σ = {0,1}`, `I = {0,1}` or "over 0 and 1".
 
 ## Diagram contract (§10.2)
 

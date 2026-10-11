@@ -2,6 +2,9 @@ import pytest
 
 from nfa_studio.api.deps import TokenBucket
 from nfa_studio.interpret import interpret
+from nfa_studio.interpret.ambiguity import count_hole, grouping_hole
+from nfa_studio.interpret.rule_parser import Draft
+from nfa_studio.ir.schema import IR_VERSION
 from nfa_studio.session.clarify import (
     Asking,
     EditIR,
@@ -22,8 +25,21 @@ class Clock:
         return self.now
 
 
+ENDS_B = {"type": "ends_with", "pattern": "b"}
+
+
 def start(text: str) -> Outcome:
     return open_draft(interpret(text), text)
+
+
+def draft_ir(language: object) -> dict[str, object]:
+    return {
+        "ir_version": IR_VERSION,
+        "alphabet": {"symbols": ["a", "b"], "source": "user"},
+        "language": language,
+        "assumptions": [],
+        "clarifications": [],
+    }
 
 
 def test_an_answer_is_merged_into_the_partial_ir() -> None:
@@ -63,7 +79,16 @@ def test_a_third_question_sends_the_ir_to_the_manual_form() -> None:
 
 
 def test_a_grouping_answer_can_open_a_nested_question() -> None:
-    asked = start("strings over {a,b} that contain two a's and end with b or start with a")
+    # No rule nests a question inside a grouping reading any more, so the draft is built here.
+    count = {"type": "symbol_count", "symbol": "a", "op": count_hole("a's", 2), "n": 2}
+    tree = grouping_hole(
+        [
+            ("contain two a's and end with b", {"type": "and", "children": [count, ENDS_B]}),
+            ("end with b", ENDS_B),
+        ]
+    )
+    text = "strings over {a,b} grouped either way"
+    asked = open_draft(Draft(draft_ir(tree), 1.0), text)
     assert isinstance(asked, Asking) and asked.question.topic == "grouping"
     nested = answer(asked.session, "Q1", "g1")
     assert isinstance(nested, Asking)

@@ -168,6 +168,73 @@
                 "language": {"type": "and", "children": [
                   {"type": "contains", "pattern": "ab"},
                   {"type": "not", "child": {"type": "ends_with", "pattern": "b"}}]},
-                "assumptions_must_include": []}}
+                "assumptions_must_include": []}},
+    {"id": 41, "prompt": "Construct an NFA over I = {[0,1] accepting every binary string that contains 101 and end with 00",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "and", "children": [
+                  {"type": "contains", "pattern": "101"},
+                  {"type": "ends_with", "pattern": "00"}]},
+                "assumptions_must_include": []}},
+    {"id": 42, "prompt": "binary strings that contain 101 or end with 00",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "or", "children": [
+                  {"type": "contains", "pattern": "101"},
+                  {"type": "ends_with", "pattern": "00"}]},
+                "assumptions_must_include": ["alphabet_inferred"]}},
+    {"id": 43, "prompt": "strings that start with 1 and contain 00 and end with 1",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "and", "children": [
+                  {"type": "starts_with", "pattern": "1"},
+                  {"type": "contains", "pattern": "00"},
+                  {"type": "ends_with", "pattern": "1"}]},
+                "assumptions_must_include": ["alphabet_inferred"]}},
+    {"id": 44, "prompt": "binary strings that contain 101 but not ending in 00",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "and", "children": [
+                  {"type": "contains", "pattern": "101"},
+                  {"type": "not", "child": {"type": "ends_with", "pattern": "00"}}]},
+                "assumptions_must_include": []}},
+    {"id": 45, "prompt": "strings over [a,b] that start with a and end with b or contain bb",
+     "expect": {"kind": "ir", "alphabet": ["a", "b"],
+                "language": {"type": "or", "children": [
+                  {"type": "and", "children": [
+                    {"type": "starts_with", "pattern": "a"},
+                    {"type": "ends_with", "pattern": "b"}]},
+                  {"type": "contains", "pattern": "bb"}]},
+                "assumptions_must_include": []}},
+    {"id": 46, "prompt": "strings over {0,1 having substring 11 as well as ending with 0",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "and", "children": [
+                  {"type": "contains", "pattern": "11"},
+                  {"type": "ends_with", "pattern": "0"}]},
+                "assumptions_must_include": []}},
+    {"id": 47, "prompt": "Σ = {a,b,c}, strings that begin with c plus end with a",
+     "expect": {"kind": "ir", "alphabet": ["a", "b", "c"],
+                "language": {"type": "and", "children": [
+                  {"type": "starts_with", "pattern": "c"},
+                  {"type": "ends_with", "pattern": "a"}]},
+                "assumptions_must_include": []}},
+    {"id": 48, "prompt": "strings over 0 and 1 that finished with 01 and do not contain 11",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "and", "children": [
+                  {"type": "ends_with", "pattern": "01"},
+                  {"type": "not", "child": {"type": "contains", "pattern": "11"}}]},
+                "assumptions_must_include": []}},
+    {"id": 49, "prompt": "Design a DFA that accepts all strings over {a,b} that end with ab or start with b and contain aa",
+     "expect": {"kind": "ir", "alphabet": ["a", "b"],
+                "language": {"type": "or", "children": [
+                  {"type": "ends_with", "pattern": "ab"},
+                  {"type": "and", "children": [
+                    {"type": "starts_with", "pattern": "b"},
+                    {"type": "contains", "pattern": "aa"}]}]},
+                "assumptions_must_include": []}},
+    {"id": 50, "prompt": "binary strings that contain 00 or contain 11 but not end with 0",
+     "expect": {"kind": "ir", "alphabet": ["0", "1"],
+                "language": {"type": "or", "children": [
+                  {"type": "contains", "pattern": "00"},
+                  {"type": "and", "children": [
+                    {"type": "contains", "pattern": "11"},
+                    {"type": "not", "child": {"type": "ends_with", "pattern": "0"}}]}]},
+                "assumptions_must_include": ["alphabet_inferred"]}}
   ]
 }

@@ -248,15 +248,23 @@ def test_unqualified_count_is_asked() -> None:
     assert asked.partial_ir["language"] == {"type": "symbol_count", "symbol": "a", "n": 2}
 
 
-def test_mixed_and_or_asks_for_the_grouping() -> None:
-    asked = outcome("strings over {a,b} that start with a and end with b or contain aa")
-    assert isinstance(asked, Asking)
-    assert asked.question.topic == "grouping"
-    assert [o.label for o in asked.question.options[:2]] == [
-        "(start with a and end with b) or contain aa",
-        "start with a and (end with b or contain aa)",
-    ]
-    assert "language" not in asked.partial_ir
+def test_mixed_and_or_groups_and_first() -> None:
+    """ "and" binds tighter than "or", so mixed connectives need no grouping question."""
+    reading = ready("strings over {a,b} that start with a and end with b or contain aa")
+    grouped = {
+        "type": "or",
+        "children": [
+            {
+                "type": "and",
+                "children": [
+                    {"type": "starts_with", "pattern": "a"},
+                    {"type": "ends_with", "pattern": "b"},
+                ],
+            },
+            {"type": "contains", "pattern": "aa"},
+        ],
+    }
+    assert reading.language == spec(grouped, "ab").language
 
 
 def test_a_or_b_followed_by_c_asks_for_the_grouping() -> None:

@@ -107,7 +107,9 @@ function Phrase({
     });
   }
 
-  function children(intro: string): ReactNode {
+  // `join` labels every condition after the first, so nested groups read as
+  // "(… AND …) OR …" rather than relying on indentation alone.
+  function children(intro: string, join?: "and" | "or"): ReactNode {
     const items = Array.isArray(node.children)
       ? (node.children as Loose[])
       : [];
@@ -117,6 +119,13 @@ function Phrase({
         <ul className="ml-4 list-disc pl-4 marker:text-subtle">
           {items.map((child, i) => (
             <li key={i}>
+              {join && i > 0 && (
+                <>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+                    {join}
+                  </span>{" "}
+                </>
+              )}
               <Phrase
                 node={child}
                 path={[...path, "children", i]}
@@ -219,9 +228,9 @@ function Phrase({
       );
     }
     case "and":
-      return children("satisfy all of these:");
+      return children("satisfy all of these:", "and");
     case "or":
-      return children("satisfy at least one of these:");
+      return children("satisfy at least one of these:", "or");
     case "concat":
       return children("split into consecutive parts that, in order,");
     case "not":

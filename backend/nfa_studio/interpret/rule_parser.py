@@ -111,6 +111,7 @@ def parse(text: str) -> Draft:
     """Read a normalised description into a draft IR, or raise why it cannot be read."""
     _refuse_numeric_value(text)
     explicit, rest = _explicit_alphabet(text)
+    rest = re.sub(lx.PREAMBLE, "", rest, flags=re.I)
     binary = re.search(r"\bbinary\b", rest, re.I) is not None
     hinted = re.search(lx.ALPHABET_HINTS, rest, re.I) is not None
     body = re.sub(_HINT_PHRASE, "", rest, flags=re.I).strip()
@@ -146,15 +147,23 @@ def _refuse_numeric_value(text: str) -> None:
         )
 
 
+_NAMED: Final = r"(?:Σ|\b[A-Za-z])\s*=\s*"
+# Brackets are tolerated as typed: {0,1}, [0,1], {[0,1] and an unclosed {0,1 all name {0,1}.
 _EXPLICIT: Final = re.compile(
-    r"\s*(?:\b(?:over|on)\s+(?:the\s+)?(?:alphabet\s+)?|\balphabet\s+|Σ\s*=\s*)"
-    r"(?:Σ\s*=\s*)?\{(?P<set>[^{}]*)\}",
+    rf"\s*(?:(?:\b(?:over|on)\s+(?:the\s+)?(?:alphabet\s+)?|\balphabet\s+)(?:{_NAMED})?|{_NAMED})"
+    r"[{\[]+\s*(?P<set>[^\s,{}\[\]]+(?:\s*,\s*[^\s,{}\[\]]+)*)\s*[}\]]*",
+    re.I,
+)
+# "over 0 and 1", "over a, b and c": single symbols listed without braces.
+_LISTED: Final = re.compile(
+    r"\s*\b(?:over|on)\s+(?:the\s+)?(?:symbols\s+|digits\s+|letters\s+)?"
+    r"(?P<set>[0-9A-Za-z](?:\s*,\s*[0-9A-Za-z])*,?\s+(?:and|or)\s+[0-9A-Za-z])(?=[\s,]|$)",
     re.I,
 )
 
 
 def _explicit_alphabet(text: str) -> tuple[list[str] | None, str]:
-    match = _EXPLICIT.search(text)
+    match = _EXPLICIT.search(text) or _LISTED.search(text)
     if match is None:
         return None, text
     rest = text[: match.start()].rstrip(" ,") + " " + text[match.end() :].lstrip(" ,")
@@ -186,6 +195,7 @@ def _alphabet(
 
 
 def _parse_body(body: str) -> tuple[Clause, float]:
+    """Clauses joined by and/or, with "and" binding tighter: a and b or c is (a and b) or c."""
     if (whole := _clause(body)) is not None:
         return whole, 1.0
     pieces = re.split(lx.CONNECTIVE, body, flags=re.I)
@@ -195,34 +205,47 @@ def _parse_body(body: str) -> tuple[Clause, float]:
         parts, joins = parts[1:], joins[1:]
     if not joins:
         raise not_interpretable(body)
-    clauses: list[Clause] = []
+    first = _clause(parts[0])
+    if first is None:
+        raise not_interpretable(body)
+    terms, term_joins = [first], []
     confidence = 1.0
-    for part in parts:
+    for join, part in zip(joins, parts[1:], strict=True):
         clause = _clause(part)
         bare = re.fullmatch(r"['\"]?([^\s'\"]+)['\"]?", part.strip())
-        if clause is None and bare and clauses and clauses[-1].respell is not None:
-            clause = clauses[-1].respell(bare[1])
+        if clause is None and bare and terms[-1].respell is not None:
+            # "ending with ab or ba": the bare pattern borrows the predicate before it and
+            # stays with it, ahead of any and/or grouping around the pair.
             confidence -= ELLIPSIS_PENALTY
+            respelled = terms[-1].respell(bare[1])
+            terms[-1] = replace(_join(join, [terms[-1], respelled]), respell=terms[-1].respell)
+            continue
         if clause is None:
             raise not_interpretable(body)
-        clauses.append(clause)
-    if len(set(joins)) == 1:
-        return _join(joins[0], clauses), confidence
-    # Mixed and/or: the grouping changes the language, so it is asked (spec §6.2).
-    left, left_text = clauses[0], parts[0]
-    for join, clause, text in zip(joins, clauses[1:], parts[1:], strict=True):
-        left, left_text = _join(join, [left, clause]), f"({left_text} {join} {text})"
-    right, right_text = clauses[-1], parts[-1]
-    for join, clause, text in zip(
-        reversed(joins), reversed(clauses[:-1]), reversed(parts[:-1]), strict=True
-    ):
-        right, right_text = _join(join, [clause, right]), f"({text} {join} {right_text})"
-    hole = grouping_hole([(left_text[1:-1], left.tree), (right_text[1:-1], right.tree)])
-    return _merged(hole, clauses), confidence
+        terms.append(clause)
+        term_joins.append(join)
+    alternatives = [[terms[0]]]
+    for join, term in zip(term_joins, terms[1:], strict=True):
+        if join == "or":
+            alternatives.append([term])
+        else:
+            alternatives[-1].append(term)
+    conjunctions = [group[0] if len(group) == 1 else _join("and", group) for group in alternatives]
+    if len(conjunctions) == 1:
+        return conjunctions[0], confidence
+    return _join("or", conjunctions), confidence
 
 
 def _join(op: str, clauses: list[Clause]) -> Clause:
-    return _merged({"type": op, "children": [c.tree for c in clauses]}, clauses)
+    """An and/or node; children of the same operator are flattened into it."""
+    children: list[object] = []
+    for clause in clauses:
+        tree = clause.tree
+        if isinstance(tree, dict) and tree.get("type") == op:
+            children.extend(tree["children"])
+        else:
+            children.append(tree)
+    return _merged({"type": op, "children": children}, clauses)
 
 
 def _merged(tree: object, clauses: list[Clause]) -> Clause:
@@ -430,11 +453,12 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         lambda m: _same_ends(),
     ),
     (
-        rf"(?:starts?|starting|begins?|beginning) (?:with|in) (?:the (?:substring|prefix) )?{_p()}",
+        rf"(?:starts?|starting|started|begins?|beginning|began|begun) (?:with|in) "
+        rf"(?:the (?:substring|prefix) )?{_p()}",
         lambda m: _predicate("starts_with")(m["p"]),
     ),
     (
-        r"(?:ends?|ending|finish(?:es)?|finishing) (?:with|in) "
+        r"(?:ends?|ending|ended|finish(?:es|ed|ing)?) (?:with|in) "
         rf"(?:the (?:substring|suffix) )?{_p()}",
         lambda m: _predicate("ends_with")(m["p"]),
     ),

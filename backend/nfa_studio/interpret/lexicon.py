@@ -56,9 +56,16 @@ LEADING_FILLER: Final = (
     r"^(?:(?:all|the|set|of|language|strings?|words?|sequences?|binary|that|which|whose|"
     r"where|such|in|are|is|those|any|both|either)\s+)+"
 )
+# An exercise-style request around the description: "Construct an NFA (over …) accepting".
+PREAMBLE: Final = (
+    r"^(?:please\s+)?(?:(?:construct|design|build|create|draw|give|make|find|write)\s+"
+    r"(?:me\s+)?(?:an?\s+|the\s+)?(?:(?:ε|epsilon|e)-?)?(?:nfa|dfa|automaton|finite automaton|"
+    r"(?:finite[- ]state )?machine)\s+(?:that\s+|which\s+)?)?"
+    r"(?:accepting|accepts?|recogni[sz](?:ing|es?))\s+(?:(?:every|each)\s+)?"
+)
 NEGATION: Final = r"^(?:that |which )?(?:do not|does not|don't|doesn't|not|never|cannot|can't)\s+"
-# Splits clauses; "but", "while" and a relative "that"/"which" join like "and".
-CONNECTIVE: Final = r"\s*,?\s+\b(and|but|or|as well as|while|that|which)\b\s+"
+# Splits clauses; "but", "plus", "while" and a relative "that"/"which" join like "and".
+CONNECTIVE: Final = r"\s*,?\s+\b(and|but|or|as well as|plus|while|that|which)\b\s+"
 
 # Single symbols whose conventional partner completes an inferred alphabet (C5).
 PARTNERS: Final = {"0": "1", "1": "0", "a": "b", "b": "a"}

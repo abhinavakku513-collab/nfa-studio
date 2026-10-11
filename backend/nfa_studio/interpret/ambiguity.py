@@ -70,7 +70,7 @@ def overlap_hole(pattern: str) -> Hole | None:
 
 
 def grouping_hole(readings: list[tuple[str, object]]) -> Hole:
-    """'a or b followed by c', or mixed and/or: which grouping is meant?"""
+    """'a or b followed by c': which grouping is meant?"""
     options = tuple(Option(f"g{i}", label) for i, (label, _) in enumerate(readings, start=1))
     return Hole(
         "grouping",
