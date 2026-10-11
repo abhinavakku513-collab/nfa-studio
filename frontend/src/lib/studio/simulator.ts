@@ -2,6 +2,7 @@ import { createStore } from "zustand/vanilla";
 import {
   type Api,
   type BatchResult,
+  type BranchSimulateResponse,
   type Edge,
   type Problem,
   ProblemError,
@@ -28,6 +29,22 @@ export type Trace = {
   pageSize: number;
   /** Loaded pages of steps, by page number (1-based, spec §9.3). */
   steps: Record<number, TraceStep[]>;
+};
+
+/** One step on every lane of the Branches view, in lane order. */
+export type BranchStep = {
+  index: number;
+  active: readonly (readonly string[])[];
+  accepting: readonly boolean[];
+};
+
+/** The current word on every lane, paged like `Trace`; loaded only for the Branches view. */
+export type BranchTrace = {
+  word: string;
+  accepted: readonly boolean[];
+  combined: boolean;
+  pageSize: number;
+  steps: Record<number, BranchStep[]>;
 };
 
 /** How the position last changed: one step forward animates, anything else jumps. */
@@ -58,6 +75,8 @@ export type SimulatorState = {
   batch: BatchResult[] | null;
   batchRunning: boolean;
   batchProblem: Problem | null;
+  branchTrace: BranchTrace | null;
+  branchProblem: Problem | null;
 };
 
 export type SimulatorActions = {
@@ -79,6 +98,8 @@ export type SimulatorActions = {
   ) => void;
   setBatchText: (text: string) => void;
   runBatch: (words: string[]) => Promise<void>;
+  /** Fetch the lanes' page that holds the current position, for the current word. */
+  loadBranches: () => Promise<void>;
 };
 
 export type Simulator = SimulatorState & SimulatorActions;
@@ -100,6 +121,8 @@ const FRESH = {
   batch: null,
   batchRunning: false,
   batchProblem: null,
+  branchTrace: null,
+  branchProblem: null,
 } satisfies Partial<SimulatorState>;
 
 function toStep(step: StepModel): TraceStep {
@@ -110,6 +133,18 @@ function toStep(step: StepModel): TraceStep {
     transitions: step.transitions.map(edge),
     epsilonLayers: step.epsilon_layers.map((layer) => layer.map(edge)),
   };
+}
+
+/** Every lane at a position, if that page of the branch trace has been loaded. */
+export function branchStepAt(
+  trace: BranchTrace | null,
+  position: number,
+): BranchStep | undefined {
+  if (!trace) {
+    return undefined;
+  }
+  const page = Math.floor(position / trace.pageSize) + 1;
+  return trace.steps[page]?.[position % trace.pageSize];
 }
 
 /** The step at a position, if its page has been loaded. */
@@ -127,6 +162,8 @@ export function stepAt(
 export function createSimulatorStore(api: Api) {
   return createStore<Simulator>()((set, get) => {
     let request = 0;
+    let branchRequest = 0;
+    let branchPage: { word: string; page: number } | null = null;
 
     function failure(error: unknown): Problem {
       if (error instanceof ProblemError) {
@@ -201,6 +238,8 @@ export function createSimulatorStore(api: Api) {
       open: (automatonId) => {
         if (get().automatonId !== automatonId) {
           request += 1;
+          branchRequest += 1;
+          branchPage = null;
           set({ automatonId, ...FRESH });
         }
       },
@@ -210,7 +249,16 @@ export function createSimulatorStore(api: Api) {
       run: async (word) => {
         const mine = ++request;
         // The previous word's verdict must not stand in for this one's.
-        set({ running: true, problem: null, playing: false, verdict: null });
+        branchRequest += 1;
+        branchPage = null;
+        set({
+          running: true,
+          problem: null,
+          playing: false,
+          verdict: null,
+          branchTrace: null,
+          branchProblem: null,
+        });
         try {
           const response = await simulate(word, 1);
           if (mine !== request) {
@@ -308,6 +356,61 @@ export function createSimulatorStore(api: Api) {
           set({ batchRunning: false, batch: response.results });
         } catch (error) {
           set({ batchRunning: false, batchProblem: failure(error) });
+        }
+      },
+
+      loadBranches: async () => {
+        const { trace, position, automatonId, branchTrace } = get();
+        if (!trace || !automatonId) {
+          return;
+        }
+        // The server pages both traces alike, so the main trace's page size applies.
+        const page = Math.floor(position / trace.pageSize) + 1;
+        const word = trace.word;
+        const have = branchTrace?.word === word && branchTrace.steps[page];
+        const asked = branchPage?.word === word && branchPage.page === page;
+        if (have || asked) {
+          return;
+        }
+        const mine = ++branchRequest;
+        branchPage = { word, page };
+        try {
+          const response: BranchSimulateResponse = await settle(
+            api.POST("/v1/automata/{automaton_id}/branches/simulate", {
+              params: { path: { automaton_id: automatonId } },
+              body: { word, page },
+            }),
+          );
+          if (mine !== branchRequest) {
+            return;
+          }
+          branchPage = null;
+          const steps = response.steps.map((step) => ({
+            index: step.index,
+            active: step.active,
+            accepting: step.accepting,
+          }));
+          set((state) => {
+            const same = state.branchTrace?.word === word;
+            return {
+              branchProblem: null,
+              branchTrace: {
+                word,
+                accepted: response.accepted,
+                combined: response.combined ?? false,
+                pageSize: trace.pageSize,
+                steps: {
+                  ...(same ? state.branchTrace?.steps : {}),
+                  [page]: steps,
+                },
+              },
+            };
+          });
+        } catch (error) {
+          if (mine === branchRequest) {
+            branchPage = null;
+            set({ branchProblem: failure(error) });
+          }
         }
       },
     };

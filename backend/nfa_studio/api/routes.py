@@ -13,8 +13,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from nfa_studio.api.deps import LLM, Automata, BySpec, Sessions, StoredAutomaton, rate_limit
 from nfa_studio.api.errors import ApiError, to_api_error
 from nfa_studio.compile import compile
+from nfa_studio.compile.branches import Branches, branches, trace
 from nfa_studio.core.model import Automaton, canonical_json, display_symbol, model_hash
-from nfa_studio.core.simulate import Step, simulate
+from nfa_studio.core.simulate import Step, check_word, simulate
 from nfa_studio.interpret import interpret
 from nfa_studio.ir.limits import LIMITS, Limits
 from nfa_studio.ir.normalize import normalize, spec_hash
@@ -249,6 +250,50 @@ class BatchResult(BaseModel):
 class BatchResponse(BaseModel):
     automaton_id: str
     results: list[BatchResult]
+
+
+class BranchModel(BaseModel):
+    index: int
+    label: str
+    negated: bool
+    automaton_id: str
+    kind: Literal["enfa", "nfa", "dfa"]
+    state_count: int
+    graph: GraphModel
+    svg: str
+
+
+class BranchesResponse(BaseModel):
+    """The lanes of a top-level and/or; `combiner` is null and `branches` empty otherwise."""
+
+    automaton_id: str
+    combiner: Literal["all", "any"] | None
+    branches: list[BranchModel]
+
+
+class BranchSimulateRequest(_Request):
+    word: str
+    page: int = Field(default=1, ge=1)
+
+
+class BranchStepModel(BaseModel):
+    index: int
+    symbol: str | None
+    active: list[list[str]]
+    accepting: list[bool]
+    combined: bool
+
+
+class BranchSimulateResponse(BaseModel):
+    automaton_id: str
+    word: str
+    combiner: Literal["all", "any"] | None
+    accepted: list[bool]
+    combined: bool | None
+    steps: list[BranchStepModel]
+    page: int
+    pages: int
+    total_steps: int
 
 
 class VerifyRequest(_Request):
@@ -492,6 +537,81 @@ def simulate_batch(automaton_id: str, body: BatchRequest, automata: Automata) ->
     return BatchResponse(automaton_id=automaton_id, results=results)
 
 
+@api.get("/automata/{automaton_id}/branches")
+def get_branches(automaton_id: str, automata: Automata) -> BranchesResponse:
+    """One machine per top-level and/or condition, for the Branches view; not verified."""
+    split = _branches(automaton_id, automata)
+    lanes = []
+    for index, branch in enumerate(split.branches):
+        graph = diagram_graph(branch.automaton)
+        lanes.append(
+            BranchModel(
+                index=index,
+                label=branch.label,
+                negated=branch.negated,
+                automaton_id=model_hash(branch.automaton),
+                kind=branch.automaton.kind,
+                state_count=len(branch.automaton.states),
+                graph=GraphModel.model_validate(graph_json(graph)),
+                svg=render_diagram(branch.automaton).content.decode("utf-8"),
+            )
+        )
+    return BranchesResponse(automaton_id=automaton_id, combiner=split.combiner, branches=lanes)
+
+
+@api.post("/automata/{automaton_id}/branches/simulate")
+def simulate_branches(
+    automaton_id: str, body: BranchSimulateRequest, automata: Automata
+) -> BranchSimulateResponse:
+    """One word on every lane in step, paginated like /simulate, with the combined verdict."""
+    split = _branches(automaton_id, automata)
+    if split.combiner is None:
+        # The word is still checked, so it fails the same way as on /simulate.
+        check_word(_stored(automaton_id, automata).automaton, body.word)
+        return BranchSimulateResponse(
+            automaton_id=automaton_id,
+            word=body.word,
+            combiner=None,
+            accepted=[],
+            combined=None,
+            steps=[],
+            page=1,
+            pages=0,
+            total_steps=0,
+        )
+    run = trace(split, body.word)
+    size = LIMITS.trace_page_size
+    pages = (len(run.steps) + size - 1) // size
+    if body.page > pages:
+        raise ApiError(
+            "E_SCHEMA_INVALID",
+            f"Page {body.page} does not exist; the trace has {pages} pages. Ask for page 1 "
+            f"to {pages}.",
+            {"errors": [f"page: at most {pages}"]},
+        )
+    shown = run.steps[(body.page - 1) * size : body.page * size]
+    return BranchSimulateResponse(
+        automaton_id=automaton_id,
+        word=body.word,
+        combiner=split.combiner,
+        accepted=list(run.accepted),
+        combined=run.combined,
+        steps=[
+            BranchStepModel(
+                index=step.index,
+                symbol=step.symbol,
+                active=[list(active) for active in step.active],
+                accepting=list(step.accepting),
+                combined=step.combined,
+            )
+            for step in shown
+        ],
+        page=body.page,
+        pages=pages,
+        total_steps=len(run.steps),
+    )
+
+
 @api.post("/automata/{automaton_id}/verify")
 def verify_automaton(
     automaton_id: str, automata: Automata, body: VerifyRequest | None = None
@@ -518,6 +638,10 @@ def _stored(automaton_id: str, automata: Automata) -> StoredAutomaton:
             {"automaton_id": automaton_id},
         )
     return stored
+
+
+def _branches(automaton_id: str, automata: Automata) -> Branches:
+    return branches(_stored(automaton_id, automata).spec)
 
 
 def _verification(report: Report) -> VerificationModel:

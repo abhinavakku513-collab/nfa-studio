@@ -14,6 +14,7 @@ import {
   sanitizeSvg,
   standaloneSvg,
 } from "@/lib/svg";
+import { Branches } from "./Branches";
 import { ErrorNotice } from "./ErrorNotice";
 import { PanZoom } from "./PanZoom";
 import { Simulator } from "./Simulator";
@@ -68,6 +69,48 @@ function Legend({
   );
 }
 
+type Mode = "automaton" | "branches";
+
+/** Whole automaton or Branches; shown only when the description joins 2+ conditions. */
+function ModeSwitch({
+  mode,
+  count,
+  onMode,
+}: {
+  mode: Mode;
+  count: number;
+  onMode: (mode: Mode) => void;
+}) {
+  const options: [Mode, string][] = [
+    ["automaton", "Whole automaton"],
+    ["branches", `Branches (${count})`],
+  ];
+  return (
+    <div
+      role="group"
+      aria-label="Diagram view"
+      className="inline-flex rounded-md border border-border-strong p-0.5"
+    >
+      {options.map(([value, title]) => (
+        <button
+          key={value}
+          type="button"
+          aria-pressed={mode === value}
+          onClick={() => onMode(value)}
+          className={clsx(
+            "rounded px-3 py-1 text-sm font-medium",
+            mode === value
+              ? "bg-accent text-accent-ink"
+              : "text-muted hover:bg-surface-2 hover:text-text",
+          )}
+        >
+          {title}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /** The Graphviz diagram, inlined and sanitised, with pan, zoom, legend and exports. */
 export function DiagramTab({
   id,
@@ -86,11 +129,24 @@ export function DiagramTab({
   const [hovered, setHovered] = useState<string | null>(null);
   const [root, setRoot] = useState<SVGSVGElement | null>(null);
   const noneActive = useSimulator((sim) => sim.settled?.active.length === 0);
+  const branchesEntry = useExplore((explore) => explore.branches[id]);
+  const loadBranches = useExplore((explore) => explore.loadBranches);
+  const [mode, setMode] = useState<Mode>("automaton");
 
   useEffect(() => {
     void loadSvg(id);
     void loadGraph(id);
   }, [id, key, loadSvg, loadGraph]);
+
+  useEffect(() => {
+    void loadBranches(id);
+  }, [id, loadBranches]);
+
+  const lanes =
+    branchesEntry?.status === "ready" && branchesEntry.data.branches.length >= 2
+      ? branchesEntry.data
+      : null;
+  const showBranches = mode === "branches" && lanes !== null;
 
   const graph = graphEntry?.status === "ready" ? graphEntry.data : null;
   // The drawing waits for the graph so it is inlined once, with its text alternatives.
@@ -128,8 +184,17 @@ export function DiagramTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <ViewToggles hasEpsilon={hasEpsilon} />
-        {svg?.markup && (
+        <div className="flex flex-wrap items-start gap-4">
+          {lanes && (
+            <ModeSwitch
+              mode={mode}
+              count={lanes.branches.length}
+              onMode={setMode}
+            />
+          )}
+          {!showBranches && <ViewToggles hasEpsilon={hasEpsilon} />}
+        </div>
+        {!showBranches && svg?.markup && (
           <ExportButtons
             options={[
               {
@@ -160,7 +225,9 @@ export function DiagramTab({
         )}
       </div>
 
-      {svgEntry?.status === "failed" ? (
+      {showBranches ? (
+        <Branches data={lanes} />
+      ) : svgEntry?.status === "failed" ? (
         <ErrorNotice problem={svgEntry.problem} />
       ) : svg?.error ? (
         <p role="alert" className="text-sm text-danger">
@@ -209,17 +276,18 @@ export function DiagramTab({
 
       <Simulator
         automatonId={id}
-        geometry={geometry}
+        geometry={showBranches ? null : geometry}
         idMap={idMap}
         accepting={accepting}
+        tape={!showBranches}
         note={
-          asBuilt
+          asBuilt || showBranches
             ? null
             : "The diagram shows the ε-free version, but the simulation runs the ε-NFA as built, so its moves are not drawn. Turn off “ε-free version” to watch them."
         }
       />
 
-      {graphEntry?.status === "ready" && (
+      {!showBranches && graphEntry?.status === "ready" && (
         <>
           {graphEntry.data.hidden_dead_states.length > 0 && (
             <p className="text-xs text-subtle">

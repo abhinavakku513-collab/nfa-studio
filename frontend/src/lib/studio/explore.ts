@@ -2,6 +2,7 @@ import { createStore } from "zustand/vanilla";
 import {
   type Api,
   type AutomatonDetail,
+  type BranchesResponse,
   type GraphModel,
   type Problem,
   ProblemError,
@@ -22,6 +23,7 @@ type Cached = {
   tables: TableModel;
   graphs: GraphModel;
   svgs: string;
+  branches: BranchesResponse;
 };
 
 export type ExploreState = { view: View } & {
@@ -34,6 +36,8 @@ export type ExploreActions = {
   loadTable: (id: string) => Promise<void>;
   loadGraph: (id: string) => Promise<void>;
   loadSvg: (id: string) => Promise<void>;
+  /** The Branches view's lanes; an automaton with one condition has none. */
+  loadBranches: (id: string) => Promise<void>;
   tableText: (id: string, format: "csv" | "md" | "tex") => Promise<string>;
   dotText: (id: string) => Promise<string>;
 };
@@ -92,6 +96,7 @@ export function createExploreStore(api: Api) {
       tables: {},
       graphs: {},
       svgs: {},
+      branches: {},
 
       setView: (change) =>
         set((state) => ({ view: { ...state.view, ...change } })),
@@ -138,6 +143,15 @@ export function createExploreStore(api: Api) {
                 query: { format: "svg", ...query() },
               },
               parseAs: "text",
+            }),
+          ),
+        ),
+
+      loadBranches: (id) =>
+        load("branches", id, () =>
+          settle(
+            api.GET("/v1/automata/{automaton_id}/branches", {
+              params: { path: { automaton_id: id } },
             }),
           ),
         ),

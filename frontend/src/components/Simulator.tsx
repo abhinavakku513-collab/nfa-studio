@@ -10,7 +10,7 @@ import {
   useSimulator,
   useSimulatorStore,
 } from "@/lib/studio/context";
-import { LONG_WORD, stepAt } from "@/lib/studio/simulator";
+import { LONG_WORD, type SimulatorStore, stepAt } from "@/lib/studio/simulator";
 import { ErrorNotice } from "./ErrorNotice";
 import { Batch } from "./sim/Batch";
 import { Controls } from "./sim/Controls";
@@ -240,8 +240,43 @@ function History() {
 }
 
 /**
+ * Space, ←, →, Home, End drive playback anywhere in `store`'s views, except where they
+ * type or select. Shared by the simulator and the Branches view's tape.
+ */
+export function playbackKeys(
+  store: SimulatorStore,
+): (event: KeyboardEvent<HTMLElement>) => void {
+  return (event) => {
+    const target = event.target as HTMLElement;
+    const sim = store.getState();
+    if (!sim.trace || target.closest("input, textarea, select, summary")) {
+      return;
+    }
+    if (
+      target.closest("button") &&
+      (event.key === " " || event.key === "Enter")
+    ) {
+      return;
+    }
+    const actions: Record<string, () => void> = {
+      " ": sim.togglePlay,
+      ArrowLeft: sim.stepBack,
+      ArrowRight: sim.stepForward,
+      Home: sim.toStart,
+      End: sim.toEnd,
+    };
+    const action = actions[event.key];
+    if (action) {
+      event.preventDefault();
+      action();
+    }
+  };
+}
+
+/**
  * The simulator docked under the diagram (spec §12.1): type a word, watch the active
- * set move through the machine, step and scrub, and test many words at once.
+ * set move through the machine, step and scrub, and test many words at once. With
+ * `tape` off, another view (the Branches lanes) shows the tape over its own drawing.
  */
 export function Simulator({
   automatonId,
@@ -249,12 +284,14 @@ export function Simulator({
   idMap,
   accepting,
   note,
+  tape = true,
 }: {
   automatonId: string;
   geometry: Geometry | null;
   idMap: Readonly<Record<string, string>>;
   accepting: ReadonlySet<string>;
   note: string | null;
+  tape?: boolean;
 }) {
   const store = useSimulatorStore();
   const open = useSimulator((sim) => sim.open);
@@ -277,37 +314,10 @@ export function Simulator({
   const alphabet =
     detail?.status === "ready" ? detail.data.five_tuple.Sigma : null;
 
-  // Space, ←, →, Home, End anywhere in the simulator except where they type or select.
-  function onKeyDown(event: KeyboardEvent<HTMLElement>): void {
-    const target = event.target as HTMLElement;
-    if (!trace || target.closest("input, textarea, select, summary")) {
-      return;
-    }
-    if (
-      target.closest("button") &&
-      (event.key === " " || event.key === "Enter")
-    ) {
-      return;
-    }
-    const sim = store.getState();
-    const actions: Record<string, () => void> = {
-      " ": sim.togglePlay,
-      ArrowLeft: sim.stepBack,
-      ArrowRight: sim.stepForward,
-      Home: sim.toStart,
-      End: sim.toEnd,
-    };
-    const action = actions[event.key];
-    if (action) {
-      event.preventDefault();
-      action();
-    }
-  }
-
   return (
     <section
       aria-labelledby="sim-title"
-      onKeyDown={onKeyDown}
+      onKeyDown={playbackKeys(store)}
       className="flex flex-col gap-4 border-t border-border pt-4"
     >
       <h3 id="sim-title" className="text-base font-semibold tracking-tight">
@@ -335,7 +345,7 @@ export function Simulator({
               Show witness path
             </label>
           </div>
-          <Tape word={trace.word} head={head} speed={speed} />
+          {tape && <Tape word={trace.word} head={head} speed={speed} />}
           <Controls total={trace.total} />
           <Status />
           <Pages />

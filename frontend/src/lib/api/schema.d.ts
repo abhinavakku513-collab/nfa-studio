@@ -204,6 +204,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/automata/{automaton_id}/branches": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Branches
+     * @description One machine per top-level and/or condition, for the Branches view; not verified.
+     */
+    get: operations["get_branches_v1_automata__automaton_id__branches_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/automata/{automaton_id}/branches/simulate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Simulate Branches
+     * @description One word on every lane in step, paginated like /simulate, with the combined verdict.
+     */
+    post: operations["simulate_branches_v1_automata__automaton_id__branches_simulate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/automata/{automaton_id}/verify": {
     parameters: {
       query?: never;
@@ -383,6 +423,83 @@ export interface components {
       /** Accepted */
       accepted: boolean | null;
       error: components["schemas"]["ErrorModel"] | null;
+    };
+    /** BranchModel */
+    BranchModel: {
+      /** Index */
+      index: number;
+      /** Label */
+      label: string;
+      /** Negated */
+      negated: boolean;
+      /** Automaton Id */
+      automaton_id: string;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "enfa" | "nfa" | "dfa";
+      /** State Count */
+      state_count: number;
+      graph: components["schemas"]["GraphModel"];
+      /** Svg */
+      svg: string;
+    };
+    /** BranchSimulateRequest */
+    BranchSimulateRequest: {
+      /** Word */
+      word: string;
+      /**
+       * Page
+       * @default 1
+       */
+      page: number;
+    };
+    /** BranchSimulateResponse */
+    BranchSimulateResponse: {
+      /** Automaton Id */
+      automaton_id: string;
+      /** Word */
+      word: string;
+      /** Combiner */
+      combiner: ("all" | "any") | null;
+      /** Accepted */
+      accepted: boolean[];
+      /** Combined */
+      combined: boolean | null;
+      /** Steps */
+      steps: components["schemas"]["BranchStepModel"][];
+      /** Page */
+      page: number;
+      /** Pages */
+      pages: number;
+      /** Total Steps */
+      total_steps: number;
+    };
+    /** BranchStepModel */
+    BranchStepModel: {
+      /** Index */
+      index: number;
+      /** Symbol */
+      symbol: string | null;
+      /** Active */
+      active: string[][];
+      /** Accepting */
+      accepting: boolean[];
+      /** Combined */
+      combined: boolean;
+    };
+    /**
+     * BranchesResponse
+     * @description The lanes of a top-level and/or; `combiner` is null and `branches` empty otherwise.
+     */
+    BranchesResponse: {
+      /** Automaton Id */
+      automaton_id: string;
+      /** Combiner */
+      combiner: ("all" | "any") | null;
+      /** Branches */
+      branches: components["schemas"]["BranchModel"][];
     };
     /** Capabilities */
     Capabilities: {
@@ -2044,6 +2161,162 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["BatchResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_branches_v1_automata__automaton_id__branches_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BranchesResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Content Too Large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Too Many Requests */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description Gateway Timeout */
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  simulate_branches_v1_automata__automaton_id__branches_simulate_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        automaton_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BranchSimulateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BranchSimulateResponse"];
         };
       };
       /** @description Not Found */

@@ -25,6 +25,10 @@ export type LogEntry = Schemas["LogEntryModel"];
 export type SimulateResponse = Schemas["SimulateResponse"];
 export type StepModel = Schemas["StepModel"];
 export type BatchResult = Schemas["BatchResult"];
+export type BranchesResponse = Schemas["BranchesResponse"];
+export type BranchModel = Schemas["BranchModel"];
+export type BranchSimulateResponse = Schemas["BranchSimulateResponse"];
+export type BranchStepModel = Schemas["BranchStepModel"];
 type ErrorModel = Schemas["ErrorModel"];
 
 /** A JSON triple [string, string, string[]], checked rather than cast. */

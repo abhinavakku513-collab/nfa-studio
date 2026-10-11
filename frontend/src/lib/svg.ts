@@ -87,6 +87,21 @@ export function labelDiagram(svg: string, graph: GraphModel): string {
   return new XMLSerializer().serializeToString(root);
 }
 
+/**
+ * A drawing that shares the page with others of the same kind: every id gets `prefix`,
+ * so each lane of the Branches view can hold its own `s-q0` without duplicate ids.
+ */
+export function prefixIds(svg: string, prefix: string): string {
+  const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+  const root = doc.documentElement;
+  for (const element of [root, ...Array.from(root.querySelectorAll("[id]"))]) {
+    if (element.id) {
+      element.id = `${prefix}${element.id}`;
+    }
+  }
+  return new XMLSerializer().serializeToString(root);
+}
+
 /** The drawing's natural size in CSS pixels, from its viewBox. */
 export function svgSize(svg: string): { width: number; height: number } {
   const match =

@@ -253,6 +253,22 @@ Exercise preambles ("Construct an NFA over … accepting every string that") are
 stripped, and the alphabet is read as typed from `{0,1}`, `[0,1]`, `{[0,1]`, an
 unclosed `{0,1`, `Σ = {0,1}`, `I = {0,1}` or "over 0 and 1".
 
+**C17. Branches view (additive to spec §10, §12).** A visualisation over the same IR,
+never a replacement for the verified automaton. `compile/branches.py` splits the
+normalised language at a top-level `and`/`or`; each child is compiled alone with
+`compile()` over the document's alphabet, so a lane is exactly what that condition
+builds on its own. A `not` child is its complemented DFA, labelled "NOT " plus its
+child's wording. Labels use the confirm screen's wording (`Reading.tsx`); keep the
+two in step. A single condition has no lanes (empty list, `combiner: null`). The
+branch trace runs `simulate()` on every lane and combines the verdicts with all/any;
+it is paged with `trace_page_size` like `/simulate`. The lanes are not put through
+the ladder; `tests/unit/test_branches.py` checks on 500 random words for each of 10
+descriptions that the combined verdict equals the verified automaton's. On the
+client, the Branches view shares the simulator store and its one animation clock,
+so the word box, controls, speed and reduced-motion handling are the main view's;
+the lanes read their active sets for the step the clock has settled on. Lane SVG ids
+get a `lane<i>-` prefix so several drawings can share the page.
+
 ## Diagram contract (§10.2)
 
 The server renders DOT → SVG with Graphviz and gives every element a stable id

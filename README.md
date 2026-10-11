@@ -190,6 +190,25 @@ the web layer:
 - `api/` exposes `/v1`, with per-address rate limits, input limits and one error shape:
   a code, a message with the reason and the next action, and details.
 
+### Branches view
+
+When a description joins two or more conditions at the top level ("contains 101 and
+ends with 00"), the Diagram tab offers **Whole automaton / Branches**. Branches shows
+one lane per condition, each its own small machine built by the same constructions
+over the same alphabet; a `not` condition is shown as its complemented DFA, labelled
+"NOT …". One tape feeds every lane, the simulator's controls and speed move them
+together, each lane shows its active states and its own verdict, and the combiner at
+the end ("ALL must accept" for and, "ANY accepts" for or) lights up with the result.
+For or, a shared start state fans out to the lanes by ε, as in the union.
+
+It is a picture of the parts, not a second automaton: the verified automaton and its
+ladder are unchanged, and the lanes are not verified on their own. The API is
+`GET /v1/automata/{id}/branches` (labels, drawings and graphs; an empty list for a
+single condition) and `POST /v1/automata/{id}/branches/simulate` (every lane's active
+set and verdict per step, paged like `/simulate`, and the combined verdict). A test
+checks that the combined verdict equals the verified automaton's on 500 random words
+for each of 10 descriptions.
+
 The frontend (`frontend/`) is a single Next.js page. Zustand stores hold the
 Describe → Confirm → Build steps, the Explore tabs and the simulator; the API client is
 typed from the backend's OpenAPI document. The simulator animates the real Graphviz
