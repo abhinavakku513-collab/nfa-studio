@@ -84,6 +84,47 @@ describe("Studio", () => {
     ).toBeNull();
   });
 
+  it("says when the reading was proposed by the language model", async () => {
+    const aiReading = {
+      ...READY,
+      ir: {
+        ...READY.ir,
+        assumptions: [
+          {
+            id: "llm_interpreted",
+            text: "This reading was proposed by a language model; check it before building.",
+            editable: false,
+          },
+        ],
+      },
+    };
+    render(
+      <Studio
+        api={
+          fakeServer({ "POST /v1/interpret": () => ({ json: aiReading }) }).api
+        }
+      />,
+    );
+    await read("a's counted twice, more or less");
+    const confirm = screen.getByRole("region", { name: "Confirm" });
+    expect(within(confirm).getByText("Read with AI help.")).toBeInTheDocument();
+    // The same bullet reading follows, and the notice is not repeated as an assumption.
+    expect(confirm).toHaveTextContent("Strings over {a, b} that");
+    expect(
+      within(confirm).queryByText(/proposed by a language model; check it/),
+    ).toBeNull();
+  });
+
+  it("does not mark a reading the rules made", async () => {
+    render(
+      <Studio
+        api={fakeServer({ "POST /v1/interpret": () => ({ json: READY }) }).api}
+      />,
+    );
+    await read("exactly two a's");
+    expect(screen.queryByText("Read with AI help.")).toBeNull();
+  });
+
   it("builds and shows the badge with icon, level and evidence", async () => {
     const server = fakeServer({
       "POST /v1/interpret": () => ({ json: READY }),

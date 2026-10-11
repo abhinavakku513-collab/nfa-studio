@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, LoaderCircle } from "lucide-react";
+import { Info, LoaderCircle, Sparkles } from "lucide-react";
 import type { KeyboardEvent } from "react";
 import type { Assumption } from "@/lib/api/client";
 import { useStudio } from "@/lib/studio/context";
@@ -14,6 +14,24 @@ const TOPICS: Record<string, string> = {
   grouping: "how the conditions group",
   alphabet: "the alphabet",
 };
+
+// Added by the backend to every reading the language model proposed (CLAUDE.md C18).
+const AI_READING = "llm_interpreted";
+
+/** Shown above a reading proposed by the language model, which the user must check. */
+function AiNotice() {
+  return (
+    <p className="flex items-start gap-2 rounded-md border border-amber/40 bg-amber-soft px-3 py-2 text-sm text-amber">
+      <Sparkles aria-hidden className="mt-0.5 size-4 shrink-0" />
+      <span>
+        <span className="font-semibold">Read with AI help.</span> The rules
+        could not read this description, so a language model proposed the
+        reading below. Check every condition before building: the automaton is
+        verified against this reading, not against your words.
+      </span>
+    </p>
+  );
+}
 
 function Assumptions({ assumptions }: { assumptions: Assumption[] }) {
   const rejected = useStudio((studio) => studio.rejected);
@@ -218,11 +236,14 @@ export function ConfirmStep() {
       ) : (
         ir && (
           <>
+            {ir.assumptions.some((a) => a.id === AI_READING) && <AiNotice />}
             <Reading ir={ir} onEdit={editIr} />
             <p className="text-xs text-subtle">
               Select a highlighted value to change it.
             </p>
-            <Assumptions assumptions={ir.assumptions} />
+            <Assumptions
+              assumptions={ir.assumptions.filter((a) => a.id !== AI_READING)}
+            />
           </>
         )
       )}

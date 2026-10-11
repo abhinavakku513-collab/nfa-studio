@@ -24,9 +24,33 @@ npm install
 npx playwright install chromium     # only for the end-to-end tests
 ```
 
-The optional LLM tier reads descriptions the rules cannot. To switch it on, copy
-`backend/.env.example` to `backend/.env`, set `NFA_LLM_ENABLED=1` and
-`ANTHROPIC_API_KEY`. The key stays on the backend; never commit `.env`.
+### Reading with AI help (optional)
+
+The rules read most descriptions on their own. When they cannot, an optional tier asks
+a Claude model for a reading. It is off by default and comes on only when both are set:
+
+1. Copy `backend/.env.example` to `backend/.env` (or set the variables in your host's
+   settings, as secrets).
+2. Set `NFA_LLM_ENABLED=true` and `ANTHROPIC_API_KEY=<your key>`, then restart the
+   backend. Optional: `NFA_LLM_MODEL` (default `claude-opus-5-5`) and
+   `NFA_LLM_TIMEOUT_SECONDS` (default 20).
+
+What it does and does not do:
+
+- It is asked only for descriptions the rules cannot read; anything the rules read never
+  leaves the server.
+- Its reply must be JSON in the specification's schema. It is validated, built and put
+  through the full verification ladder before anyone sees it; a reply that fails any of
+  this ends in the same clear refusal the rules give.
+- It refuses non-regular languages (aⁿbⁿ, palindromes, equal counts, prime lengths,
+  balanced brackets) with the same `E_UNSUPPORTED_NONREGULAR` error and a suggested
+  alternative.
+- The confirm step labels its reading **Read with AI help**, with the same bullets, so
+  you check it before building.
+- Each address gets a burst of 5 model calls, then one every 12 seconds; a reading
+  already made is served from the cache. Descriptions are capped at 500 characters.
+- The key stays on the backend and is never logged or returned; the description is sent
+  only to the Anthropic API. Never commit `.env`.
 
 ## Run
 
@@ -146,7 +170,7 @@ add them.
 |---|---|---|---|
 | `NFA_CORS_ORIGINS` | backend | `http://localhost:3000` | Comma-separated sites allowed to call the API from a browser. |
 | `NFA_CLIENT_IP_HEADER` | backend | unset (use the connection's address) | Header that names the visitor for the rate limit. On Render, Cloudflare sets `CF-Connecting-IP` and refuses requests that try to supply it, so it cannot be forged. `X-Forwarded-For` is never used: Render keeps whatever a client puts in it. |
-| `NFA_LLM_ENABLED`, `ANTHROPIC_API_KEY` | backend | off | The optional LLM tier stays off unless you set `NFA_LLM_ENABLED=1` and add the key as a secret. |
+| `NFA_LLM_ENABLED`, `ANTHROPIC_API_KEY` | backend | off | The optional AI tier stays off unless `NFA_LLM_ENABLED` is `true` (or `1`) and the key is set as a secret. See "Reading with AI help". |
 | `NEXT_PUBLIC_API_URL` | frontend | unset (same site) | Address of the API. The browser calls it directly, so the rate limit counts each visitor separately. |
 | `BACKEND_URL` | frontend | `http://127.0.0.1:8000` | Where the frontend forwards `/v1` when `NEXT_PUBLIC_API_URL` is unset, as in local development. |
 

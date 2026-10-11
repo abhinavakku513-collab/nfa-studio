@@ -34,6 +34,8 @@ class _Rule:
     pattern: re.Pattern[str]
     why: str
     alternative: Callable[[re.Match[str]], Alternative]
+    # The alternative without a matched phrase to quote, for a family the LLM tier names.
+    general: str
 
 
 def _power_words(symbols: tuple[str, ...], bound: int) -> Alternative:
@@ -58,11 +60,12 @@ _RULES: Final = (
         _COUNTING,
         # Four repetitions keep the longest word within the pattern-length limit.
         lambda m: _power_words(tuple(s for s in m.groups() if s), 4),
+        "Try a bounded version such as aⁿbⁿ with n ≤ 4, a finite union, which is regular.",
     ),
     _Rule(
         "equal_counts",
         re.compile(
-            r"\b(?:(?:same|equal) (?:number|count|amount) of (?P<x>\S+?)(?:'s|s)? and "
+            r"\b(?:(?:same|equal) (?:number|count|amount)s? of (?P<x>\S+?)(?:'s|s)? and "
             r"(?P<y>\S+?)(?:'s|s)?|as many (?P<x2>\S+?)(?:'s|s)? as (?P<y2>\S+?)(?:'s|s)?)"
             r"(?:\s|$)"
         ),
@@ -71,6 +74,8 @@ _RULES: Final = (
             f"Try a bounded version: the numbers of {m['x'] or m['x2']}'s and "
             f"{m['y'] or m['y2']}'s differ by at most k, or both are at most k, for a fixed k."
         ),
+        "Try a bounded version: the two counts differ by at most k, or both are at most k, "
+        "for a fixed k.",
     ),
     _Rule(
         "more_than",
@@ -83,12 +88,14 @@ _RULES: Final = (
             f"Try a bounded version: the difference between the numbers of {m['x']}'s and "
             f"{m['y']}'s is at most k, for a fixed k."
         ),
+        "Try a bounded version: the difference between the two counts is at most k, for a fixed k.",
     ),
     _Rule(
         "palindrome",
         re.compile(r"\bpalindrom|\brevers(?:e|al)|\bof the form w\s*w\b|\bww\b"),
         "needs unbounded memory of what was read",
         lambda m: Alternative("Try palindromes (or ww) up to a fixed length k, a finite set."),
+        "Try palindromes (or ww) up to a fixed length k, a finite set.",
     ),
     _Rule(
         "length_not_periodic",
@@ -97,6 +104,7 @@ _RULES: Final = (
         ),
         "describes a set of lengths that is not ultimately periodic",
         lambda m: Alternative("Try lengths from a stated finite set, or a length mod m condition."),
+        "Try lengths from a stated finite set, or a length mod m condition.",
     ),
     _Rule(
         "balanced_brackets",
@@ -105,8 +113,24 @@ _RULES: Final = (
         ),
         "is context-free, not regular: brackets may nest without a bound",
         lambda m: Alternative("Try balanced brackets with nesting depth at most k, for a fixed k."),
+        "Try balanced brackets with nesting depth at most k, for a fixed k.",
     ),
 )
+
+
+REASONS: Final = tuple(rule.reason for rule in _RULES)
+
+
+def refusal(reason: str) -> NonRegularRequest:
+    """The refusal for a family named by reason; an unknown one gets a general answer."""
+    for rule in _RULES:
+        if rule.reason == reason:
+            return NonRegularRequest(reason, rule.why, Alternative(rule.general))
+    return NonRegularRequest(
+        "not_regular",
+        "needs memory that grows with the input",
+        Alternative("Try a bounded version: limit the length or the counts to a fixed k."),
+    )
 
 
 def check_nonregular(text: str) -> None:

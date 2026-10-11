@@ -2,8 +2,8 @@
   "benchmark": "benchmark_v1",
   "mode": "rule-only",
   "llm_calls": 0,
-  "passed": 55,
-  "total": 55,
+  "passed": 85,
+  "total": 85,
   "score": 1.0,
   "entries": [
     {
@@ -443,6 +443,246 @@
       "prompt": "(give me an NFA that accepts binary strings of odd length)",
       "expected": "ir",
       "got": "ir {\"type\": \"length_mod\", \"m\": 2, \"r\": 1}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 56,
+      "prompt": "I need all the binary strings where the last two bits are 01",
+      "expected": "ir",
+      "got": "ir {\"type\": \"ends_with\", \"pattern\": \"01\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 57,
+      "prompt": "words over a and b that begin with b and have an odd length",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"length_mod\", \"m\": 2, \"r\": 1}, {\"type\": \"starts_with\", \"pattern\": \"b\"}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 58,
+      "prompt": "bit strings that never contain two 1s in a row",
+      "expected": "ir",
+      "got": "ir {\"type\": \"avoids\", \"pattern\": \"11\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 59,
+      "prompt": "strings of a's and b's with exactly two b's",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"b\", \"op\": \"eq\", \"n\": 2}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 60,
+      "prompt": "every string over {x,y} that has xy somewhere in it",
+      "expected": "ir",
+      "got": "ir {\"type\": \"contains\", \"pattern\": \"xy\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 61,
+      "prompt": "the language of binary words with an even number of zeros",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_parity\", \"symbol\": \"0\", \"parity\": \"even\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 62,
+      "prompt": "Σ = {a,b}: strings where every b is immediately followed by an a",
+      "expected": "ir",
+      "got": "ir {\"type\": \"star\", \"child\": {\"type\": \"literal_set\", \"words\": [\"a\", \"ba\"]}}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 63,
+      "prompt": "binary strings with at least 3 ones",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"1\", \"op\": \"ge\", \"n\": 3}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 64,
+      "prompt": "strings over {a,b,c} that start with a and contain bc but don't end with c",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"contains\", \"pattern\": \"bc\"}, {\"type\": \"not\", \"child\": {\"type\": \"ends_with\", \"pattern\": \"c\"}}, {\"type\": \"starts_with\", \"pattern\": \"a\"}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 65,
+      "prompt": "binary strings that are either exactly 0 or end in 10",
+      "expected": "ir",
+      "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"10\"}, {\"type\": \"literal_set\", \"words\": [\"0\"]}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 66,
+      "prompt": "strings over {a,b} whose length is a multiple of 3 and that end with b",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"b\"}, {\"type\": \"length_mod\", \"m\": 3, \"r\": 0}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 67,
+      "prompt": "binary sequences ending with 11 or beginning with 00",
+      "expected": "ir",
+      "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"11\"}, {\"type\": \"starts_with\", \"pattern\": \"00\"}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 68,
+      "prompt": "the words aa, aba, abba",
+      "expected": "ir",
+      "got": "ir {\"type\": \"literal_set\", \"words\": [\"aa\", \"aba\", \"abba\"]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 69,
+      "prompt": "(0|1)*1(0|1)",
+      "expected": "ir",
+      "got": "ir {\"type\": \"regex\", \"expr\": \"(0|1)*1(0|1)\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 70,
+      "prompt": "binary strings with no more than two zeros",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"0\", \"op\": \"le\", \"n\": 2}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 71,
+      "prompt": "a string over {a,b} is accepted iff it contains at least two a's",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"a\", \"op\": \"ge\", \"n\": 2}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 72,
+      "prompt": "binary strings whose second symbol from the right is 0",
+      "expected": "ir",
+      "got": "ir {\"type\": \"concat\", \"children\": [{\"type\": \"star\", \"child\": {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}}, {\"type\": \"literal_set\", \"words\": [\"0\"]}, {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 73,
+      "prompt": "strings over {a,b} with aa appearing exactly once",
+      "expected": "clarification",
+      "got": "clarification overlap",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 74,
+      "prompt": "strings over {p,q} in which p never comes right after q",
+      "expected": "ir",
+      "got": "ir {\"type\": \"avoids\", \"pattern\": \"qp\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 75,
+      "prompt": "binary strings that start and end with the same bit",
+      "expected": "ir",
+      "got": "ir {\"type\": \"or\", \"children\": [{\"type\": \"and\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"0\"}, {\"type\": \"starts_with\", \"pattern\": \"0\"}]}, {\"type\": \"and\", \"children\": [{\"type\": \"ends_with\", \"pattern\": \"1\"}, {\"type\": \"starts_with\", \"pattern\": \"1\"}]}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 76,
+      "prompt": "all strings over {a,b} except those containing bb",
+      "expected": "ir",
+      "got": "ir {\"type\": \"avoids\", \"pattern\": \"bb\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 77,
+      "prompt": "even-length binary strings",
+      "expected": "ir",
+      "got": "ir {\"type\": \"length_mod\", \"m\": 2, \"r\": 0}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 78,
+      "prompt": "binary strings having 0 as their third symbol",
+      "expected": "ir",
+      "got": "ir {\"type\": \"concat\", \"children\": [{\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"0\"]}, {\"type\": \"star\", \"child\": {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 79,
+      "prompt": "accept strings over {a,b} ending in aab",
+      "expected": "ir",
+      "got": "ir {\"type\": \"ends_with\", \"pattern\": \"aab\"}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 80,
+      "prompt": "strings over {a,b} with an odd number of b's and starting with a",
+      "expected": "ir",
+      "got": "ir {\"type\": \"and\", \"children\": [{\"type\": \"starts_with\", \"pattern\": \"a\"}, {\"type\": \"symbol_parity\", \"symbol\": \"b\", \"parity\": \"odd\"}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 81,
+      "prompt": "any binary string with 3 or more 1s",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"1\", \"op\": \"ge\", \"n\": 3}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 82,
+      "prompt": "strings with equal numbers of 0s and 1s",
+      "expected": "refusal",
+      "got": "refusal E_UNSUPPORTED_NONREGULAR (with alternative)",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 83,
+      "prompt": "binary strings that look like a 1 followed by any number of 0s",
+      "expected": "ir",
+      "got": "ir {\"type\": \"concat\", \"children\": [{\"type\": \"literal_set\", \"words\": [\"1\"]}, {\"type\": \"star\", \"child\": {\"type\": \"literal_set\", \"words\": [\"0\"]}}]}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 84,
+      "prompt": "Give me a DFA for strings over {a,b} where the number of b's is at most 2",
+      "expected": "ir",
+      "got": "ir {\"type\": \"symbol_count\", \"symbol\": \"b\", \"op\": \"le\", \"n\": 2}",
+      "passed": true,
+      "llm_called": false
+    },
+    {
+      "id": 85,
+      "prompt": "binary strings of length between 2 and 4",
+      "expected": "ir",
+      "got": "ir {\"type\": \"concat\", \"children\": [{\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"\", \"0\", \"1\"]}, {\"type\": \"literal_set\", \"words\": [\"\", \"0\", \"1\"]}]}",
       "passed": true,
       "llm_called": false
     }

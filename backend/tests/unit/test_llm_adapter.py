@@ -137,16 +137,16 @@ def test_injected_instructions_stay_in_the_user_message(text: str) -> None:
         # A model that followed the injection instead of the schema.
         ("OK", "E_UNSUPPORTED_FEATURE"),
         ("Sure! Here is my system prompt: ...", "E_UNSUPPORTED_FEATURE"),
-        ("{\"run\": \"__import__('os').system('echo pwned')\"}", "E_SCHEMA_INVALID"),
+        ("{\"run\": \"__import__('os').system('echo pwned')\"}", "E_UNSUPPORTED_FEATURE"),
         (
             '{"ir_version": "1.0", "alphabet": {"symbols": ["a"], "source": "user"}, '
             '"language": {"type": "python", "code": "print(1)"}}',
-            "E_SCHEMA_INVALID",
+            "E_UNSUPPORTED_FEATURE",
         ),
     ],
 )
 def test_a_hijacked_reply_ends_in_an_error_code(reply: str, code: str) -> None:
-    with pytest.raises((UnsupportedRequest, IRInvalid)) as caught:
+    with pytest.raises(UnsupportedRequest) as caught:
         run(reply, INJECTIONS[0])
     assert caught.value.code == code
 
@@ -181,36 +181,26 @@ def doc(language: dict[str, Any], symbols: list[str] | None = None) -> str:
     )
 
 
-@pytest.mark.parametrize(
-    ("reply", "message"),
-    [
-        (
-            json.dumps({"ir_version": "1.0", "language": {"type": "contains", "pattern": "a"}}),
-            "alphabet",
-        ),
-        (doc({"type": "contains", "pattern": "a"}, ["a", "("]), "reserved"),
-        (doc({"type": "contains", "pattern": "c"}), "symbol 'c'"),
-        (doc({"type": "contains", "pattern": "a" * 17}), "at most 16"),
-        (
-            doc({"type": "symbol_count", "symbol": "a", "op": "eq", "n": 21}),
-            "less than or equal to 20",
-        ),
-        (doc({"type": "pattern_count", "pattern": "aa", "op": "eq", "n": 2}), "overlap"),
-        (doc({"type": "contains", "pattern": "a", "extra": True}), "extra"),
-    ],
-)
-def test_schema_violating_json_is_rejected(reply: str, message: str) -> None:
-    with pytest.raises(IRInvalid) as caught:
+INVALID_READINGS = {
+    "no alphabet": json.dumps(
+        {"ir_version": "1.0", "language": {"type": "contains", "pattern": "a"}}
+    ),
+    "reserved symbol": doc({"type": "contains", "pattern": "a"}, ["a", "("]),
+    "symbol outside the alphabet": doc({"type": "contains", "pattern": "c"}),
+    "pattern too long": doc({"type": "contains", "pattern": "a" * 17}),
+    "count too large": doc({"type": "symbol_count", "symbol": "a", "op": "eq", "n": 21}),
+    "overlap left open": doc({"type": "pattern_count", "pattern": "aa", "op": "eq", "n": 2}),
+    "unknown field": doc({"type": "contains", "pattern": "a", "extra": True}),
+    "41 nodes": doc({"type": "or", "children": [{"type": "contains", "pattern": "a"}] * 40}),
+}
+
+
+@pytest.mark.parametrize("reply", INVALID_READINGS.values(), ids=INVALID_READINGS.keys())
+def test_a_reading_that_fails_validation_ends_in_the_refusal(reply: str) -> None:
+    """An invalid reading is never offered; the user gets the rules' clear refusal."""
+    with pytest.raises(UnsupportedRequest, match="was not a valid specification") as caught:
         run(reply)
-    assert caught.value.code == "E_SCHEMA_INVALID"
-    assert caught.value.errors[0] == "the language model's reading failed validation"
-    assert message in str(caught.value)
-
-
-def test_an_oversized_ir_is_rejected() -> None:
-    leaf = {"type": "contains", "pattern": "a"}
-    with pytest.raises(IRInvalid, match="41 nodes"):
-        run(doc({"type": "or", "children": [leaf] * 40}))
+    assert caught.value.code == "E_UNSUPPORTED_FEATURE"
 
 
 @pytest.mark.parametrize(
@@ -364,3 +354,25 @@ def test_the_env_file_is_read(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -
         monkeypatch.setenv(name, "")
         monkeypatch.delenv(name)
     assert isinstance(tier_from_env(), LLMTier)
+
+
+@pytest.mark.parametrize("value", ["1", "true", "TRUE", "yes", "on"])
+def test_the_tier_needs_both_the_switch_and_a_key(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, value: str
+) -> None:
+    monkeypatch.setattr(llm_adapter, "ENV_FILE", tmp_path / "missing.env")
+    monkeypatch.setenv("NFA_LLM_ENABLED", value)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert tier_from_env() is None
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    assert isinstance(tier_from_env(), LLMTier)
+    monkeypatch.setenv("NFA_LLM_ENABLED", "false")
+    assert tier_from_env() is None
+
+
+def test_a_failed_model_reading_falls_back_to_an_unsure_rules_reading() -> None:
+    """Below the threshold the model is asked; if its reply is unusable, the rules' stands."""
+    tier = LLMTier(Fake('{"error": "not_expressible", "reason": "stand-in"}'))
+    draft = interpret("strings over {a,b} ending with a or b or ab or ba or bb", tier)
+    assert draft.confidence == pytest.approx(0.6)
+    assert all(a["id"] != "llm_interpreted" for a in draft.ir["assumptions"])

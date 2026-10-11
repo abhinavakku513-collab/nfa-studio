@@ -222,7 +222,8 @@ whether an alternative was offered. The interpreter must stay general: never
 special-case a benchmark prompt string. The benchmark runner prints a table of
 every entry with pass/fail and writes `tests/benchmark/report.json`. Entries 1–40
 are the spec's; 41–50 cover joined conditions (C16), malformed alphabets and verb
-variants; 51–55 cover command words, quotes and punctuation around a description.
+variants; 51–55 cover command words, quotes and punctuation around a description;
+56–85 are free-form phrasings (C18).
 
 **C13. Clarifier.** Exactly three must-answer topics exist in v1:
 `count_exact_or_at_least`, `overlap`, `grouping` (and `alphabet` only when the
@@ -235,7 +236,9 @@ shows the manual IR form. Sessions: 30-minute TTL.
 none. `NFA_LLM_MODEL` defaults to `claude-opus-5-5` at low effort. Reproducibility
 comes from the pinned model id, the cache by normalised text, and the same
 validation and normalisation as Tier 1. The IR schema goes in the prompt rather
-than in structured outputs, which do not accept recursive schemas.
+than in structured outputs, which do not accept recursive schemas. A request for
+"temperature 0" or an API-enforced schema cannot be met for these reasons; strictness
+comes from validating every reply instead (C18).
 
 **C15. Graphviz layout limit (spec §10.2).** One `dot` run gets
 `render_timeout_seconds = 10`. Sparse machines lay out in about a second even near
@@ -280,6 +283,28 @@ client, the Branches view shares the simulator store and its one animation clock
 so the word box, controls, speed and reduced-motion handling are the main view's;
 the lanes read their active sets for the step the clock has settled on. Lane SVG ids
 get a `lane<i>-` prefix so several drawings can share the page.
+
+**C18. Any phrasing, never a silently wrong automaton.** Rule tier: the paraphrase
+suite (`tests/unit/test_paraphrases.py`) holds at least 8 phrasings for each of the 15
+node types and must stay at 100%; add a phrasing there with every new rule, worded
+differently from any benchmark prompt (C12). Direct inputs are read as such: a regex,
+a braced or listed set of words ("{0, 10, 110}", "0, 10 and 110", "strings like ab,
+abab"), "strings of a's and b's", and "Σ = {a,b}: …". Spelling: a description the rules
+cannot read as typed is read once more with misspelled words of five or more letters
+(three or more distinct, not made of alphabet symbols) replaced by the closest word in
+`lexicon.VOCABULARY`; the reading carries a `spelling_corrected` assumption naming each
+change and loses `SPELLING_PENALTY` confidence per word. A readable description is never
+respelled. LLM tier (on only when `NFA_LLM_ENABLED` is true and `ANTHROPIC_API_KEY` is
+set): asked only when the rules cannot read the text or read it below the confidence
+threshold; its reply is validated, compiled and put through the ladder before it is
+returned, and any failure becomes the C11 refusal, never an error the user must decode.
+`{"error": "not_regular", "kind": …}` maps to `nonregular.refusal(kind)`, the same
+E_UNSUPPORTED_NONREGULAR with an alternative. Its readings carry `llm_interpreted`, and
+the confirm step shows "Read with AI help" above the usual bullets. Model calls have
+their own per-address limit (`deps.LLM_RATE_*`, cached readings free), a 20 s timeout
+with one retry, and the 500-character cap. Tests use `tests/support/mock_llm.py`; no test
+needs the network. The benchmark's rule+LLM score with the real model comes from
+`run_benchmark --llm` with a key; CI measures rule-only and a declining stand-in.
 
 ## Diagram contract (§10.2)
 

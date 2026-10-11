@@ -13,6 +13,7 @@ from nfa_studio.api.deps import (
     get_by_spec,
     get_limiter,
     get_llm,
+    get_llm_limiter,
     get_sessions,
 )
 from nfa_studio.ir.limits import LIMITS
@@ -27,7 +28,7 @@ def clock() -> Clock:
 
 @pytest.fixture
 def client(clock: Clock) -> Iterator[TestClient]:
-    """Fresh stores on a controllable clock, and a limiter that never refuses."""
+    """Fresh stores on a controllable clock, and limiters that never refuse."""
     sessions: TTLStore[str, Any] = TTLStore(LIMITS.session_ttl_seconds, clock=clock)
     automata: TTLStore[str, Any] = TTLStore(LIMITS.automaton_ttl_seconds, clock=clock)
     by_spec: TTLStore[str, str] = TTLStore(LIMITS.automaton_ttl_seconds, clock=clock)
@@ -38,6 +39,7 @@ def client(clock: Clock) -> Iterator[TestClient]:
             get_by_spec: lambda: by_spec,
             get_limiter: lambda: TokenBucket(10**6, 10**6),
             get_llm: lambda: None,
+            get_llm_limiter: lambda: TokenBucket(10**6, 10**6),
         }
     )
     yield TestClient(app)

@@ -47,3 +47,9 @@ def _ask_model(
         if isinstance(rules, Draft):
             return rules
         raise rules from None
+    except UnsupportedRequest:
+        # The model found no reading that survives validation and the ladder; a reading
+        # the rules made, however unsure, is still offered for the user to check.
+        if isinstance(rules, Draft):
+            return rules
+        raise

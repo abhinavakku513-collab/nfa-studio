@@ -6,7 +6,7 @@ import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Final
 
 from fastapi import Depends, Request
 
@@ -68,8 +68,14 @@ automata: TTLStore[str, StoredAutomaton] = TTLStore(LIMITS.automaton_ttl_seconds
 # spec hash → automaton id: identical specifications are compiled and verified once.
 by_spec: TTLStore[str, str] = TTLStore(LIMITS.automaton_ttl_seconds)
 limiter = TokenBucket(LIMITS.rate_limit_burst, LIMITS.rate_limit_per_second)
-# None unless NFA_LLM_ENABLED=1 (backend/.env or the environment).
+# None unless NFA_LLM_ENABLED is true and ANTHROPIC_API_KEY is set (backend/.env or the
+# environment).
 llm_tier = tier_from_env()
+# Model calls cost money and seconds, so each address gets far fewer of them than of
+# requests: a burst of five, then one every twelve seconds. Cached readings are free.
+LLM_RATE_BURST: Final = 5
+LLM_RATE_PER_SECOND: Final = 1 / 12
+llm_limiter = TokenBucket(LLM_RATE_BURST, LLM_RATE_PER_SECOND)
 # Behind a proxy the TCP peer is the proxy, so the visitor's address must come from a
 # header the platform's edge sets and overwrites. X-Forwarded-For is never read: Render
 # keeps whatever the client put there and appends to it, so its entries can be forged.
@@ -95,6 +101,10 @@ def get_limiter() -> TokenBucket:
 
 def get_llm() -> LLMTier | None:
     return llm_tier
+
+
+def get_llm_limiter() -> TokenBucket:
+    return llm_limiter
 
 
 def get_client_ip_header() -> str | None:
@@ -127,7 +137,34 @@ def rate_limit(
         )
 
 
+def metered_llm(
+    request: Request,
+    tier: Annotated[LLMTier | None, Depends(get_llm)],
+    bucket: Annotated[TokenBucket, Depends(get_llm_limiter)],
+    header: Annotated[str | None, Depends(get_client_ip_header)],
+) -> LLMTier | None:
+    """The LLM tier for this request, refusing a model call over the address's limit."""
+    if tier is None:
+        return None
+    address = client_address(request, header)
+
+    def gate() -> None:
+        wait = bucket.take(address)
+        if wait > 0:
+            seconds = max(1, round(wait))
+            raise ApiError(
+                "E_RATE_LIMITED",
+                f"Readings with AI help are limited per address. Wait {seconds} s and try "
+                "again, or rephrase with words such as 'starts with', 'ends with' or "
+                "'contains' so the rules can read it.",
+                {"retry_after": seconds},
+                {"Retry-After": str(seconds)},
+            )
+
+    return tier.gated(gate)
+
+
 Sessions = Annotated[TTLStore[str, Session], Depends(get_sessions)]
 Automata = Annotated[TTLStore[str, StoredAutomaton], Depends(get_automata)]
 BySpec = Annotated[TTLStore[str, str], Depends(get_by_spec)]
-LLM = Annotated[LLMTier | None, Depends(get_llm)]
+LLM = Annotated[LLMTier | None, Depends(metered_llm)]

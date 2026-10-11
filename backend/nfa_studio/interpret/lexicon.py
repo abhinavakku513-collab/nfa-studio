@@ -53,8 +53,9 @@ HAVE: Final = r"(?:contains?|containing|includes?|including|has|have|having|with
 
 # Words that only introduce the description, stripped from the front of a clause.
 LEADING_FILLER: Final = (
-    r"^(?:(?:all|the|set|of|language|strings?|words?|sequences?|binary|that|which|whose|"
-    r"where|such|in|are|is|those|any|both|either)\s+)+"
+    r"^(?:(?:all|the|set|of|language|strings?|words?|sequences?|binary|bit|bitstrings?|that|"
+    r"which|whose|"
+    r"where|such|in|are|is|those|any|both|either|also)\s+)+"
 )
 # What may come before the description, stripped from the front of the sentence one
 # piece at a time and in any order: "Please enter all binary strings …", "Can you
@@ -76,12 +77,176 @@ LEAD_IN: Final = (
     rf"|(?:an? |the )?(?:{_MACHINE})(?: (?:for|(?:that |which )?(?:{_RECOGNISES})))?"
     rf"|(?:that |which )?(?:{_RECOGNISES})"
     r"|(?:the )?(?:language|set) of"
+    r"|(?:an? |the )?(?:string|word|input)(?: w)? is (?:accepted|in the language) "
+    r"(?:iff|if and only if|exactly when|precisely when|when|if)(?: it)?"
     r"|(?:all|every|any|each)(?= (?:the )?(?:binary )?(?:strings?|words?|sequences?)\b)"
     r")[\s,:]+"
 )
-NEGATION: Final = r"^(?:that |which )?(?:do not|does not|don't|doesn't|not|never|cannot|can't)\s+"
+NEGATION: Final = (
+    r"^(?:that |which )?(?:do not|does not|don't|doesn't|dont|doesnt|not|never|cannot|can't"
+    r"|except(?: for)?(?: those| the ones| strings| words)?(?: that| which)?)\s+"
+)
 # Splits clauses; "but", "plus", "while" and a relative "that"/"which" join like "and".
 CONNECTIVE: Final = r"\s*,?\s+\b(and|but|or|as well as|plus|while|that|which)\b\s+"
+
+# Words the rules know, for correcting a misspelled one to the closest (C18). Only words
+# of five or more letters are ever corrected, so short words need not be listed.
+VOCABULARY: Final = frozenset(
+    {
+        *NUMBER_WORDS,
+        *ORDINAL_WORDS,
+        *[
+            "start",
+            "starts",
+            "started",
+            "starting",
+            "begin",
+            "begins",
+            "beginning",
+            "began",
+            "begun",
+            "end",
+            "ends",
+            "ended",
+            "ending",
+            "finish",
+            "finishes",
+            "finished",
+            "finishing",
+            "contain",
+            "contains",
+            "contained",
+            "containing",
+            "include",
+            "includes",
+            "included",
+            "including",
+            "having",
+            "without",
+            "avoid",
+            "avoids",
+            "avoiding",
+            "appear",
+            "appears",
+            "occur",
+            "occurs",
+            "somewhere",
+            "never",
+            "prefix",
+            "suffix",
+            "substring",
+            "subword",
+            "factor",
+            "infix",
+            "pattern",
+            "string",
+            "strings",
+            "words",
+            "symbol",
+            "symbols",
+            "letter",
+            "letters",
+            "character",
+            "characters",
+            "digit",
+            "digits",
+            "binary",
+            "alphabet",
+            "language",
+            "exactly",
+            "precisely",
+            "least",
+            "most",
+            "more",
+            "fewer",
+            "times",
+            "twice",
+            "thrice",
+            "number",
+            "count",
+            "amount",
+            "length",
+            "divisible",
+            "multiple",
+            "modulo",
+            "congruent",
+            "consecutive",
+            "occurrence",
+            "occurrences",
+            "instance",
+            "instances",
+            "copies",
+            "copy",
+            "repetitions",
+            "repeats",
+            "appearances",
+            "followed",
+            "preceded",
+            "immediately",
+            "directly",
+            "every",
+            "other",
+            "first",
+            "second",
+            "third",
+            "fourth",
+            "fifth",
+            "sixth",
+            "seventh",
+            "eighth",
+            "ninth",
+            "tenth",
+            "final",
+            "equal",
+            "equals",
+            "whose",
+            "where",
+            "which",
+            "their",
+            "there",
+            "these",
+            "those",
+            "other",
+            "either",
+            "neither",
+            "plus",
+            "while",
+            "regular",
+            "expression",
+            "regex",
+            "matching",
+            "matches",
+            "matched",
+            "described",
+            "generated",
+            "given",
+            "form",
+            "match",
+            "accept",
+            "accepts",
+            "accepting",
+            "recognise",
+            "recognises",
+            "recognize",
+            "recognizes",
+            "please",
+            "enter",
+            "construct",
+            "design",
+            "build",
+            "create",
+            "generate",
+            "write",
+            "draw",
+            "input",
+            "show",
+            "sequence",
+            "sequences",
+            "maximum",
+            "minimum",
+        ],
+    }
+)
 
 # Single symbols whose conventional partner completes an inferred alphabet (C5).
 PARTNERS: Final = {"0": "1", "1": "0", "a": "b", "b": "a"}

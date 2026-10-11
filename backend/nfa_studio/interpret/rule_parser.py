@@ -6,6 +6,7 @@ completely; nothing is guessed from a partial match. The result is a draft IR wh
 open choices are `Hole`s and whose alphabet-dependent parts are `Lazy`.
 """
 
+import difflib
 import re
 import unicodedata
 from collections.abc import Callable
@@ -26,6 +27,8 @@ from nfa_studio.ir.schema import IR_VERSION
 # ("ending with ab or ba"). Below the threshold the optional LLM tier takes over.
 ELLIPSIS_PENALTY: Final = 0.1
 CONFIDENCE_THRESHOLD: Final = 0.7
+# Confidence lost for each word whose spelling had to be corrected before it could be read.
+SPELLING_PENALTY: Final = 0.1
 
 
 class UnsupportedRequest(Exception):
@@ -155,33 +158,98 @@ def parse(text: str) -> Draft:
     _refuse_numeric_value(text)
     explicit, rest = _explicit_alphabet(text)
     rest = strip_lead_in(rest)
-    binary = re.search(r"\bbinary\b", rest, re.I) is not None
-    hinted = re.search(lx.ALPHABET_HINTS, rest, re.I) is not None
-    body = re.sub(_HINT_PHRASE, "", rest, flags=re.I).strip()
+    fixes: tuple[tuple[str, str], ...] = ()
     try:
-        clause, confidence = _parse_body(re.sub(r"\s+", " ", body))
+        clause, confidence, binary, hinted = _read(rest)
     except _Unread as unread:
-        alphabet = explicit if explicit is not None else (["0", "1"] if binary else None)
-        understood = (
-            *([f"the alphabet {{{', '.join(alphabet)}}}"] if alphabet else []),
-            *(f'"{part}"' for part in unread.understood),
-        )
-        raise not_interpretable(unread.text, understood=understood, whole=body) from None
+        # Only a description that cannot be read as typed is read again with its
+        # spelling corrected, so a readable one never changes.
+        respelled, fixes = _correct_spelling(rest, explicit)
+        if not fixes:
+            raise _refusal(unread, explicit, rest) from None
+        try:
+            clause, confidence, binary, hinted = _read(respelled)
+        except _Unread:
+            raise _refusal(unread, explicit, rest) from None
+        confidence -= SPELLING_PENALTY * len(fixes)
     symbols, source, assumption = _alphabet(explicit, binary, set(clause.symbols), hinted)
     ids = list(dict.fromkeys((*clause.assumptions, *assumption)))
+    assumptions = [
+        {"id": i, "text": lx.ASSUMPTIONS[i][0], "editable": lx.ASSUMPTIONS[i][1]} for i in ids
+    ]
+    if fixes:
+        respellings = ", ".join(f"'{typed}' as '{word}'" for typed, word in fixes)
+        assumptions.append(
+            {"id": "spelling_corrected", "text": f"Read {respellings}.", "editable": False}
+        )
     return Draft(
         {
             "ir_version": IR_VERSION,
             "alphabet": {"symbols": symbols, "source": source},
             "language": clause.tree,
-            "assumptions": [
-                {"id": i, "text": lx.ASSUMPTIONS[i][0], "editable": lx.ASSUMPTIONS[i][1]}
-                for i in ids
-            ],
+            "assumptions": assumptions,
             "clarifications": [],
         },
         confidence,
     )
+
+
+_BINARY: Final = re.compile(r"\b(?:binary|bit[- ]?strings?|bitstrings?)\b", re.I)
+# "an even number of zeros", "at least 3 ones": digits named as words. "ones" only after
+# a count word or "of", so "the ones that end in 0" keeps its meaning.
+_ZEROS: Final = re.compile(r"\bzeroe?s\b", re.I)
+_ONES: Final = re.compile(
+    rf"\b(\d+|{'|'.join(lx.NUMBER_WORDS)}|of|many|more|fewer|less|least|most) ones\b", re.I
+)
+
+
+def _digit_words(text: str) -> str:
+    return _ONES.sub(r"\1 1s", _ZEROS.sub("0s", text))
+
+
+def _read(rest: str) -> tuple[Clause, float, bool, bool]:
+    """The description without its alphabet: its clause, confidence and alphabet hints."""
+    rest = _digit_words(rest)
+    binary = _BINARY.search(rest) is not None
+    hinted = re.search(lx.ALPHABET_HINTS, rest, re.I) is not None
+    body = re.sub(_HINT_PHRASE, "", rest, flags=re.I).strip()
+    clause, confidence = _parse_body(re.sub(r"\s+", " ", body))
+    return clause, confidence, binary, hinted
+
+
+def _refusal(unread: "_Unread", explicit: list[str] | None, rest: str) -> UnsupportedRequest:
+    binary = _BINARY.search(rest) is not None
+    alphabet = explicit if explicit is not None else (["0", "1"] if binary else None)
+    understood = (
+        *([f"the alphabet {{{', '.join(alphabet)}}}"] if alphabet else []),
+        *(f'"{part}"' for part in unread.understood),
+    )
+    return not_interpretable(unread.text, understood=understood, whole=rest)
+
+
+def _correct_spelling(
+    text: str, alphabet: list[str] | None
+) -> tuple[str, tuple[tuple[str, str], ...]]:
+    """Misspelled vocabulary ("statr", "endign") as the closest known word.
+
+    Only words of five or more letters, with three or more distinct letters and not
+    made of alphabet symbols alone, are candidates, so patterns such as abba are kept.
+    """
+    symbols = set(alphabet or ())
+    fixes: list[tuple[str, str]] = []
+
+    def fix(match: re.Match[str]) -> str:
+        word = match[0]
+        lowered = word.lower()
+        if lowered in lx.VOCABULARY or len(set(lowered)) < 3 or set(word) <= symbols:
+            return word
+        close = difflib.get_close_matches(lowered, lx.VOCABULARY, n=1, cutoff=0.8)
+        if not close:
+            return word
+        fixes.append((word, close[0]))
+        return close[0]
+
+    return re.sub(r"\b[A-Za-z]{5,}\b", fix, text), tuple(fixes)
 
 
 _NUMERIC_VALUE: Final = re.compile(r"\b(?:binary |decimal |natural )?numbers?\b(?! of\b)", re.I)
@@ -213,11 +281,25 @@ _LISTED: Final = re.compile(
 )
 
 
+# "strings of a's and b's", "words made of 0s and 1s": only the "of …" part is cut.
+_MADE_OF: Final = re.compile(
+    r"\b(?:strings?|words?|sequences?)(?P<cut>\s+(?:made\s+(?:up\s+)?)?of\s+"
+    r"(?P<set>[0-9A-Za-z](?:'s|s)?(?:\s*,\s*[0-9A-Za-z](?:'s|s)?)*,?\s+(?:and|or)\s+"
+    r"[0-9A-Za-z](?:'s|s)?))(?=[\s,]|$)",
+    re.I,
+)
+
+
 def _explicit_alphabet(text: str) -> tuple[list[str] | None, str]:
+    if made_of := _MADE_OF.search(text):
+        items = re.split(r"\s*,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+", made_of["set"])
+        symbols = [item[0] for item in items]
+        rest = text[: made_of.start("cut")] + text[made_of.end("cut") :]
+        return symbols, re.sub(r"\s+", " ", rest).strip()
     match = _EXPLICIT.search(text) or _LISTED.search(text)
     if match is None:
         return None, text
-    rest = text[: match.start()].rstrip(" ,") + " " + text[match.end() :].lstrip(" ,")
+    rest = text[: match.start()].rstrip(" ,") + " " + text[match.end() :].lstrip(" ,:")
     rest = rest.strip()
     return tokenize(match["set"]), re.sub(r"\s+", " ", rest)
 
@@ -452,6 +534,11 @@ def _count(what: str, op: str | None, n: int, plural: str) -> Clause:
     `op` None means the wording left exactly/at least open, so it is asked (spec §6.2).
     """
     asked: object = count_hole(plural, n) if op is None else op
+    if len(what) > 1 and (op, n) == ("ge", 1):
+        # At least one occurrence: overlap cannot matter, so this is plain containment.
+        return _predicate("contains")(what)
+    if len(what) > 1 and n == 0 and op in ("eq", "le"):
+        return _predicate("avoids")(what)
     if len(what) == 1:
         return Clause({"type": "symbol_count", "symbol": what, "op": asked, "n": n}, what)
     overlap = overlap_hole(what)
@@ -561,6 +648,52 @@ def _n(name: str = "n") -> str:
 _Q: Final = rf"(?P<q>{lx.QUALIFIER})"
 _OCCURRENCES: Final = r"(?:occurrences?|instances?|copies|appearances?) of"
 _TIMES: Final = rf"(?P<times>once|twice|thrice|{_n('k')} times)"
+# "begins with a 1": an article before a pattern; "begins with a" keeps its symbol.
+_ARTICLE: Final = r"(?:(?:an?|the) (?=\S))?"
+_ITEM: Final = r"['\"]?[^\s,{}'\"]+['\"]?"
+# Two or more words joined by commas, "and" or "or", or a braced list of any length.
+_LIST: Final = (
+    rf"\{{?\s*{_ITEM}(?:\s*,\s*(?:(?:and|or)\s+)?{_ITEM}|\s+(?:and|or)\s+{_ITEM})+\s*\}}?"
+    rf"|\{{\s*{_ITEM}(?:\s*,\s*{_ITEM})*\s*\}}"
+)
+
+
+def _fixed_end(kind: str, m: re.Match[str]) -> Clause | None:
+    """starts_with/ends_with; "the first two symbols are ab" must name that many."""
+    pattern = m["p"] or m["p2"] or m["p3"]
+    if m["k"] and _number(m["k"]) != len(pattern):
+        return None
+    return _predicate(kind)(pattern)
+
+
+def _repetition(pattern: str, at_least_once: bool) -> Clause:
+    star = {"type": "star", "child": _literal(pattern)}
+    return Clause(_concat([_literal(pattern), star]) if at_least_once else star, pattern)
+
+
+def _every_kth(k: int, symbol: str) -> Clause:
+    """Positions k, 2k, 3k, … hold `symbol`: (Σ^(k-1) s)*, then fewer than k symbols."""
+    block = _concat([*[ANY_SYMBOL] * (k - 1), _literal(symbol)])
+    tail = _concat([ANY_SYMBOL_OR_NONE] * (k - 1)) if k > 1 else _literal("")
+    return Clause(_concat([{"type": "star", "child": block}, tail]), symbol)
+
+
+def _none_of(pattern: str) -> Clause:
+    """ "no 11", "no a's": the pattern never occurs."""
+    return _predicate("avoids")(pattern[:-2] if pattern.endswith("'s") else pattern)
+
+
+def _length_between(low: int, high: int) -> Clause | None:
+    if low > high:
+        return None
+    return Clause(_concat([*[ANY_SYMBOL] * low, *[ANY_SYMBOL_OR_NONE] * (high - low)]), "")
+
+
+def _then_repeated(first: str, repeated: str, at_least_once: bool) -> Clause:
+    """ "a 1 followed by any number of 0s": first, then repeated zero or more times."""
+    tail = _repetition(repeated, at_least_once)
+    return Clause(_concat([_literal(first), tail.tree]), first + repeated)
+
 
 Handler = Callable[[re.Match[str]], Clause | None]
 
@@ -575,19 +708,47 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         lambda m: _same_ends(),
     ),
     (
+        r"(?:starts?|starting|begins?|beginning) and (?:ends?|ending) (?:with|in) "
+        rf"{_ARTICLE}{_p()}",
+        lambda m: _join(
+            "and", [_predicate("starts_with")(m["p"]), _predicate("ends_with")(m["p"])]
+        ),
+    ),
+    (
         rf"(?:starts?|starting|started|begins?|beginning|began|begun) (?:with|in) "
-        rf"(?:the (?:substring|prefix) )?{_p()}",
-        lambda m: _predicate("starts_with")(m["p"]),
+        rf"(?:the (?:substring|prefix) )?{_ARTICLE}{_p()}"
+        rf"|(?:(?:with|having|has) )?(?:the |a )?prefix {_p('p2')}"
+        rf"|(?:the )?first (?:{_n('k')} )?{lx.SYMBOL_NOUN}s? (?:are|is) {_p('p3')}",
+        lambda m: _fixed_end("starts_with", m),
     ),
     (
         r"(?:ends?|ending|ended|finish(?:es|ed|ing)?) (?:with|in) "
-        rf"(?:the (?:substring|suffix) )?{_p()}",
-        lambda m: _predicate("ends_with")(m["p"]),
+        rf"(?:the (?:substring|suffix) )?{_ARTICLE}{_p()}"
+        rf"|(?:(?:with|having|has) )?(?:the |a )?suffix {_p('p2')}"
+        rf"|(?:the )?last (?:{_n('k')} )?{lx.SYMBOL_NOUN}s? (?:are|is) {_p('p3')}",
+        lambda m: _fixed_end("ends_with", m),
     ),
     (rf"no {_n()} (?:consecutive {_s()}|{_s('s2')} in a row)", lambda m: _consecutive(m)),
     (
-        rf"(?:without|avoiding|avoids?) (?:the )?(?:substring |pattern |factor )?{_p()}",
-        lambda m: _predicate("avoids")(m["p"]),
+        rf"(?:{lx.HAVE} )?{_n()} (?:consecutive {_s()}|{_s('s2')} in a row)",
+        lambda m: _predicate("contains")((m["s"] or m["s2"]) * _number(m["n"])),
+    ),
+    (
+        rf"{_s('x')} (?:never|does not|doesn't|doesnt) (?:comes?|appears?|occurs?) "
+        rf"(?:right |immediately |directly )?(?P<rel>after|before) {_ARTICLE}{_s('y')}",
+        lambda m: _predicate("avoids")(
+            m["y"] + m["x"] if m["rel"].lower() == "after" else m["x"] + m["y"]
+        ),
+    ),
+    (
+        rf"(?:without|avoiding|avoids?|free of) (?:the )?(?:substring |pattern |factor )?{_p()}"
+        rf"|{_p('p2')} (?:does not|doesn't|doesnt|never) (?:appears?|occurs?)",
+        lambda m: _predicate("avoids")(m["p"] or m["p2"]),
+    ),
+    (
+        r"(?:(?:with|having|has|have|contains?|containing) )?no "
+        rf"(?:substring |occurrences? of |copies of )?{_p()}",
+        lambda m: _none_of(m["p"]),
     ),
     (
         rf"(?:an? )?(?P<par>even|odd) (?:number|count|amount) of {_s()}"
@@ -608,6 +769,17 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         lambda m: _count(m["p"] or m["s"], *_qualified(m["q"], m["n"]), "occurrences"),
     ),
     (
+        # "copies of ab" here would be repetition, as in "one or more copies of ab".
+        rf"(?:{lx.HAVE} )?{_n()} or (?P<dir>more|fewer|less) "
+        rf"(?:(?:occurrences?|instances?|appearances?) of {_p()}|{_s()})",
+        lambda m: _count(
+            m["p"] or m["s"],
+            "ge" if m["dir"].lower() == "more" else "le",
+            _number(m["n"]),
+            "occurrences",
+        ),
+    ),
+    (
         rf"{lx.HAVE} {_n()} (?:{_OCCURRENCES} {_p()}|{_s()})",
         lambda m: _count(
             m["p"] or m["s"],
@@ -617,7 +789,16 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         ),
     ),
     (
-        rf"(?:{lx.HAVE} )?{_p()} (?:(?P<q>exactly|at least|at most) )?{_TIMES}",
+        rf"(?:the )?(?:number|count) of {_s()} is (?:(?:{_Q}|exactly|equal to) )?{_n()}",
+        lambda m: _count(
+            m["s"],
+            *(_qualified(m["q"], m["n"]) if m["q"] else ("eq", _number(m["n"]))),
+            "occurrences",
+        ),
+    ),
+    (
+        rf"(?:{lx.HAVE} )?{_p()} (?:(?:appears?|occurs?) )?(?:(?P<q>exactly|at least|at most) )?"
+        rf"{_TIMES}",
         lambda m: _count(
             m["p"],
             "ge" if m["q"] is None else lx.QUALIFIERS[m["q"].lower()][0],
@@ -629,6 +810,19 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         r"(?:(?:of|with|having|has|have) )?(?:an? )?(?P<par>even|odd) length"
         r"|(?:the )?length (?:is )?(?P<par2>even|odd)",
         lambda m: _length_parity((m["par"] or m["par2"]).lower()),
+    ),
+    (
+        r"(?:an? )?(?P<par>even|odd)[- ]length(?: (?:binary )?(?:strings?|words?|sequences?))?",
+        lambda m: _length_parity(m["par"].lower()),
+    ),
+    (
+        rf"(?:of )?(?:a )?length (?:is )?(?:between|from) {_n('low')} (?:and|to) {_n('high')}"
+        r"(?: inclusive)?",
+        lambda m: _length_between(_number(m["low"]), _number(m["high"])),
+    ),
+    (
+        r"(?:the )?length (?:is )?not (?P<par>even|odd)",
+        lambda m: _length_parity("odd" if m["par"].lower() == "even" else "even"),
     ),
     (
         rf"(?:the )?(?:length|size) (?:that )?(?:is )?(?:divisible by|a multiple of) {_n('m')}",
@@ -651,13 +845,37 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         lambda m: _kth(_ordinal(m["k"]), m["s"], m["end"] is not None),
     ),
     (
-        rf"(?:the )?(?:(?P<k>{lx.ORDINAL})[- ]to[- ]last|(?P<last>last|final)) {lx.SYMBOL_NOUN} "
+        rf"(?:the )?(?:(?P<k>{lx.ORDINAL})[- ](?:to[- ])?last|(?P<last>last|final)) "
+        rf"{lx.SYMBOL_NOUN} "
         rf"(?:is|equals|=) {_s()}",
         lambda m: _kth(_ordinal(m["k"]) if m["k"] else 1, m["s"], True),
     ),
     (
+        rf"(?:{lx.HAVE} )?{_s()} as (?:the|its|their) (?:(?P<k>{lx.ORDINAL})|(?P<last>last)) "
+        rf"{lx.SYMBOL_NOUN}(?P<end> from the (?:end|right))?",
+        lambda m: _kth(
+            _ordinal(m["k"]) if m["k"] else 1, m["s"], m["end"] is not None or bool(m["last"])
+        ),
+    ),
+    (
+        rf"(?:looks? like )?{_ARTICLE}{_p('x')} followed by "
+        rf"(?P<q>any number of|zero or more|one or more) {_s('y')}",
+        lambda m: _then_repeated(m["x"], m["y"], m["q"].lower() == "one or more"),
+    ),
+    (
+        rf"(?:every|each) (?:(?P<k>{lx.ORDINAL})|(?P<other>other)) {lx.SYMBOL_NOUN} "
+        rf"(?:is|equals|=) {_s()}",
+        lambda m: _every_kth(2 if m["other"] else _ordinal(m["k"]), m["s"]),
+    ),
+    (
+        # "any" goes with the leading filler, so "number of" stands alone here.
+        r"(?P<q>zero or more|(?:any )?number of|one or more) "
+        rf"(?:copies|repetitions|repeats) of {_p()}",
+        lambda m: _repetition(m["p"], m["q"].lower() == "one or more"),
+    ),
+    (
         rf"(?:every|each) {_s('x')} is (?:immediately |directly )?"
-        rf"(?P<rel>followed|preceded) by {_s('y')}",
+        rf"(?P<rel>followed|preceded) by {_ARTICLE}{_s('y')}",
         lambda m: _every_next(m["x"], m["y"], m["rel"].lower() == "preceded"),
     ),
     (
@@ -665,15 +883,32 @@ _RULE_TABLE: Final[list[tuple[str, Handler]]] = [
         lambda m: _words(m["list"]),
     ),
     (
+        r"(?:(?:exactly|only|just|precisely) )?(?:the )?(?:(?:words?|strings?|set)\s+)?"
+        rf"(?:like |such as )?(?P<list>{_LIST})",
+        lambda m: _words(m["list"]),
+    ),
+    (
+        rf"(?:the )?(?:substring |pattern )?{_p()} (?:appears?|occurs?)"
+        r"(?: somewhere| as an? (?:substring|subword|factor))?",
+        lambda m: _predicate("contains")(m["p"]),
+    ),
+    (
         rf"{lx.HAVE} {_p()} as an? (?:substring|subword|factor|infix)",
         lambda m: _predicate("contains")(m["p"]),
     ),
     (
-        rf"{lx.HAVE} (?:the |an? )?(?:substring |subword |factor |pattern |string )?{_p()}",
+        rf"{lx.HAVE} (?:the |an? )?(?:substring |subword |factor |pattern |string )?{_p()}"
+        r"(?: (?:somewhere|anywhere)(?: in it)?)?",
         lambda m: _predicate("contains")(m["p"]),
     ),
     (
-        r"(?:(?:matching|matches|matched by|described by|generated by|given by|of the form) )?"
+        rf"(?:(?:is|are|equals?) )?(?:exactly|just|only|precisely) "
+        rf"(?:the (?:word|string) )?(?P<list>{_ITEM})",
+        lambda m: _words(m["list"]),
+    ),
+    (
+        r"(?:(?:matching|matches|matched by|described by|generated by|given by|of the form"
+        r"|the form|form) )?"
         r"(?:the )?(?:regex |regular expression |expression )?(?P<r>[^\s]+)",
         lambda m: _regex(m["r"]),
     ),
