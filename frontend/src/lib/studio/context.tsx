@@ -1,8 +1,15 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useStore } from "zustand";
-import { type Api, createApi } from "@/lib/api/client";
+import { type Api, createApi, wakeServer } from "@/lib/api/client";
+import { type Wake, type WakeStore, createWakeStore } from "@/lib/api/wake";
 import { type Explore, type ExploreStore, createExploreStore } from "./explore";
 import {
   type Simulator,
@@ -15,6 +22,7 @@ type Stores = {
   studio: StudioStore;
   explore: ExploreStore;
   simulator: SimulatorStore;
+  wake: WakeStore;
 };
 
 const StoresContext = createContext<Stores | null>(null);
@@ -33,13 +41,21 @@ export function StudioProvider({
     if (stores) {
       return stores;
     }
-    const client = api ?? createApi();
+    const wake = createWakeStore();
+    const client = api ?? createApi({ retry: { listener: wake.getState() } });
     return {
       studio: createStudioStore(client),
       explore: createExploreStore(client),
       simulator: createSimulatorStore(client),
+      wake,
     };
   });
+  const ownClient = !api && !stores;
+  useEffect(() => {
+    if (ownClient) {
+      wakeServer();
+    }
+  }, [ownClient]);
   return (
     <StoresContext.Provider value={value}>{children}</StoresContext.Provider>
   );
@@ -63,6 +79,10 @@ export function useExplore<T>(select: (explore: Explore) => T): T {
 
 export function useSimulator<T>(select: (simulator: Simulator) => T): T {
   return useStore(useStores().simulator, select);
+}
+
+export function useWake<T>(select: (wake: Wake) => T): T {
+  return useStore(useStores().wake, select);
 }
 
 /** The simulator store itself, for the animation code that reads it between renders. */

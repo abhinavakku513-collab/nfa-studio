@@ -1,6 +1,7 @@
 import createClient from "openapi-fetch";
 import type { Readable } from "openapi-typescript-helpers";
 import type { components, paths } from "./schema";
+import type { Wake } from "./wake";
 
 // Response types exactly as openapi-fetch returns them. Its Readable<> maps every array
 // to an array of its element type, so a JSON tuple such as a δ triple arrives as
@@ -63,15 +64,85 @@ export type Api = ReturnType<typeof createApi>;
 // calls go to /v1 on this site and the Next.js rewrite forwards them.
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
+// The hosted backend sleeps when idle; while it starts, its proxy answers 502/503/504 or
+// drops the connection. Six attempts five seconds apart cover a typical cold start.
+export const RETRY = { attempts: 6, delayMs: 5000 };
+
+const GATEWAY_STATUSES = new Set([502, 503, 504]);
+
+export type RetryOptions = {
+  attempts?: number;
+  delayMs?: number;
+  listener?: Pick<Wake, "retrying" | "settled">;
+};
+
+/** True for a proxy's gateway error; the API's own 504 (E_TIMEOUT) would only time out again. */
+async function isGatewayError(response: Response): Promise<boolean> {
+  if (!GATEWAY_STATUSES.has(response.status)) {
+    return false;
+  }
+  const body: unknown = await response
+    .clone()
+    .json()
+    .catch(() => null);
+  return !isErrorBody(body);
+}
+
+/** `fetchImpl`, retried on gateway errors and network failures while the server wakes. */
+export function retryingFetch(
+  fetchImpl: typeof fetch,
+  {
+    attempts = RETRY.attempts,
+    delayMs = RETRY.delayMs,
+    listener,
+  }: RetryOptions = {},
+): typeof fetch {
+  return async (input, init) => {
+    // A body can be read once, so every attempt sends a fresh clone.
+    const request = new Request(input, init);
+    const key = {};
+    try {
+      for (let attempt = 1; ; attempt += 1) {
+        const last = attempt >= attempts;
+        try {
+          const response = await fetchImpl(request.clone());
+          if (last || !(await isGatewayError(response))) {
+            return response;
+          }
+        } catch (error) {
+          if (last) {
+            throw error;
+          }
+        }
+        listener?.retrying(key, attempt + 1);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    } finally {
+      listener?.settled(key);
+    }
+  };
+}
+
 /** Typed client for /v1, on NEXT_PUBLIC_API_URL or on this site. */
 export function createApi(
-  options: { baseUrl?: string; fetch?: typeof fetch } = {},
+  options: {
+    baseUrl?: string;
+    fetch?: typeof fetch;
+    retry?: RetryOptions;
+  } = {},
 ) {
   // JSON bodies are typed; the text formats (CSV, LaTeX, SVG, DOT) are read with parseAs.
   return createClient<paths, "application/json">({
     baseUrl: options.baseUrl ?? API_URL,
-    ...(options.fetch ? { fetch: options.fetch } : {}),
+    fetch: retryingFetch(options.fetch ?? globalThis.fetch, options.retry),
   });
+}
+
+/** One unretried health check, so a sleeping server starts waking before the first real call. */
+export function wakeServer(): void {
+  createClient<paths>({ baseUrl: API_URL })
+    .GET("/v1/health")
+    .catch(() => undefined);
 }
 
 /** An API error as shown to the user: the server's message names reason and next action. */

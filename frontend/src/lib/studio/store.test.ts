@@ -148,6 +148,7 @@ describe("studio store", () => {
       baseUrl: "http://studio.test",
       fetch: (() =>
         Promise.reject(new TypeError("Failed to fetch"))) as typeof fetch,
+      retry: { delayMs: 0 },
     });
     const store = createStudioStore(api);
     store.getState().setText("anything");

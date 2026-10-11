@@ -7,6 +7,7 @@ import { ConfirmStep } from "./ConfirmStep";
 import { DescribeStep } from "./DescribeStep";
 import { Header } from "./Header";
 import { Explore } from "./Explore";
+import { WakeNotice } from "./WakeNotice";
 
 /** The one page of spec §12.1: steps on the left, the automaton on the right. */
 export function Studio({ api }: { api?: Api }) {
@@ -19,6 +20,7 @@ export function Studio({ api }: { api?: Api }) {
         Skip to the automaton
       </a>
       <Header />
+      <WakeNotice />
       <main className="mx-auto grid max-w-7xl items-start gap-6 px-4 py-6 lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] lg:px-8">
         <div className="flex flex-col gap-4">
           <DescribeStep />
