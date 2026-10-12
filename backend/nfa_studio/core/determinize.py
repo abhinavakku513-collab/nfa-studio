@@ -22,10 +22,11 @@ def merged_meaning(auto: Automaton, states: Iterable[str]) -> str:
 
 
 def remove_epsilon(auto: Automaton) -> Automaton:
-    """The ε-free machine with δ′(q, a) = ECLOSE(δ(ECLOSE({q}), a)).
+    """The ε-free machine with δ′(q, a) = δ(ECLOSE({q}), a).
 
-    q accepts in the new machine iff ECLOSE({q}) ∩ F ≠ ∅. States that were reachable
-    only through ε edges become unreachable and are trimmed.
+    q accepts in the new machine iff ECLOSE({q}) ∩ F ≠ ∅. The targets are not closed:
+    each state's own closure is taken when it reads next, so states that were
+    reachable only through ε edges become unreachable and are trimmed.
     """
     if not has_epsilon(auto):
         return auto
@@ -33,7 +34,7 @@ def remove_epsilon(auto: Automaton) -> Automaton:
         (q, a): targets
         for q in auto.states
         for a in auto.alphabet
-        if (targets := step(auto, eclose_state(auto, q), a))
+        if (targets := frozenset(r for p in eclose_state(auto, q) for r in auto.targets(p, a)))
     }
     final = frozenset(q for q in auto.states if eclose_state(auto, q) & auto.final)
     return trim(replace(auto, delta=delta, final=final, kind="nfa"))

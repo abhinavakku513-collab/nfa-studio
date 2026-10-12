@@ -5,6 +5,9 @@ from typing import Any
 import pytest
 
 from nfa_studio.compile import compile
+from nfa_studio.compile.naming import name_states
+from nfa_studio.compile.regex_parser import parse_regex
+from nfa_studio.compile.thompson import thompson
 from nfa_studio.core.model import EPS, Automaton, model_hash
 from nfa_studio.ir.limits import TimeBudgetExceeded
 from nfa_studio.ir.normalize import validate_ir
@@ -33,7 +36,9 @@ def compiled(language: dict[str, Any], symbols: str = "ab") -> Automaton:
 
 ENDS_WITH_AB = compiled({"type": "ends_with", "pattern": "ab"})
 AVOIDS_AA = compiled({"type": "avoids", "pattern": "aa"})
-AB_STAR = compiled({"type": "regex", "expr": "(ab)*"})
+# Thompson's machine before ε-removal: compile() never returns ε edges now (C19), but the
+# renderers still draw them for any ε-NFA, as the ε-free view's input shows.
+AB_STAR = name_states(thompson(parse_regex("(ab)*"), ("a", "b")))
 
 
 def svg_ids(auto: Automaton, **options: bool) -> tuple[str, set[str]]:

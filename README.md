@@ -1,6 +1,7 @@
 # NFA Studio
 
-Describe a regular language in plain English and get an ε-NFA with its transition table,
+Describe a regular language in plain English and get an NFA, free of ε-moves, with its
+transition table,
 state diagram and a step-by-step simulator. Every automaton is checked against an
 independently built reference before it is shown. The specification is
 `docs/NFA_Studio_Spec_v1.pdf`; project rules are in `CLAUDE.md`.
@@ -187,7 +188,7 @@ docker run --rm -p 8000:10000 -e PORT=10000 nfa-studio-api
 
 ```
 text ─► interpret ─► IR ─► confirm ─► compile ─► verify ─► automaton ─► table · diagram · trace
-        rules, then        (user)     ε-NFA      V0–V3     by hash id
+        rules, then        (user)     NFA, no ε  V0–V3     by hash id
         optional LLM
 ```
 
@@ -200,8 +201,9 @@ the web layer:
   other input.
 - `ir/` holds the IR schema, its normalisation and limits, and the oracle: a direct
   membership test for a word against the IR, with no automaton involved.
-- `compile/` builds the ε-NFA: one construction per atom, Thompson's construction for
-  regexes, products and complements for `and`/`or`/`not`, then deterministic naming.
+- `compile/` builds the NFA: one construction per atom, Thompson's construction for
+  regexes, products and complements for `and`/`or`/`not`, then ε-removal, so the
+  machine shown has no ε-moves, and deterministic naming.
 - `core/` is the automaton model and its algorithms: ε-closure, simulation with a
   witness path, subset construction, product and minimisation.
 - `reference/` builds an independent DFA from the IR with Brzozowski derivatives.
@@ -223,7 +225,7 @@ over the same alphabet; a `not` condition is shown as its complemented DFA, labe
 "NOT …". One tape feeds every lane, the simulator's controls and speed move them
 together, each lane shows its active states and its own verdict, and the combiner at
 the end ("ALL must accept" for and, "ANY accepts" for or) lights up with the result.
-For or, a shared start state fans out to the lanes by ε, as in the union.
+No lane, and nothing between the lanes, has an ε-move.
 
 It is a picture of the parts, not a second automaton: the verified automaton and its
 ladder are unchanged, and the lanes are not verified on their own. The API is

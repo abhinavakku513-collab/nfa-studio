@@ -22,7 +22,7 @@ const notoSansMath = Noto_Sans_Math({
 
 export const metadata: Metadata = {
   title: "NFA Studio",
-  description: "Describe a regular language and get a verified ε-NFA.",
+  description: "Describe a regular language and get a verified NFA.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -302,14 +302,14 @@ describe("Branches", () => {
     expect(screen.getByRole("slider", { name: "Step" })).toHaveValue("3");
   });
 
-  it("ANY accepts when one lane does, from a shared start that fans out by ε", async () => {
+  it("ANY accepts when one lane does, with no ε-moves drawn between the lanes", async () => {
     renderBranches("any");
     expect(
       screen.getByRole("group", {
-        name: /one accepting branch is enough\. A shared start state moves by ε/,
+        name: "2 branches; one accepting branch is enough",
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("ε")).toHaveLength(2);
+    expect(screen.queryByText("ε")).toBeNull();
     await simulate("101");
     await verdict(
       /^Combined verdict: accepted; .*branch 1 \(contain 101\) accepts/,

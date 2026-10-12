@@ -42,7 +42,7 @@ export function Header() {
         </span>
         <h1 className="text-lg font-semibold tracking-tight">NFA Studio</h1>
         <p className="hidden text-sm text-muted sm:block">
-          Describe a language, confirm the reading, get a verified ε-NFA
+          Describe a language, confirm the reading, get a verified NFA
         </p>
         <div className="ml-auto">
           <ThemeToggle />

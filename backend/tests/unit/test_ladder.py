@@ -3,6 +3,9 @@ from typing import Any
 import pytest
 
 from nfa_studio.compile import compile
+from nfa_studio.compile.naming import name_states
+from nfa_studio.compile.regex_parser import parse_regex
+from nfa_studio.compile.thompson import thompson
 from nfa_studio.core.model import Automaton
 from nfa_studio.ir.normalize import validate_ir
 from nfa_studio.ir.schema import IRDocument
@@ -45,7 +48,7 @@ def test_a_correct_machine_reaches_v2_with_the_spec_evidence() -> None:
 
 
 def test_closure_laws_add_property_runs() -> None:
-    # not → double complement; the regex part keeps ε edges → ε-free view.
+    # not → double complement. Built machines have no ε edges (C19), so no ε-free law.
     spec = doc(
         {
             "type": "or",
@@ -55,7 +58,12 @@ def test_closure_laws_add_property_runs() -> None:
             ],
         }
     )
-    assert verify(compiled(spec), spec).property_runs == 502
+    assert verify(compiled(spec), spec).property_runs == 501
+    # An ε-NFA, such as Thompson's machine before ε-removal, adds the ε-free view law.
+    regex = doc({"type": "regex", "expr": "(ab)*"})
+    thompson_machine = name_states(thompson(parse_regex("(ab)*"), ("a", "b")))
+    assert verify(thompson_machine, regex).property_runs == 501
+    assert verify(compiled(regex), regex).property_runs == 500
 
 
 def test_pattern_count_reaches_v1_and_says_why() -> None:

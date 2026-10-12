@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { ChevronRight, CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck, CircleX } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import type { BranchModel, BranchesResponse } from "@/lib/api/client";
 import { useSimulator, useSimulatorStore } from "@/lib/studio/context";
@@ -112,47 +112,6 @@ function Lane({
   );
 }
 
-/**
- * For "any": the union's shared start state, drawn once at the top, with an ε-move
- * fanning into each branch. Decorative; the group's name says the same in words.
- */
-function Fan({
-  first,
-  last,
-  active,
-}: {
-  first: boolean;
-  last: boolean;
-  active: boolean;
-}) {
-  return (
-    <div aria-hidden className="absolute inset-y-0 left-0 w-10">
-      {first && (
-        <span
-          className={clsx(
-            "absolute left-0.5 top-0 size-5 rounded-full border-2 transition-colors duration-200 motion-reduce:transition-none",
-            active
-              ? "border-accent-strong bg-accent"
-              : "border-muted bg-surface",
-          )}
-        />
-      )}
-      <span
-        className={clsx(
-          "absolute left-[11px] w-0.5 bg-muted",
-          first ? "top-5" : "-top-3",
-          last ? "bottom-1/2" : "bottom-0",
-        )}
-      />
-      <span className="absolute left-[11px] right-1.5 top-1/2 h-0.5 bg-muted" />
-      <ChevronRight className="absolute -right-0.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-      <span className="absolute left-4 top-1/2 -translate-y-[130%] font-mono text-xs text-muted">
-        ε
-      </span>
-    </div>
-  );
-}
-
 /** The combiner at the end of the lanes; it lights up with the final verdict. */
 function CombinerBadge({
   combiner,
@@ -233,7 +192,6 @@ export function Branches({ data }: { data: BranchesResponse }) {
     trace && branchTrace?.word === trace.word ? branchTrace : null;
   const step = settled ? branchStepAt(current, settled.index) : undefined;
   const done = verdict !== null && current !== null;
-  const fan = combiner === "any";
   const count = data.branches.length;
 
   return (
@@ -249,27 +207,17 @@ export function Branches({ data }: { data: BranchesResponse }) {
       {branchProblem && <ErrorNotice problem={branchProblem} />}
       <div
         role="group"
-        aria-label={`${count} branches; ${COMBINERS[combiner].rule}${
-          fan ? ". A shared start state moves by ε into each branch" : ""
-        }`}
+        aria-label={`${count} branches; ${COMBINERS[combiner].rule}`}
         className="flex flex-col gap-3"
       >
         {data.branches.map((lane, i) => (
-          <div key={lane.index} className={clsx("relative", fan && "pl-10")}>
-            {fan && (
-              <Fan
-                first={i === 0}
-                last={i === count - 1}
-                active={trace !== null && settled?.index === 0}
-              />
-            )}
-            <Lane
-              lane={lane}
-              active={step?.active[i] ?? null}
-              accepting={step?.accepting[i] ?? null}
-              accepted={done ? current.accepted[i] : null}
-            />
-          </div>
+          <Lane
+            key={lane.index}
+            lane={lane}
+            active={step?.active[i] ?? null}
+            accepting={step?.accepting[i] ?? null}
+            accepted={done ? current.accepted[i] : null}
+          />
         ))}
       </div>
       <CombinerBadge

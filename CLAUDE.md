@@ -306,6 +306,17 @@ with one retry, and the 500-character cap. Tests use `tests/support/mock_llm.py`
 needs the network. The benchmark's rule+LLM score with the real model comes from
 `run_benchmark --llm` with a key; CI measures rule-only and a declining stand-in.
 
+**C19. No ε-moves in what is built (overrides the spec's ε-NFA output).** The
+constructions still join their parts with ε edges (Thompson, union, concatenation,
+star), but `compile()` ends with ε-removal, so every automaton that is verified,
+shown, simulated, exported or drawn as a Branches lane has no ε edge, for one
+condition or many. ε-removal is δ′(q, a) = δ(ECLOSE({q}), a) with q accepting iff
+ECLOSE({q}) ∩ F ≠ ∅; targets are not closed, so states entered only by ε become
+unreachable and are trimmed before naming. The explanation logs it as an
+`epsilon_removal` step. Decided by the developer: ε-NFAs are another team's topic.
+The model, closure and ε-free view code still handle ε edges (hand-built machines,
+the mutation tests' stray-ε mutant); the empty word ε as an input is unaffected.
+
 ## Diagram contract (§10.2)
 
 The server renders DOT → SVG with Graphviz and gives every element a stable id

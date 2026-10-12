@@ -98,12 +98,39 @@ def test_the_whole_flow(client: TestClient) -> None:
     ]
 
 
-def test_epsilon_labels_reach_the_trace_as_epsilon(client: TestClient) -> None:
-    automaton_id = build(client, {"type": "regex", "expr": "(ab)*"})
-    trace = client.post(f"/v1/automata/{automaton_id}/simulate", json={"word": "ab"}).json()
-    assert trace["steps"][0]["epsilon_layers"][0][0][1] == "ε"
-    assert any(edge[1] == "ε" for edge in trace["witness"])
-    assert client.get(f"/v1/automata/{automaton_id}").json()["verification"]["badge"] == "green"
+@pytest.mark.parametrize(
+    "language",
+    [
+        {"type": "regex", "expr": "(ab)*"},
+        {"type": "ends_with", "pattern": "ab"},
+        {
+            "type": "or",
+            "children": [
+                {"type": "contains", "pattern": "aa"},
+                {
+                    "type": "concat",
+                    "children": [
+                        {"type": "literal_set", "words": ["b"]},
+                        {"type": "star", "child": {"type": "literal_set", "words": ["a"]}},
+                    ],
+                },
+            ],
+        },
+    ],
+    ids=["regex", "single condition", "or with concat and star"],
+)
+def test_built_automata_have_no_epsilon_moves(client: TestClient, language: dict[str, Any]) -> None:
+    """C19: whatever the constructions used inside, the machine served has no ε edges."""
+    automaton_id = build(client, language)
+    detail = client.get(f"/v1/automata/{automaton_id}").json()
+    assert detail["kind"] != "enfa"
+    assert all(symbol != "ε" for _, symbol, _ in detail["five_tuple"]["delta"])
+    assert "ε" not in client.get(f"/v1/automata/{automaton_id}/table").json()["columns"]
+    graph = client.get(f"/v1/automata/{automaton_id}/diagram", params={"format": "json"}).json()
+    assert not any(edge["epsilon"] for edge in graph["edges"])
+    trace = client.post(f"/v1/automata/{automaton_id}/simulate", json={"word": "b"}).json()
+    assert all(step["epsilon_layers"] == [] for step in trace["steps"])
+    assert detail["verification"]["badge"] == "green"
 
 
 def test_identical_specifications_are_built_once(

@@ -1,4 +1,4 @@
-"""IR → the canonical ε-NFA, with a construction log for the explanation (spec §7)."""
+"""IR → the canonical NFA, free of ε-moves, with a construction log (spec §7, C19)."""
 
 from dataclasses import dataclass
 from typing import Final, assert_never
@@ -8,8 +8,8 @@ from nfa_studio.compile.combine import concat, intersection, star, union
 from nfa_studio.compile.naming import name_states
 from nfa_studio.compile.regex_parser import RegexSyntaxError, parse_regex
 from nfa_studio.compile.thompson import thompson
-from nfa_studio.core.determinize import negate
-from nfa_studio.core.model import Automaton
+from nfa_studio.core.determinize import negate, remove_epsilon
+from nfa_studio.core.model import Automaton, has_epsilon
 from nfa_studio.ir.limits import Budget
 from nfa_studio.ir.normalize import IRInvalid, normalize
 from nfa_studio.ir.schema import (
@@ -54,7 +54,7 @@ class Compiled:
 
 
 def compile(doc: IRDocument, budget: Budget | None = None) -> Compiled:
-    """Build the named ε-NFA for `doc`, logging each node in post-order.
+    """Build the named, ε-free NFA for `doc`, logging each node in post-order.
 
     The document is normalised first, so and/or children in any order give the
     identical machine. All nodes share one budget, and every node's machine is
@@ -64,7 +64,22 @@ def compile(doc: IRDocument, budget: Budget | None = None) -> Compiled:
     doc = normalize(doc)
     budget = budget or Budget()
     log: list[LogEntry] = []
-    auto = name_states(_compile(doc.language, doc.alphabet.symbols, budget, log))
+    built = _compile(doc.language, doc.alphabet.symbols, budget, log)
+    # CLAUDE.md C19: the machine shown, simulated and verified has no ε-moves, whatever
+    # the constructions above used to join their parts.
+    if has_epsilon(built):
+        built = remove_epsilon(built)
+        log.append(
+            LogEntry(
+                "epsilon_removal",
+                "ε-removal: each state gets, for every symbol, the states its ε-closure "
+                "reaches on that symbol, followed by their ε-closures, and accepts if its "
+                "ε-closure holds an accepting state. States entered only by ε moves are "
+                "then unreachable and dropped. The result is an NFA with no ε moves.",
+                len(built.states),
+            )
+        )
+    auto = name_states(built)
     n = len(auto.states)
     naming = (
         f"States were renamed q0 … q{n - 1} breadth-first from the start state, "

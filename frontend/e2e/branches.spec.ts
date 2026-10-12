@@ -73,7 +73,9 @@ test("contains 101 or ends with 00: ANY accepts", async ({ page }) => {
   await build(page, "contains 101 or ends with 00");
   await openBranches(page, 2);
   await expect(
-    page.getByRole("group", { name: /A shared start state moves by ε/ }),
+    page.getByRole("group", {
+      name: "2 branches; one accepting branch is enough",
+    }),
   ).toBeVisible();
   await simulate(page, "101");
   await expect(combined(page)).toHaveText(
